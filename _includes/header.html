@@ -1,0 +1,25 @@
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container-fluid">
+	<div class="navbar-header">
+	  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+		<span class="sr-only">Toggle navigation</span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	  </button>
+	<a class="navbar-brand" href="{{ site.url }}{{ site.baseurl }}/" style="display: flex; align-items: center;"> 
+		<img src="{{ site.url }}{{ site.baseurl }}/images/logopic/uc.png" style="width: 75px; margin-right: 5px; margin-top: 25px" alt="MIT Logo"> 
+		<b>S</b>eparation&nbsp;<b>T</b>hermodynamics and&nbsp; <b> E</b>xtraction&nbsp;<b>P</b>rocesses
+	</a>
+	</div>
+	<div class="collapse navbar-collapse" id="navbar-collapse-1">
+	  <ul class="nav navbar-nav navbar-right">
+		<li class="nav-item {% if page.permalink == '/' %}active {% endif %}"><a href="{{ site.url }}{{ site.baseurl }}/">Home</a></li>
+		<li class="nav-item {% if page.permalink == '/people' %}active {% endif %}"><a href="{{ site.url }}{{ site.baseurl }}/people">People</a></li>
+		<li class="nav-item {% if page.permalink == '/research' %}active {% endif %}"><a href="{{ site.url }}{{ site.baseurl }}/research">Research</a></li>
+		<li class="nav-item {% if page.permalink == '/publications' %}active {% endif %}"><a href="{{ site.url }}{{ site.baseurl }}/publications">Publications</a></li>
+		<li class="nav-item {% if page.permalink == '/positions' %}active {% endif %}"><a href="{{ site.url }}{{ site.baseurl }}/positions">Positions</a></li>
+	  </ul>
+	</div>
+  </div>
+</div>

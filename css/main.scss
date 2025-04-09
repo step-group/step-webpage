@@ -1,0 +1,174 @@
+---
+---
+    
+@import "bootstrap";
+
+img { margin-bottom: 24px; 
+     margin-top: 17px; 
+    border-radius:2%;
+}
+
+h1 {
+  margin-bottom: 44px;
+}
+
+body {
+	padding-top: 70px;
+  background-color: #fefeff;
+	font-family: Gill Sans,Gill Sans MT,Calibri,sans-serif; 
+  font-weight: 250;
+}
+
+figcaption {
+    text-align: right;
+    margin-top: -20px;
+    margin-bottom: 20px;
+}
+
+
+
+/* Top navigation bar */
+
+
+p.byline {
+	text-align: center;
+	font-size: 18px;
+	line-height: 36px;
+	margin-top: -24px;
+	margin-bottom: 48px;
+}
+
+
+pubtit {
+	font-weight: bold;
+}
+
+.container-fluid {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 1200px; /* or 950px */
+}
+
+.navbar-fixed-top {
+  background-color: #ffffff;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.navbar-brand {	
+	font-size: 24px;
+}
+
+/* Home, News */
+#newsid p {
+	text-align: left;
+}
+
+#homeidtmp h1 {
+	text-align: center;
+}
+
+#newsid img {
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
+/* Team & Publications */
+.image-cropper {
+    width: 175px;
+    height: 175px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 5px solid #f8f8f8;
+    margin: 0 auto;
+}
+
+.person-pic {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  bottom: 16px;
+  object-fit: cover;
+}
+
+.group-pic {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  bottom: 16px;
+  object-fit: cover;
+}
+
+#gridid img { margin: 16px 22px 6px 0;}
+#homeid img { margin: 0 0 0 0; border-radius:5%; box-shadow: 0px 0px 0px #888888 }
+#picid img { margin: 6px 3px 60px 6px; border-radius:1%; box-shadow: 2px 2px 5px #888888 }
+#gridid .row { margin-bottom: 24px; }
+
+
+/* Grid overrides */
+.col-sm-1, .col-sm-2, .col-sm-3, .col-sm-5, .col-sm-6,
+.col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
+	padding-left: 16px;
+	padding-right: 16px;
+}
+
+/* Grid overrides */
+.col-sm-4 {
+	padding-left: 26px;
+	padding-right: 26px;
+}
+
+
+/* Carousel */
+
+.carousel {
+    border-radius: 3px 3px 3px 3px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    margin-left: 15px;
+    margin-right: 26px;
+}
+
+.item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Black with 40% opacity */
+}
+
+.carousel-caption {
+  position: absolute;
+  font-size: 32px;
+  font-weight: 100;
+  left: 50%;
+  right: auto;
+  z-index: 10;
+  top: 50%; 
+  transform: translate(-50%, -50%);
+  width: 75%;
+  color: white; /* Ensure the text is white */
+}
+
+.carousel-indicators {
+  bottom: -10px; /* Adjust this value to move indicators down */
+}
+
+.image-container {
+  display: inline-block;
+}
+
+.carousel-inner .item {
+  text-align: center;
+}
+
+/* Software / Resources */
+
+.software-img {
+  width: 30px;
+  height: auto;
+  margin-right: 15px;
+}
