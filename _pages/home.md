@@ -1,7 +1,7 @@
 ---
-title: "Coley Research Group"
+title: "STEP Research Laboratory"
 layout: homelay
-excerpt: "Coley Research Group"
+excerpt: "STEP Research Laboratory"
 sitemap: false
 permalink: /
 ---

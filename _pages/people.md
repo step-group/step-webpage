@@ -1,7 +1,7 @@
 ---
-title: "Coley Research Group - People"
+title: "STEP Research Laboratory - People"
 layout: gridlay
-excerpt: "Coley Research Group: People"
+excerpt: "STEP Research Laboratory: People"
 sitemap: false
 permalink: /people
 ---

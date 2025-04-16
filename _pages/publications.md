@@ -1,7 +1,7 @@
 ---
-title: "Coley Lab - Publications"
+title: "STEP Research Laboratory - Publications"
 layout: publications
-excerpt: "Coley Lab -- Publications."
+excerpt: "STEP Research Laboratory-- Publications."
 sitemap: false
 permalink: /publications
 ---

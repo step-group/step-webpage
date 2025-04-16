@@ -1,5 +1,5 @@
 ---
-title: "Coley Research Group - Resources"
+title: "STEP Research Laboratory - Resources"
 layout: textlay
 excerpt: "Resources."
 sitemap: false

@@ -1,5 +1,5 @@
 ---
-title: "Coley Research Group - Positions"
+title: "STEP Research Laboratory - Positions"
 layout: textlay
 excerpt: "Positions"
 sitemap: false

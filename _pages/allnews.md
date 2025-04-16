@@ -1,7 +1,7 @@
 ---
-title: "Coley Research Group - News"
+title: "STEP Research Laboratory - News"
 layout: textlay
-excerpt: "Coley Lab at MIT."
+excerpt: "STEP Lab at @UC."
 sitemap: false
 permalink: /news
 ---
