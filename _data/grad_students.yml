@@ -1,3 +1,31 @@
+- name: Arturo Bastías
+  photo: Bastias_Arturo.jpg
+  info: PhD Student
+  email: aibastias@uc.cl
+  linkedin: https://www.linkedin.com/in/arturo-bast%C3%ADas-1411a8176/
+  description: Arturo received his B.Sc. in Chemical Engineering from the Pontificia Universidad Católica de Chile in 2018 and is currently pursuing a Ph.D. in Chemical Engineering at the same university. Co-advised by José Ricardo Pérez Correa, his research focuses on the parametrization of PC-SAFT and its application to modeling polyphenols in solid-liquid equilibria with green solvents.
+
+- name: Natalia Fuentes
+  photo: Fuentes_Natalia.jpg
+  info: PhD Student
+  email: nafuentes4@uc.cl
+  linkedin: https://www.linkedin.com/in/natalia-fuentes-jorquera/
+  description: Alex received his B.E. in Chemical Engineering and Chemistry from Vanderbilt University in 2023. As a Chemical Engineering PhD student at MIT, co-advised by Paula Hammond, he is interested in using high-throughput experimentation and machine learning to improve nanoparticle-based cancer treatments.
+
+- name: Sebastián Ormazábal 
+  photo: Ormazabal_Sebastian.png
+  info: PhD Student
+  email: slormazabal@uc.cl
+  linkedin: https://www.linkedin.com/in/s-ormazabal/
+  description: Alex received his B.E. in Chemical Engineering and Chemistry from Vanderbilt University in 2023. As a Chemical Engineering PhD student at MIT, co-advised by Paula Hammond, he is interested in using high-throughput experimentation and machine learning to improve nanoparticle-based cancer treatments.
+
+- name: Junior Lorenzo
+  photo: Lorenzo_Junior.png
+  info: PhD Student
+  email: jlorenzo2@uc.cl
+  linkedin: https://www.linkedin.com/in/junior-lorenzo-llanes/?locale=es_ES
+  description: Alex received his B.E. in Chemical Engineering and Chemistry from Vanderbilt University in 2023. As a Chemical Engineering PhD student at MIT, co-advised by Paula Hammond, he is interested in using high-throughput experimentation and machine learning to improve nanoparticle-based cancer treatments.
+
 - name: Javiera Molina
   photo: Molina_Javiera.jpg
   info: PhD Student
@@ -9,39 +37,4 @@
   photo: Llanes_Vanesa.jpg
   info: PhD Student
   email: vllanesh@estudiante.uc.cl
-  description: Alex received his B.E. in Chemical Engineering and Chemistry from Vanderbilt University in 2023. As a Chemical Engineering PhD student at MIT, co-advised by Paula Hammond, he is interested in using high-throughput experimentation and machine learning to improve nanoparticle-based cancer treatments.
-
-- name: Natalia Fuentes
-  photo: Fuentes_Natalia.jpg
-  info: PhD Student
-  email: nafuentes4@uc.cl
-  linkedin: https://www.linkedin.com/in/natalia-fuentes-jorquera/
-  description: Alex received his B.E. in Chemical Engineering and Chemistry from Vanderbilt University in 2023. As a Chemical Engineering PhD student at MIT, co-advised by Paula Hammond, he is interested in using high-throughput experimentation and machine learning to improve nanoparticle-based cancer treatments.
-
-- name: Arturo Bastías
-  photo: Bastias_Arturo.jpg
-  info: PhD Student
-  email: aibastias@uc.cl
-  linkedin: https://www.linkedin.com/in/arturo-bast%C3%ADas-1411a8176/
-  description: Arturo received his B.Sc. in Chemical Engineering from the Pontificia Universidad Católica de Chile in 2018 and is currently pursuing a Ph.D. in Chemical Engineering at the same university. Co-advised by José Ricardo Pérez Correa, his research focuses on the parametrization of PC-SAFT and its application to modeling polyphenols in solid-liquid equilibria with green solvents.
-
-- name: Sebastián Ormazábal 
-  photo: Ormazabal_Sebastian.png
-  info: PhD Student
-  email: slormazabal@uc.cl
-  linkedin: https://www.linkedin.com/in/s-ormazabal/
-  description: Alex received his B.E. in Chemical Engineering and Chemistry from Vanderbilt University in 2023. As a Chemical Engineering PhD student at MIT, co-advised by Paula Hammond, he is interested in using high-throughput experimentation and machine learning to improve nanoparticle-based cancer treatments.
-
-- name: Adolfo Cabrera 
-  photo: Cabrera_Adolfo.jpg
-  info: PhD Student
-  email: ascabrera@uc.cl
-  linkedin: https://www.linkedin.com/in/s-ormazabal/
-  description: Alex received his B.E. in Chemical Engineering and Chemistry from Vanderbilt University in 2023. As a Chemical Engineering PhD student at MIT, co-advised by Paula Hammond, he is interested in using high-throughput experimentation and machine learning to improve nanoparticle-based cancer treatments.
-
-- name: Junior Lorenzo
-  photo: Lorenzo_Junior.png
-  info: PhD Student
-  email: jlorenzo2@uc.cl
-  linkedin: https://www.linkedin.com/in/junior-lorenzo-llanes/?locale=es_ES
   description: Alex received his B.E. in Chemical Engineering and Chemistry from Vanderbilt University in 2023. As a Chemical Engineering PhD student at MIT, co-advised by Paula Hammond, he is interested in using high-throughput experimentation and machine learning to improve nanoparticle-based cancer treatments.
