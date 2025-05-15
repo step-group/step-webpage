@@ -1,30 +1,18 @@
 - name: Thermodynamic Modeling
-  color: "#77c8ad"
-  darker_color: "#447062"
+  color: "#4169E1"
+  darker_color: "#000080"
 - name: Deep Eutectic Solvents
-  color: "#f4667e"
-  darker_color: "#913c4a"
+  color: "#DC143C"
+  darker_color: "#8B0000"
 - name: Molecular Simulation
-  color: "#f79b5c"
-  darker_color: "#965e38"
+  color: "#228B22"
+  darker_color: "#006400"
 - name: Bioseparations
-  color: "#b8a0ff"
-  darker_color: "#665791"
-- name: Equilibrium
-  color: "#4eb7c1"
-  darker_color: "#25575c"
+  color: "#9400D3"
+  darker_color: "#4B0082"
 - name: Biocatalysis
-  color: "#4eb7c1"
-  darker_color: "#25575c"
-- name: Catalysis
-  color: "#4eb7c1"
-  darker_color: "#25575c"
-- name: Physical chemistry
-  color: "#4eb7c1"
-  darker_color: "#25575c"
-- name: Extraction
-  color: "#4eb7c1"
-  darker_color: "#25575c"
+  color: "#DAA520"
+  darker_color: "#B8860B"
 - name: Process Simulation
-  color: "#4eb7c1"
-  darker_color: "#25575c"
+  color: "#8B4513"
+  darker_color: "#800000"
