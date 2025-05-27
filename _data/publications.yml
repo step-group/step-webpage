@@ -41,7 +41,7 @@
   url: 'https://www.sciencedirect.com/science/article/abs/pii/S0896844624002584'
   doi: 'https://doi.org/10.1016/j.supflu.2024.106423'
   themes:
-    - Extraction
+    - Bioseparations
     - Thermodynamic Modeling
 
 - number: 51
@@ -69,7 +69,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.jced.4c00448'
   doi: 'https://doi.org/10.1021/acs.jced.4c00448'
   themes:
-    - Equilibrium
+    - Thermodynamic Modeling
     - Deep Eutectic Solvents
 
 - number: 49
@@ -108,7 +108,7 @@
   url: 'https://www.sciencedirect.com/science/article/abs/pii/S0959652624001234'
   doi: 'https://doi.org/10.1016/j.jclepro.2024.123456'
   themes:
-    - Physical chemistry
+    - Thermodynamic Modeling
 
 - number: 46
   title: "Assessing thermodynamics models for phase equilibria and interfacial properties relevant to the hydrogenation of carbon dioxide."
@@ -149,7 +149,7 @@
   url: 'https://www.mdpi.com/2076-3921/13/6/623'
   doi: 'https://doi.org/10.3390/antiox13060623'
   themes:
-    - Extraction
+    - Bioseparations
     - Deep Eutectic Solvents
 
 - number: 43
@@ -162,7 +162,7 @@
   url: 'https://www.sciencedirect.com/science/article/abs/pii/S1383586624002703'
   doi: 'https://doi.org/10.1016/j.seppur.2024.126531'
   themes:
-    - Extraction
+    - Bioseparations
     - Catalysis
 
 - number: 42
@@ -175,7 +175,7 @@
   url: 'https://www.sciencedirect.com/science/article/abs/pii/S0016236123034440'
   doi: 'https://doi.org/10.1016/j.fuel.2023.130830'
   themes:
-    - Extraction
+    - Bioseparations
     - Thermodynamic Modeling
 
 - number: 41
@@ -215,7 +215,7 @@
   url: 'https://www.sciencedirect.com/science/article/pii/S0008884623002211'
   doi: 'https://doi.org/10.1016/j.cemconres.2023.107307'
   themes:
-    - Physical chemistry
+    - Thermodynamic Modeling
 
 - number: 38
   title: "Effect of water and hydrogen bond acceptor on the density and viscosity of glycol-based eutectic solvents."
@@ -228,7 +228,6 @@
   doi: 'https://doi.org/10.1016/j.molliq.2023.122856'
   themes:
     - Deep Eutectic Solvents
-    - Physical Chemistry
     - Thermodynamic Modeling
 
 - number: 37
@@ -269,7 +268,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.iecr.3c01440'
   doi: 'https://doi.org/10.1021/acs.iecr.3c01440'
   themes:
-    - Extraction
+    - Bioseparations
     - Thermodynamic Modeling
 
 - number: 34
@@ -283,7 +282,7 @@
   url: 'https://www.mdpi.com/2076-3921/12/7/1446'
   doi: 'https://doi.org/10.3390/antiox12071446'
   themes:
-    - Extraction
+    - Bioseparations
     - Deep Eutectic Solvents
 
 - number: 36
@@ -311,7 +310,7 @@
   url: 'https://www.sciencedirect.com/science/article/abs/pii/S0167732223010358'
   doi: 'https://doi.org/10.1016/j.molliq.2023.122232'
   themes:
-    - Extraction
+    - Bioseparations
     - Thermodynamic Modeling
     - Molecular Simulation
     - Deep Eutectic Solvents
@@ -326,7 +325,7 @@
   url: 'https://www.sciencedirect.com/science/article/pii/S1383586623007566'
   doi: 'https://doi.org/10.1016/j.seppur.2023.123848'
   themes:
-    - Extraction
+    - Bioseparations
     - Process Simulation
 
 - number: 33
@@ -339,7 +338,7 @@
   url: 'https://www.sciencedirect.com/science/article/abs/pii/S2352152X2300590X'
   doi: 'https://doi.org/10.1016/j.est.2023.107193'
   themes:
-    - Catalysis
+    - Molecular Simulation
 
 - number: 32
   title: "Prediction of pH in multiphase multicomponent systems with ePC-SAFT advanced."
@@ -394,7 +393,7 @@
   url: 'https://www.sciencedirect.com/science/article/abs/pii/S0167732222004743'
   doi: 'https://doi.org/10.1016/j.molliq.2022.118936'
   themes:
-    - Extraction
+    - Bioseparations
     - Thermodynamic Modeling
     - Deep Eutectic Solvents
 
@@ -478,7 +477,6 @@
   doi: 'https://doi.org/10.1016/j.molliq.2021.117932'
   themes:
     - Deep Eutectic Solvents
-    - Equilibrium
     - Thermodynamic Modeling
 
 - number: 22
@@ -505,7 +503,6 @@
   doi: 'https://doi.org/10.1016/j.molliq.2021.116986'
   themes:
     - Deep Eutectic Solvents
-    - Physical chemistry
     - Thermodynamic Modeling
 
 - number: 20
@@ -519,8 +516,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.jpcc.0c11415'
   doi: 'https://doi.org/10.1021/acs.jpcc.0c11415'
   themes:
-    - Hydrodeoxygenation
-    - Catalysis
+    - Molecular Simulation
 
 - number: 19
   title: "Conversion of succinic acid over Ni and Co catalysts."
@@ -546,9 +542,8 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.jced.0c00784'
   doi: 'https://doi.org/10.1021/acs.jced.0c00784'
   themes:
-    - Equilibrium
-    - Deep Eutectic Solvents
     - Thermodynamic Modeling
+    - Deep Eutectic Solvents
 
 - number: 17
   title: "High-pressure vapor + liquid equilibria for the binary system CO2 + (E)-2-hexenal."
@@ -561,7 +556,6 @@
   doi: 'https://doi.org/10.1016/j.supflu.2020.105027'
   themes:
     - Thermodynamic Modeling
-    - Physical chemistry
 
 - number: 16
   title: "Estimation of thermodynamic properties and phase equilibria in systems of deep eutectic solvents by PC-SAFT EoS."
@@ -574,7 +568,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.iecr.0c05109'
   doi: 'https://doi.org/10.1021/acs.iecr.0c05109'
   themes:
-    - Deep eutectic solvents
+    - Deep Eutectic Solvents
     - Thermodynamic Modeling
 
 - number: 15
@@ -588,7 +582,7 @@
   url: 'https://www.sciencedirect.com/science/article/pii/S0016236120314010'
   doi: 'https://doi.org/10.1016/j.fuel.2020.118405'
   themes:
-    - Extraction
+    - Bioseparations
     - Thermodynamic Modeling
   
 
@@ -604,7 +598,7 @@
   doi: 'https://doi.org/10.1021/acs.jced.0c00715'
   themes:
     - Thermophysical Properties
-    - Physical chemistry
+    - Thermodynamic Modeling
     - Deep Eutectic Solvents
 
 - number: 13
@@ -619,7 +613,6 @@
   doi: 'https://doi.org/10.1021/acs.iecr.0c02292'
   themes:
     - Bioseparations
-    - Extraction
     - Thermodynamic Modeling
 
 - number: 12
@@ -646,7 +639,6 @@
   doi: 'https://doi.org/10.1021/acs.jced.9b01159'
   themes:
     - Thermodynamic Modeling
-    - Physical chemistry
     - Deep Eutectic Solvents
 
 - number: 11
@@ -660,7 +652,6 @@
   doi: 'https://doi.org/10.1016/j.jct.2019.02.010'
   themes:
     - Thermodynamic Modeling
-    - Physical chemistry
 
 - number: 10
   title: "A Study of the Hydrodeoxygenation of Anisole over Re-MoOₓ/TiO₂ Catalyst."
@@ -698,7 +689,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.iecr.7b01497'
   doi: 'https://doi.org/10.1021/acs.iecr.7b01497'
   themes:
-    - Equilibrium
+    - Thermodynamic Modeling
 
 - number: 7
   title: "Comparison of Ionic Liquids to Conventional Organic Solvents for Extraction of Aromatics from Aliphatics."
@@ -711,7 +702,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.jced.6b00077'
   doi: 'https://doi.org/10.1021/acs.jced.6b00077'
   themes:
-    - Equilibrium
+    - Bioseparations
 
 - number: 6
   title: "Non-random two-liquid modelling of switchable-hydrophilicity solvent systems: N,N-Dimethylcyclohexanamine, water, and toluene."
@@ -724,7 +715,7 @@
   url: 'https://www.sciencedirect.com/science/article/pii/S0378381215301370'
   doi: 'https://doi.org/10.1016/j.fluid.2015.09.032'
   themes:
-    - Equilibrium
+    - Thermodynamic Modeling
 
 - number: 5
   title: "Solubility of CO2 in [1-n-butylthiolanium] [Tf2N] + toluene mixtures: Liquid-liquid phase split separation and modelling."
@@ -737,7 +728,7 @@
   url: 'https://royalsocietypublishing.org/doi/10.1098/rsta.2015.0011'
   doi: 'https://doi.org/10.1098/rsta.2015.0011'
   themes:
-    - Equilibrium
+    - Thermodynamic Modeling
 
 - number: 4
   title: "Liquid-liquid phase split in ionic liquid+toluene mixtures induced by CO2."
@@ -750,7 +741,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/je400542b'
   doi: 'https://doi.org/10.1021/je400542b'
   themes:
-    - Equilibrium
+    - Thermodynamic Modeling
 
 - number: 3
   title: "On the high-pressure solubilities of carbon dioxide in several ionic liquids."
@@ -763,7 +754,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/je400542b'
   doi: 'https://doi.org/10.1021/je400542b'
   themes:
-    - Equilibrium
+    - Thermodynamic Modeling
 
 - number: 2
   title: "Solubility of nutraceutical carotenoid compounds in pure supercritical CO2 and modified with triolein or ethanol."
