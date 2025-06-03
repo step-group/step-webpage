@@ -9,7 +9,7 @@ permalink: /research
 # Research
 
 
-### Overview 
+## Overview 
 ---
 <div style="text-align: justify">
 Our laboratory focuses on the comprehensive study and development of separation processes, employing a multidisciplinary approach that combines molecular modeling, thermodynamic analysis, experimental techniques, and process simulation. Our research is driven by the need to design more efficient, sustainable, and innovative separation systems applicable across various sectors, including the chemical industry, food processing, and biotechnology. A core strength of our work lies in the use of molecular and thermodynamic tools to understand the behavior of complex systems at the microscopic level. We investigate phase equilibria, solute–solvent interactions, and activity coefficient models to accurately predict separation performance. These studies often involve the use of predictive models such as COSMO-RS and PC-SAFT, allowing us to screen solvents and systems in silico before experimental validation. This methodology has proven especially valuable in identifying suitable green solvents, such as ionic liquids and deep eutectic solvents, for the use in separation processes as shown in the following Figure.
@@ -68,8 +68,64 @@ There are two flavors and fragrances of industrial interest that can be produced
 <img style="width: 65%;" src="{{ site.url }}{{ site.baseurl }}/images/researchpic/framework_biocat.jpg" alt="Research workflow diagram"/>
 </div>
 
-The project seeks to propose a (1) tailored liquid systems that will boost or even enable complex (bio)chemical reactions and downstream processing optimization and a (2) tailored liquid system that guarantee the stability and targeted functionality of biological catalyst. The project’s first aim is to advance knowledge-enabled design of well-defined liquid model systems, which requires that the underlying phenomena are understood on a molecular level. For this, thermodynamics models such as COSMO-RS and PC-SAFT will be used to understand the interactions within the liquid system and docking or molecular dynamics simulations to understand the interactions between the protein and the liquid system. The development of physics-based models for liquid systems is hindered by the scarcity of experimental data reporting on molecular interactions and molecular structure in these systems. Without this data, one cannot understand the origin of the often strong non-linear and non-additive interplay between the composition of complex liquid systems and target properties nor develop models that capture this behavior. Once promising liquid systems are selected, their effect on kinetic and equilibrium properties of the biocatalytic reaction will be experimentally tested, focusing mainly on concentration and water effects. This will allow the models to be adjusted to the behavior of the reaction to optimize the downstream process using a two-phase system. This will allow the creation of a toolbox that allows predicting the effect of various solvents on the esterification reaction, reducing the need for costly trial-and-error experiments for the selection of solvents in this reaction and optimizing a reaction with high industrial potential in Chile adding value to the lignocellulose residues.</div>
+The project seeks to propose a (1) tailored liquid systems that will boost or even enable complex (bio)chemical reactions and downstream processing optimization and a (2) tailored liquid system that guarantee the stability and targeted functionality of biological catalyst. The project’s first aim is to advance knowledge-enabled design of well-defined liquid model systems, which requires that the underlying phenomena are understood on a molecular level. For this, thermodynamics models such as COSMO-RS and PC-SAFT will be used to understand the interactions within the liquid system and docking or molecular dynamics simulations to understand the interactions between the protein and the liquid system. The development of physics-based models for liquid systems is hindered by the scarcity of experimental data reporting on molecular interactions and molecular structure in these systems. Once promising liquid systems are selected, their effect on kinetic and equilibrium properties of the biocatalytic reaction will be experimentally tested, focusing mainly on concentration and water effects. This will allow the models to be adjusted to the behavior of the reaction to optimize the downstream process using a two-phase system. This will allow the creation of a toolbox that allows predicting the effect of various solvents on the esterification reaction, reducing the need for costly trial-and-error experiments for the selection of solvents in this reaction and optimizing a reaction with high industrial potential in Chile adding value to the lignocellulose residues.
 
-
-
+## Finished Projects 
+---
+<ul>
+  <li>
+    Concurso Piloto RCER | Principal Investigator | 2023 - 2024 | &rarr; Development of protein and carbohydrate-enriched extracts
+    from Chilean algae
+  </li>
+  <li>
+    Seed Fund ING UC | Principal Investigator | 2024 | &rarr; In-situ product removal of 2-phenylethanol from a fermentation broth: yeast selection, extraction and purification.
+  </li>
+    <li>
+    Fondecyt Regular 2022 No 1220763 | Co-Investigator | 2022-2026 | &rarr; Towards a more sustainable process: Upgrading of lignin-derived compounds in a one-pot process
+with in-situ produced H2 over Re and Mo carbides supported on carbon-based materials
+  </li>
+    <li>
+    Fondecyt Regular 2022 No 1221451 | Co-Investigator | 2022-2025 | &rarr; Supercritical extraction of plant flavonoids using aqueous-ethanol-modified carbon dioxide
+  </li>
+    <li>
+    Fondecyt Regular 2021 No 1211209 | Co-Investigator | 2021-2025 | &rarr; Biorefinery of urban greening waste for the production of solid biofuels and chemical building
+blocks, based on a hydrothermal carbonization process
+  </li>
+    <li>
+    Seed Fund ING UC | Principal Investigator | 2023 | &rarr; Computational screening, experiments, and multicriteria selection of solvents for the recovery and
+    purification of molecules from bio-oil.
+  </li>
+      <li>
+    Seed Fund ING UC | Principal Investigator | 2023 | &rarr; Computational screening, experiments, and multicriteria selection of solvents for the recovery and
+    purification of molecules from bio-oil.
+  </li>
+    <li>
+    Millenium Nuclei | Adjunt Researcher | 2021-2023 | &rarr; Millenium Nuclei on Catalytic Processes towards Sustainable Chemistry.
+  </li>
+      <li>
+    FONDEF IDeA I+D ID21I10323 | Alternate Director | 2022-2023 | &rarr; Proposed new method for manufacturing Portland cement, significantly reducing CO2 emissions and generating green hydrogen as a byproduct.
+  </li>
+    <li>
+    Seed Fund ING UC | Principal Investigator | 2022 | &rarr; Structure/solubility relationship between solid polyphenols and aqueous solutions of deep eutectic solvents for improving their solubility in the liquid phase.
+  </li>
+      <li>
+    Seed Fund ING UC | Principal Investigator | 2021 | &rarr; Extraction of 5-hydroxymethylfurfural from ionic liquids using CO2.
+  </li>
+      <li>
+    Fondecyt Regular 2018 No 1180982 | Co-Investigator | 2021-2022 | &rarr; Carbon–Metal hybrids catalysts for upgrading of biomass derivatives at the Liquid-Liquid Interface
+in water/oil emulsions
+  </li>
+        <li>
+    Seed Fund ING UC | Principal Investigator | 2020 | &rarr; Strategies for predicting and validating the in-situ liquid-liquid extraction of β-ionone from water
+  </li>
+    <li>
+    International Networks PCI REDI170207 | Principal Investigator | 2017-2019 | &rarr; Modeling transport properties and phase equilibria of aqueous mixtures of deep eutectic solvents for
+polyphenols extraction
+  </li>
+      <li>
+    Fondecyt de Iniciación 2016 No 11160882 | Principal Investigator | 2016-2019 | &rarr; Measurement and prediction of the recovery of low viscosity deep eutectic solvents and ionic liquids
+from organic compounds using a gas at moderate pressures: Potential tool for solvent regeneration in extraction
+processes
+  </li>
+</ul>
 

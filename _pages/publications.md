@@ -40,7 +40,7 @@ permalink: /publications
 <!-- START OF PAGE -->
 # Publications
 
-(Last updated May 15, 2025. See [Google Scholar](https://scholar.google.com/citations?hl=en&user=j2YSiZgAAAAJ&view_op=list_works&sortby=pubdate) for most up-to-date publications)
+(Last updated June, 2025. See Google Scholar profiles of [Dr. Canales](https://scholar.google.com/citations?hl=en&user=j2YSiZgAAAAJ&view_op=list_works&sortby=pubdate) and [Dr. Gajardo-Parra](https://scholar.google.com/citations?hl=es&user=awH9t5sAAAAJ&view_op=list_works&sortby=pubdate) for most up-to-date publications)
 
 <!-- Display all possible research themes as filter buttons -->
 <p>

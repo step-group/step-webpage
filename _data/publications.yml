@@ -31,8 +31,87 @@
 #     - metabolomics
 #     - data
 
+- number: 58
+  title: "Effect of Trimethylamine-N-Oxide (TMAO) and Sorbitol on the Catalytic Activity of Candida boidinii Formate Dehydrogenase"
+  authors: Perez-Erviti, J.; Almeida-Hernández, Y.; Mieres-Perez, J.; <b>Gajardo-Parra, N.F.</b>; Winter, R.; Held, C.; Sadowski, G.; Sanchez-Garcia, E.
+  journal: ChemCatChem
+  volume: In press
+  pages: e202401961
+  year: 2025
+  url: 'https://chemistry-europe.onlinelibrary.wiley.com/doi/full/10.1002/cctc.202401961'
+  doi: 'https://doi.org/10.1002/cctc.202401961'
+  themes:
+    - Biocatalysis
+    - Molecular Simulation
+
+- number: 57
+  title: "Use of Hansen solubility parameters to select supercritical carbon dioxide cosolvents for improved extraction selectivity: Case study on green tea decaffeination"
+  authors: del Valle, J.M.; Cuellar, L.; <b>Canales, R.I.</b>; de la Fuente, J.; Núñez, G.A.
+  journal: Journal of Food Engineering
+  volume: 369
+  pages: 112538
+  year: 2025
+  url: 'https://www.sciencedirect.com/science/article/pii/S0260877425000731'
+  doi: 'https://doi.org/10.1016/j.jfoodeng.2025.112538'
+  themes:
+    - Bioseparations
+    - Thermodynamic Modeling
+
+- number: 56
+  title: "A sustainable approach to obtain polyphenols from Chilean wild murta, Ugni candollei B., and Ugni molinae T., using eutectic solvents and advanced extraction techniques"
+  authors: Fuentes-Jorquera, N; Villalva, M.; Pérez-Jiménez, J.; González-Miquel, M; Gonzalez, E.; Mariotti-Celis, M.S.; Pérez-Correa, R.; <b>Canales, R.I.</b>
+  journal: Innovative Food Science & Emerging Technologies
+  volume: 102
+  pages: 104017
+  year: 2025
+  url: 'https://www.sciencedirect.com/science/article/pii/S1466856425001018'
+  doi: 'https://doi.org/10.1016/j.ifset.2025.104017'
+  themes:
+    - Bioseparations
+    - Deep Eutectic Solvents
+
+- number: 55
+  title: "Understanding Solute-Hydrotrope Aggregation in Aqueous Solutions: A Molecular Dynamics Approach"
+  authors: Cea-Klapp, E.; Abrances, D.; Marin-Rimoldi, E.; <b>Gajardo-Parra, N.F.</b>; <b>Canales, R.I.</b>; Garrido, J.M.; Maginn, E.
+  journal: The Journal of Physical Chemistry B
+  volume: 129
+  pages: 5016-5025
+  year: 2025
+  url: 'https://pubs.acs.org/doi/full/10.1021/acs.jpcb.5c01542'
+  doi: 'https://doi.org/10.1021/acs.jpcb.5c01542'
+  themes:
+    - Thermodynamic Modeling
+    - Molecular Simulation
+
+- number: 54
+  title: "An overview of HSP and COSMO-RS for computational green solvent screening: Applications in biomass valorization"
+  authors: Sanchez Bragagnolo, F.; Ormazábal-Latorre, S.; <b>Canales, R.I.</b>; Rostagno, M.; Esteban, J.; González-Miquel, M.
+  journal: TrAC Trends in Analytical Chemistry
+  volume: 189
+  pages: 118272
+  year: 2025
+  url: 'https://www.sciencedirect.com/science/article/pii/S0165993625001402'
+  doi: 'https://doi.org/10.1016/j.trac.2025.118272'
+  themes:
+    - Bioseparations
+    - Thermodynamic Modeling
+
+- number: 53
+  title: "COSMO-RS-based solvent screening and experimental analysis for recovering added-value chemicals from the bio-oil aqueous phase"
+  authors: Lorenzo-LLanes, J.; Palomar, J.; Escalona, N.; <b>Canales, R.I.</b>
+  journal: Separation and Purification Technology
+  volume: 369
+  pages: 133104
+  year: 2025
+  url: 'https://www.sciencedirect.com/science/article/pii/S1383586625017010'
+  doi: 'https://doi.org/10.1016/j.seppur.2025.133104'
+  themes:
+    - Bioseparations
+    - Thermodynamic Modeling
+
+
 - number: 52
-  title: "An experimental methodology to validate the use of hydroethanolic mixtures as suspending medium/modifier for the supercritical CO₂ extraction of suspensions."
+  title: "An experimental methodology to validate the use of hydroethanolic mixtures as suspending medium/modifier for the supercritical CO₂ extraction of suspensions"
   authors: Mamani, M.A.; del Valle, J.M.; Aravena, P.; <b>Canales, R.I.</b>
   journal: Journal of Supercritical Fluids
   volume: 216
@@ -45,7 +124,7 @@
     - Thermodynamic Modeling
 
 - number: 51
-  title: "Assessing the effect of deep eutectic solvents on α-chymotrypsin thermal stability and activity."
+  title: "Assessing the effect of deep eutectic solvents on α-chymotrypsin thermal stability and activity"
   authors: <b>Gajardo-Parra, N.F.</b>; Cea-Klapp, E.; Chandra, A.; <b>Canales, R.I.</b>; Garrido, J.M.; Held, C.; Guajardo, N.V.
   journal: ChemSusChem
   volume: 18
@@ -60,7 +139,7 @@
     - Molecular Simulation
 
 - number: 50
-  title: "(−)-Epicatechin solubility in aqueous mixtures of eutectic solvents and their constituents."
+  title: "(−)-Epicatechin solubility in aqueous mixtures of eutectic solvents and their constituents"
   authors: Bastías-Barra, A.I.; <b>Gajardo-Parra, N.F.</b>; Cea-Klapp, E.; Arroyo-Avirama, A.F.; Garrido, J.M.; Held, C.; Pérez-Correa, J.R.; <b>Canales, R.I.</b>
   journal: Journal of Chemical and Engineering Data
   volume: 69
