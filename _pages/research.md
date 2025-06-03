@@ -11,21 +11,17 @@ permalink: /research
 
 ### Overview 
 ---
-We work at the interface of chemistry and machine learning to develop models that understand how molecules behave, interact, and react and use that knowledge to engineer new ones. Much of our work focuses on improving computational strategies for small molecule drug discovery, molecular optimization, synthesis planning, and structure elucidation. A long-term goal of our work is to enable autonomous molecular discovery, where hypotheses are proposed algorithmically and tested via experiments with minimal human intervention.
+<div style="text-align: justify">
+Our laboratory focuses on the comprehensive study and development of separation processes, employing a multidisciplinary approach that combines molecular modeling, thermodynamic analysis, experimental techniques, and process simulation. Our research is driven by the need to design more efficient, sustainable, and innovative separation systems applicable across various sectors, including the chemical industry, food processing, and biotechnology. A core strength of our work lies in the use of molecular and thermodynamic tools to understand the behavior of complex systems at the microscopic level. We investigate phase equilibria, solute–solvent interactions, and activity coefficient models to accurately predict separation performance. These studies often involve the use of predictive models such as COSMO-RS and PC-SAFT, allowing us to screen solvents and systems in silico before experimental validation. This methodology has proven especially valuable in identifying suitable green solvents, such as ionic liquids and deep eutectic solvents, for the use in separation processes as shown in the following Figure.
 
 <div style="text-align: center">
-<img style="width: 40%;" src="{{ site.url }}{{ site.baseurl }}/images/researchpic/discovery-1.png" alt="Chemical discovery overview"/>
+<img style="width: 90%;" src="{{ site.url }}{{ site.baseurl }}/images/researchpic/framework_2.png" alt="Chemical discovery overview"/>
 </div>
 
-Small molecules are the predominant modality for medicines, chemical probes, organocatalysts, and specialty monomers among others. They are typically discovered through an iterative process of designing candidate compounds, synthesizing them, and testing their performance, where each repeat of the cycle requires weeks or months. The rate at which this process yields successful compounds can be limited by bottlenecks and mispredictions at all three stages and is plagued by inefficiencies, including underutilization of available data resulting in inadequate predictions of compound performance, compound selection based on intuition or synthetic ease rather than information content, and frequent manual intervention subject to human bias. For example, the hit-to-lead and lead optimization stages of small molecule drug discovery, while only part of the overall pipeline, require several years and millions of dollars for each clinical candidate. Even longer timescales are required to bring a new material to market.
+On the process side, we integrate experimental methods with process simulation platforms like Aspen Plus to evaluate and optimize separation units, such as distillation columns, membrane modules, and liquid-liquid extractors. These tools enable us to analyze energy demands, assess environmental impact, and propose design improvements that enhance the overall sustainability of industrial processes. Our experimental work provides critical data to validate simulation models and test new operational strategies, contributing to a more reliable understanding of real-world systems. Our research also extends into the food and biotechnology industries. In the food sector, we develop processes for the selective extraction and concentration of bioactive compounds, using environmentally friendly technologies such as aqueous two-phase systems and ultrasound-assisted extraction. These techniques are designed to retain the functional integrity of natural ingredients while reducing the reliance on organic solvents. In biotechnology, we focus on the extraction and stablization of proteins and enzymes, often exploring innovative biphasic systems and functionalized materials to improve yield and specificity.
 
-The discovery of these molecules—and scientific discovery more generally—is a problem of inference from incomplete and imperfect information, for which techniques in artificial intelligence are well-suited. However, there are a number of bottlenecks in our current approach to molecular discovery (a few are summarized below in red); overcoming them will require a number of methodological advances (a few are summarized below in blue).
-
-<div style="text-align: center">
-<img style="width: 100%;" src="{{ site.url }}{{ site.baseurl }}/images/researchpic/autonomous-workflow-1024x269.png" alt="Autonomous discovery workflow diagram"/>
+What unifies our research across these diverse areas is the commitment to advance the science of separation through systematic integration of computational, experimental, and engineering approaches. Our recent efforts have explored hybrid methodologies that link thermodynamics with high-throughput screening and simulation, which is opening new frontiers in materials discovery and process intensification. Ultimately, our work contributes to the development of scalable, sustainable, and high-performance separation technologies that address critical challenges in modern industry. Whether enhancing the efficiency of chemical production, improving the nutritional quality of food products, or supporting the production of high-purity bioproducts, our laboratory remains at the forefront of innovation in separation process engineering.
 </div>
-
-For a slightly-outdated comprehensive overview of autonomous discovery in the chemical sciences, including a discussion of key challenges, please read our 2019 review article and perspective in Angewandte Chemie or on arxiv: [part one](https://arxiv.org/abs/2003.13754), [part two](https://arxiv.org/abs/2003.13755). Our work falls under the broader umbrella of "[AI for Science](https://www.nature.com/articles/s41586-023-06221-2)".
 
 <br/>
 
@@ -45,18 +41,6 @@ For a slightly-outdated comprehensive overview of autonomous discovery in the ch
 
 This work aims to study potential liquid absorbents that could effectively capture CO2 from post-combustion industrial sources. These sorbents should be able to release CO2 for its further use in the hydrogenation reactions without losing their capability to be reused in a new capture/release cycle. Absorbents that show these potential capabilities are functionalized deep eutectic solvents in liquid form or encapsulated. In the second stage, novel catalysts based on NiGa/CeOx will be studied to hydrogenate CO2 into methanol, and functionalized graphene oxides will be targeted as attractive catalysts for producing hydrocarbons. A process design of the capture and conversion alternatives, along with a techno-economic analysis, will be performed for studying feasible scaling options. Also, a life-cycle assessment is expected for analyzing the deep eutectic solvents and catalysts used for capture and conversion, respectively, and also for the processes investigated. Finally, using the previous information, a prototype of the optimized CO2 capture unit coupled to the CO2 conversion unit will be set up at laboratory scale. Then, investigation in TRL 3 will finish at TRL 4 after accomplishing the objectives of this project.
 
-
-_Selected publications (screening/selection/non-generative):_
-<ul style="font-size: smaller">
-<li>Fromer, J., Volkova, A.D., Coley, C.W. "Optimal compound downselection to promote diversity and parallel chemistry". <i>arxiv:2503.13627</i> (2024)</li>
-<li>Fromer, J., Coley, C.W. "An algorithmic framework for synthetic cost-aware decision making in molecular design". <i>Nat. Comp. Sci.</i> (2024)</li>
-<li>Levin, I., Fortunato, M.E., Tan, K.L., Coley, C.W. "Computer-aided evaluation and exploration of chemical spaces constrained by reaction pathways". <i>AIChE J.</i> (2023)</li>
-<li>Fromer, J.C., Graff, D.E., Coley, C.W. "Pareto optimization to accelerate multi-objective virtual screening". <i>Patterns</i> (2024)</li>
-<li>Graff, D. E., Aldeghi, M., Marrone, J. A., Jordan, K. E., Pyzer-Knapp, E. O., Coley, C. W. “Self-focusing virtual screening with active design space pruning”. <i>J. Chem. Inf. Model.</i> (2022)</li>
-<li>Graff, D. E., Shakhnovich, E. I., Coley, C. W. “Accelerating high-throughput virtual screening through molecular pool-based active learning”. <i>Chem. Sci.</i> (2021)</li>
-</ul>
-
-
 ### In-situ product removal of aromas produced by fermentation: solvent selection and solute purification
 
 <b>Grant number:</b>  1240931  &nbsp; |  &nbsp; <b>Funding period:</b> 2024-2028   &nbsp; |  &nbsp; <b>Investigators:</b> Roberto Canales   &nbsp; | &nbsp;  <b>Collaborators:</b> René Cabezas
@@ -72,18 +56,6 @@ An interesting alternative to chemically produced flavors and fragrances is biot
 
 There are two flavors and fragrances of industrial interest that can be produced by fermentation and selected for this proposal: 2-phenylethanol, and -decalactone. The work methodology is divided into three main steps: (1) selection of yeast and the extracting solvent, (2) solute extraction from the fermentation broth via in-situ or membrane-assisted liquid-liquid extraction using the solvent selected in step (1), and (3) solute purification and solvent recovery. For step (1), the objective is to select yeasts provided by the Phaff Yeast Culture Collection from The University of California Davis to improve the production of the aroma and combine a predictive selection of solvents using COSMO-RS with Health, Safety, and Environmental guides for assessing potential extractive solvents. Predictive selection will be validated with experimental liquid-liquid equilibrium measurements and vapor-liquid equilibrium measurements are performed for feeding step (3). Once the solvents are selected in the previous step, they need to pass a biocompatibility test with the yeasts used for producing the aromas, to assess their applicability in the real in-situ extraction from the fermentative system, otherwise, they can be used in a membrane-assisted liquid-liquid extraction. Thus, for step (2) the selected solvents will be tested for extracting the aromas in the real fermentative system. Finally, for step (3) the study of the aroma + solvent mixture will be performed to understand if they can be separated by distillation to purify the aroma and recover the solvent for a new extraction cycle. This study will be performed from a process design by simulation in Aspen Plus using COSMO-based models or PC-SAFT as the thermodynamic tool for liquid-liquid extraction and the distillation steps. Finally, the best solvents are prioritized with an analytical hierarchy process based on sustainability indicators from the simulation.
 
-
-_Selected publications (screening/selection/non-generative):_
-<ul style="font-size: smaller">
-<li>Fromer, J., Volkova, A.D., Coley, C.W. "Optimal compound downselection to promote diversity and parallel chemistry". <i>arxiv:2503.13627</i> (2024)</li>
-<li>Fromer, J., Coley, C.W. "An algorithmic framework for synthetic cost-aware decision making in molecular design". <i>Nat. Comp. Sci.</i> (2024)</li>
-<li>Levin, I., Fortunato, M.E., Tan, K.L., Coley, C.W. "Computer-aided evaluation and exploration of chemical spaces constrained by reaction pathways". <i>AIChE J.</i> (2023)</li>
-<li>Fromer, J.C., Graff, D.E., Coley, C.W. "Pareto optimization to accelerate multi-objective virtual screening". <i>Patterns</i> (2024)</li>
-<li>Graff, D. E., Aldeghi, M., Marrone, J. A., Jordan, K. E., Pyzer-Knapp, E. O., Coley, C. W. “Self-focusing virtual screening with active design space pruning”. <i>J. Chem. Inf. Model.</i> (2022)</li>
-<li>Graff, D. E., Shakhnovich, E. I., Coley, C. W. “Accelerating high-throughput virtual screening through molecular pool-based active learning”. <i>Chem. Sci.</i> (2021)</li>
-</ul>
-
-
 ### Tailored liquid systems for biocatalytic reactions
 
 <b>Grant number:</b> 3250050  &nbsp; |  &nbsp; <b>Funding period:</b> 2025-2028   &nbsp; |  &nbsp; <b>Investigators:</b> Nicolás Gajardo-Parra   &nbsp; | &nbsp;  <b>Collaborators:</b> Nadia Guajardo 
@@ -93,19 +65,11 @@ _Selected publications (screening/selection/non-generative):_
 <div style="text-align: justify">The fundamentals behind the effects of liquid phase properties on reaction performance are often not rationalized in detail. Instead, decision steps in (bio)chemical process design are generally based on empirical knowledge, lacking a systematic decision framework. The main objective of this project is to select a optimal solvent for the development of a sustainable biocatalytic systems to obtain biolubricants through an enzymatic esterification reaction. The project will use a commercially available immobilized lipase for the biocatalytic esterification of 5-(hydroxymethyl)furfural. 
 
 <div style="text-align: center">
-<img style="width: 85%;" src="{{ site.url }}{{ site.baseurl }}/images/researchpic/workflow.png" alt="Research workflow diagram"/>
+<img style="width: 65%;" src="{{ site.url }}{{ site.baseurl }}/images/researchpic/framework_biocat.jpg" alt="Research workflow diagram"/>
 </div>
 
 The project seeks to propose a (1) tailored liquid systems that will boost or even enable complex (bio)chemical reactions and downstream processing optimization and a (2) tailored liquid system that guarantee the stability and targeted functionality of biological catalyst. The project’s first aim is to advance knowledge-enabled design of well-defined liquid model systems, which requires that the underlying phenomena are understood on a molecular level. For this, thermodynamics models such as COSMO-RS and PC-SAFT will be used to understand the interactions within the liquid system and docking or molecular dynamics simulations to understand the interactions between the protein and the liquid system. The development of physics-based models for liquid systems is hindered by the scarcity of experimental data reporting on molecular interactions and molecular structure in these systems. Without this data, one cannot understand the origin of the often strong non-linear and non-additive interplay between the composition of complex liquid systems and target properties nor develop models that capture this behavior. Once promising liquid systems are selected, their effect on kinetic and equilibrium properties of the biocatalytic reaction will be experimentally tested, focusing mainly on concentration and water effects. This will allow the models to be adjusted to the behavior of the reaction to optimize the downstream process using a two-phase system. This will allow the creation of a toolbox that allows predicting the effect of various solvents on the esterification reaction, reducing the need for costly trial-and-error experiments for the selection of solvents in this reaction and optimizing a reaction with high industrial potential in Chile adding value to the lignocellulose residues.</div>
 
 
-_Selected publications (screening/selection/non-generative):_
-<ul style="font-size: smaller">
-<li>Fromer, J., Volkova, A.D., Coley, C.W. "Optimal compound downselection to promote diversity and parallel chemistry". <i>arxiv:2503.13627</i> (2024)</li>
-<li>Fromer, J., Coley, C.W. "An algorithmic framework for synthetic cost-aware decision making in molecular design". <i>Nat. Comp. Sci.</i> (2024)</li>
-<li>Levin, I., Fortunato, M.E., Tan, K.L., Coley, C.W. "Computer-aided evaluation and exploration of chemical spaces constrained by reaction pathways". <i>AIChE J.</i> (2023)</li>
-<li>Fromer, J.C., Graff, D.E., Coley, C.W. "Pareto optimization to accelerate multi-objective virtual screening". <i>Patterns</i> (2024)</li>
-<li>Graff, D. E., Aldeghi, M., Marrone, J. A., Jordan, K. E., Pyzer-Knapp, E. O., Coley, C. W. “Self-focusing virtual screening with active design space pruning”. <i>J. Chem. Inf. Model.</i> (2022)</li>
-<li>Graff, D. E., Shakhnovich, E. I., Coley, C. W. “Accelerating high-throughput virtual screening through molecular pool-based active learning”. <i>Chem. Sci.</i> (2021)</li>
-</ul>
+
 
