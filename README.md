@@ -1,10 +1,10 @@
-# Coley Research Group Website
+# STEP Research Group Website
 
-This is the repo for the website of the Coley Research group at MIT. It is modified on top of a Jekyll template developed by the Allan Lab.
+This is the repository for the website of the STEP research group at PUC Chile. Template was taken from the Coley group from MIT.
 
 ## Contributor Guide
 
-All Coley Group members are free to make changes and additions to the website (such as adding/removing themselves to/from the "People" page) through this repo, pending approval. The existing templating combined with the following guide should hopefully make this process as painless as possible. Stylistic or template change suggestions are also welcome but may require navigating some messy templates or CSS.
+Selected group members are able to make changes and additions to the website (such as adding/removing themselves to/from the "People" page) through this repo, pending approval. The existing templating combined with the following guide should hopefully make this process as painless as possible. Stylistic or template change suggestions are also welcome but may require navigating some messy templates or CSS.
 
 Before you do anything, make sure you have [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) installed on your machine. Then, **(1)** fork this repo and **(2)** clone the forked repo to your local machine with the command:
 ```bash
@@ -80,4 +80,5 @@ The following have been set up to be similarly easy to add new content to. Hopef
 - Group photos (`_data/photos.yml`, images go in `images/grouppic/`)
 - Open source software (`_data/software.yml`, logos go in `images/logopic`)
 - Research relevant to Connor's directions on the "Research" page (`_data/research.yml`)
+
 - WIP: The carousel highlighting recent work still needs to be refactored to be easily editable with `.yml` files. For now, they are manually declared in `_includes/carousel.html` with pictures in `image/carouselpic`)
