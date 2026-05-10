@@ -1,0 +1,5 @@
+# Overrides for Netlify deploy — committed to repo
+# Replace the URL values after creating your Netlify site
+baseurl: ""
+url:     "https://step-lab.netlify.app"
+app_url: ""

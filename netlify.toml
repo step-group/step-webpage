@@ -1,0 +1,15 @@
+[build]
+  # 1. Build React app  2. Build Jekyll  3. Copy React build into Jekyll output
+  command = "npm ci --prefix app && npm run build --prefix app && bundle exec jekyll build --config _config.yml,_config.netlify.yml && cp -r app/dist/. _site/app/"
+  publish = "_site"
+
+[build.environment]
+  JEKYLL_ENV  = "production"
+  RUBY_VERSION = "3.2.0"
+  NODE_VERSION = "20"
+
+# React app is a SPA — all /app/* paths must serve index.html
+[[redirects]]
+  from   = "/app/*"
+  to     = "/app/index.html"
+  status = 200
