@@ -11,7 +11,10 @@ import TemplateList     from './pages/templates/TemplateList';
 import TemplateForm     from './pages/templates/TemplateForm';
 import ResourceList     from './pages/resources/ResourceList';
 import ResourceForm     from './pages/resources/ResourceForm';
-import Profile          from './pages/Profile';
+import Profile             from './pages/Profile';
+import PublicationList    from './pages/publications/PublicationList';
+import PublicationDetail  from './pages/publications/PublicationDetail';
+import PublicationForm    from './pages/publications/PublicationForm';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -52,6 +55,11 @@ function AppRoutes() {
       <Route path="/app/resources/:id/edit"   element={<P><ResourceForm /></P>} />
 
       <Route path="/app/profile"              element={<P><Profile /></P>} />
+
+      <Route path="/app/publications"             element={<P><PublicationList /></P>} />
+      <Route path="/app/publications/new"         element={<P><PublicationForm /></P>} />
+      <Route path="/app/publications/:id"         element={<P><PublicationDetail /></P>} />
+      <Route path="/app/publications/:id/edit"    element={<P><PublicationForm /></P>} />
 
       <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
       <Route path="*"    element={<Navigate to="/app/login" replace />} />

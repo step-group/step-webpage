@@ -98,4 +98,15 @@ export const api = {
       delete: (id)       => requestEmpty(`/resources/categories/${id}`, { method: 'DELETE' }),
     },
   },
+
+  publications: {
+    list:              (params = {}) => request(`/publications?${new URLSearchParams(params)}`),
+    get:               (id)          => request(`/publications/${id}`),
+    create:            (body)        => request('/publications',       { method: 'POST',   body: JSON.stringify(body) }),
+    update:            (id, body)    => request(`/publications/${id}`, { method: 'PATCH',  body: JSON.stringify(body) }),
+    delete:            (id)          => requestEmpty(`/publications/${id}`, { method: 'DELETE' }),
+    linkDataset:       (id, dataset_id)   => requestEmpty(`/publications/${id}/datasets`, { method: 'POST',   body: JSON.stringify({ dataset_id }) }),
+    unlinkDataset:     (id, dataset_id)   => requestEmpty(`/publications/${id}/datasets/${dataset_id}`, { method: 'DELETE' }),
+    availableDatasets: (id)               => request(`/publications/${id}/available-datasets`),
+  },
 };
