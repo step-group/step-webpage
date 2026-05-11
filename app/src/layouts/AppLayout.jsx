@@ -22,7 +22,7 @@ export default function AppLayout({ children }) {
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <a href="/" className={styles.brand}>STEP Lab</a>
+        <Link to="/app/dashboard" className={styles.brand}>STEP Lab</Link>
         <nav className={styles.nav}>
           {NAV.map(({ to, label, icon }) => (
             <Link
