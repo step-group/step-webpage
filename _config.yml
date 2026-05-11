@@ -14,7 +14,7 @@ baseurl: "/step-webpage"
 url: "https://step-group.github.io"
 
 # URL del app interna (Netlify). Actualizar después de crear el sitio en Netlify.
-app_url: "https://step-lab.netlify.app"
+app_url: "https://step-webpage.netlify.app"
 
 include:
   - .htaccess
