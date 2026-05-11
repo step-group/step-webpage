@@ -11,10 +11,10 @@ const STATUS_LABEL = {
   need_to_be_redone: 'Repetir',
 };
 const STATUS_COLOR = {
-  running:           '#2563eb',
-  success:           '#16a34a',
-  failure:           '#dc2626',
-  need_to_be_redone: '#d97706',
+  running:           '#3b82f6',
+  success:           '#22c55e',
+  failure:           '#ef4444',
+  need_to_be_redone: '#f59e0b',
 };
 
 export default function ExperimentList() {
@@ -65,21 +65,33 @@ export default function ExperimentList() {
       {!loading && experiments.length > 0 && (
         <div className={styles.list}>
           {experiments.map(exp => (
-            <div key={exp.id} className={styles.card} onClick={() => navigate(`/app/experiments/${exp.id}`)}>
+            <div
+              key={exp.id}
+              className={styles.card}
+              style={{ borderLeftColor: STATUS_COLOR[exp.status] || '#e2e8f0' }}
+              onClick={() => navigate(`/app/experiments/${exp.id}`)}
+            >
               <div className={styles.cardTop}>
                 <span className={styles.expTitle}>{exp.title}</span>
                 <span
-                  className={styles.statusBadge}
-                  style={{ background: STATUS_COLOR[exp.status] + '20', color: STATUS_COLOR[exp.status] }}
-                >
-                  {STATUS_LABEL[exp.status] || exp.status}
-                </span>
+                  className={styles.statusDot}
+                  style={{ background: STATUS_COLOR[exp.status] }}
+                  title={STATUS_LABEL[exp.status]}
+                />
               </div>
               <div className={styles.cardMeta}>
+                <span className={styles.statusLabel} style={{ color: STATUS_COLOR[exp.status] }}>
+                  {STATUS_LABEL[exp.status] || exp.status}
+                </span>
+                <span>·</span>
                 <span>{new Date(exp.date).toLocaleDateString('es-CL')}</span>
+                <span>·</span>
                 <span>{exp.created_by_name}</span>
                 {Number(exp.steps_total) > 0 && (
-                  <span>{exp.steps_done}/{exp.steps_total} pasos</span>
+                  <>
+                    <span>·</span>
+                    <span>{exp.steps_done}/{exp.steps_total} pasos</span>
+                  </>
                 )}
                 {exp.tags?.length > 0 && (
                   <span className={styles.tags}>

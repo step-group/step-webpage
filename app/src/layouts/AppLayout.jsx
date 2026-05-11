@@ -1,18 +1,32 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Home, FlaskConical, FileText, Package, Users, LogOut } from 'lucide-react';
 import styles from './AppLayout.module.css';
 
 const NAV = [
-  { to: '/app/dashboard',   label: 'Inicio',       icon: '⌂' },
-  { to: '/app/experiments', label: 'Experimentos',  icon: '🧪' },
-  { to: '/app/templates',   label: 'Plantillas',    icon: '📄' },
-  { to: '/app/resources',   label: 'Inventario',    icon: '📦' },
+  { to: '/app/dashboard',   label: 'Inicio',        Icon: Home },
+  { to: '/app/experiments', label: 'Experimentos',   Icon: FlaskConical },
+  { to: '/app/templates',   label: 'Plantillas',     Icon: FileText },
+  { to: '/app/resources',   label: 'Inventario',     Icon: Package },
 ];
+
+function Initials({ name }) {
+  const parts = (name || '?').trim().split(' ');
+  const letters = parts.length >= 2
+    ? parts[0][0] + parts[parts.length - 1][0]
+    : parts[0].slice(0, 2);
+  return <span className={styles.avatar}>{letters.toUpperCase()}</span>;
+}
 
 export default function AppLayout({ children }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  function isActive(to) {
+    if (to === '/app/dashboard') return location.pathname === to;
+    return location.pathname.startsWith(to);
+  }
 
   function handleLogout() {
     logout();
@@ -22,32 +36,54 @@ export default function AppLayout({ children }) {
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <Link to="/app/dashboard" className={styles.brand}>STEP Lab</Link>
-        <nav className={styles.nav}>
-          {NAV.map(({ to, label, icon }) => (
-            <Link
-              key={to}
-              to={to}
-              className={`${styles.navLink} ${location.pathname.startsWith(to) && to !== '/app/dashboard' ? styles.active : location.pathname === to ? styles.active : ''}`}
-            >
-              <span className={styles.navIcon}>{icon}</span>
-              {label}
-            </Link>
-          ))}
-        </nav>
-        <div className={styles.sidebarBottom}>
-          {user?.role === 'admin' && (
-            <Link to="/app/admin/users" className={styles.navLink}>
-              <span className={styles.navIcon}>👥</span>
-              Usuarios
-            </Link>
-          )}
+        <Link to="/app/dashboard" className={styles.brand}>
+          <span className={styles.brandDot} />
+          STEP Lab
+        </Link>
+
+        <div className={styles.navSection}>
+          <span className={styles.navLabel}>Navegación</span>
+          <nav className={styles.nav}>
+            {NAV.map(({ to, label, Icon }) => (
+              <Link
+                key={to}
+                to={to}
+                className={`${styles.navLink} ${isActive(to) ? styles.active : ''}`}
+              >
+                <Icon size={16} strokeWidth={2} />
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        {user?.role === 'admin' && (
+          <div className={styles.navSection}>
+            <span className={styles.navLabel}>Admin</span>
+            <nav className={styles.nav}>
+              <Link
+                to="/app/admin/users"
+                className={`${styles.navLink} ${isActive('/app/admin') ? styles.active : ''}`}
+              >
+                <Users size={16} strokeWidth={2} />
+                Usuarios
+              </Link>
+            </nav>
+          </div>
+        )}
+
+        <div className={styles.userRow}>
+          <Initials name={user?.name} />
           <div className={styles.userInfo}>
             <span className={styles.userName}>{user?.name}</span>
-            <button onClick={handleLogout} className={styles.logoutBtn}>Salir</button>
+            <span className={styles.userRole}>{user?.role === 'admin' ? 'Administrador' : 'Miembro'}</span>
           </div>
+          <button onClick={handleLogout} className={styles.logoutBtn} title="Cerrar sesión">
+            <LogOut size={15} strokeWidth={2} />
+          </button>
         </div>
       </aside>
+
       <main className={styles.content}>
         {children}
       </main>
