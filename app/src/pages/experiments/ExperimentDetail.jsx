@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import AppLayout from '../../layouts/AppLayout';
+import MarkdownBody from '../../components/MarkdownBody';
 import styles from './Experiments.module.css';
 
 const STATUS_LABEL = {
@@ -125,7 +126,7 @@ export default function ExperimentDetail() {
       {/* Body */}
       <div className={styles.section}>
         <div className={styles.sectionTitle}>Descripción / Protocolo</div>
-        <div className={styles.body}>{exp.body || <span style={{ color: 'var(--color-text-muted)' }}>Sin contenido</span>}</div>
+        <div className={styles.body}><MarkdownBody content={exp.body} /></div>
       </div>
 
       {/* Steps */}

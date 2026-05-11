@@ -131,7 +131,7 @@
   color: #475569;
 }
 
-.logoutBtn {
+.iconBtn {
   background: none;
   border: none;
   color: #475569;
@@ -140,10 +140,26 @@
   border-radius: 4px;
   display: flex;
   align-items: center;
+  text-decoration: none;
   transition: color 0.12s, background 0.12s;
   flex-shrink: 0;
 }
-.logoutBtn:hover { color: #94a3b8; background: rgba(255,255,255,0.06); }
+.iconBtn:hover { color: #94a3b8; background: rgba(255,255,255,0.06); text-decoration: none; }
+
+.badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
 
 /* ── Content area ─────────────────────────────────────────────── */
 .content {

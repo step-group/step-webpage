@@ -1,13 +1,15 @@
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, FlaskConical, FileText, Package, Users, LogOut } from 'lucide-react';
+import { Home, FlaskConical, FileText, Package, Users, LogOut, Settings } from 'lucide-react';
+import { api } from '../api/client';
 import styles from './AppLayout.module.css';
 
 const NAV = [
-  { to: '/app/dashboard',   label: 'Inicio',        Icon: Home },
-  { to: '/app/experiments', label: 'Experimentos',   Icon: FlaskConical },
-  { to: '/app/templates',   label: 'Plantillas',     Icon: FileText },
-  { to: '/app/resources',   label: 'Inventario',     Icon: Package },
+  { to: '/app/dashboard',   label: 'Inicio',       Icon: Home },
+  { to: '/app/experiments', label: 'Experimentos',  Icon: FlaskConical },
+  { to: '/app/templates',   label: 'Plantillas',    Icon: FileText },
+  { to: '/app/resources',   label: 'Inventario',    Icon: Package },
 ];
 
 function Initials({ name }) {
@@ -22,6 +24,13 @@ export default function AppLayout({ children }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [pending, setPending] = useState(0);
+
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      api.admin.pendingCount().then(r => setPending(r.count)).catch(() => {});
+    }
+  }, [user]);
 
   function isActive(to) {
     if (to === '/app/dashboard') return location.pathname === to;
@@ -67,6 +76,7 @@ export default function AppLayout({ children }) {
               >
                 <Users size={16} strokeWidth={2} />
                 Usuarios
+                {pending > 0 && <span className={styles.badge}>{pending}</span>}
               </Link>
             </nav>
           </div>
@@ -78,8 +88,11 @@ export default function AppLayout({ children }) {
             <span className={styles.userName}>{user?.name}</span>
             <span className={styles.userRole}>{user?.role === 'admin' ? 'Administrador' : 'Miembro'}</span>
           </div>
-          <button onClick={handleLogout} className={styles.logoutBtn} title="Cerrar sesión">
-            <LogOut size={15} strokeWidth={2} />
+          <Link to="/app/profile" className={styles.iconBtn} title="Perfil">
+            <Settings size={14} strokeWidth={2} />
+          </Link>
+          <button onClick={handleLogout} className={styles.iconBtn} title="Cerrar sesión">
+            <LogOut size={14} strokeWidth={2} />
           </button>
         </div>
       </aside>

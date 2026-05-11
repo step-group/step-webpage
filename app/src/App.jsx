@@ -11,6 +11,7 @@ import TemplateList     from './pages/templates/TemplateList';
 import TemplateForm     from './pages/templates/TemplateForm';
 import ResourceList     from './pages/resources/ResourceList';
 import ResourceForm     from './pages/resources/ResourceForm';
+import Profile          from './pages/Profile';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -49,6 +50,8 @@ function AppRoutes() {
       <Route path="/app/resources"            element={<P><ResourceList /></P>} />
       <Route path="/app/resources/new"        element={<P><ResourceForm /></P>} />
       <Route path="/app/resources/:id/edit"   element={<P><ResourceForm /></P>} />
+
+      <Route path="/app/profile"              element={<P><Profile /></P>} />
 
       <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
       <Route path="*"    element={<Navigate to="/app/login" replace />} />

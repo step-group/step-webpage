@@ -4,6 +4,17 @@ const { requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
+// GET /api/admin/pending-count — número de solicitudes pendientes
+router.get('/pending-count', requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT COUNT(*) FROM users WHERE status = 'pending'");
+    res.json({ count: Number(result.rows[0].count) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener conteo' });
+  }
+});
+
 // GET /api/admin/users — listar todos los usuarios
 router.get('/users', requireAdmin, async (req, res) => {
   try {

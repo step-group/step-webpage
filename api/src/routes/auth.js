@@ -85,6 +85,61 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// PATCH /api/auth/profile — editar nombre y/o contraseña
+router.patch('/profile', requireAuth, async (req, res) => {
+  const { name, current_password, new_password } = req.body;
+
+  try {
+    const result = await pool.query(
+      'SELECT password_hash FROM users WHERE id = $1',
+      [req.user.id]
+    );
+    const user = result.rows[0];
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const updates = [];
+    const values  = [];
+    let idx = 1;
+
+    if (name?.trim()) {
+      updates.push(`name = $${idx++}`);
+      values.push(name.trim());
+    }
+
+    if (new_password) {
+      if (!current_password) {
+        return res.status(400).json({ error: 'Debes ingresar tu contraseña actual' });
+      }
+      const valid = await bcrypt.compare(current_password, user.password_hash);
+      if (!valid) return res.status(401).json({ error: 'Contraseña actual incorrecta' });
+      if (new_password.length < 8) {
+        return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 8 caracteres' });
+      }
+      const hash = await bcrypt.hash(new_password, 12);
+      updates.push(`password_hash = $${idx++}`);
+      values.push(hash);
+    }
+
+    if (!updates.length) return res.status(400).json({ error: 'Sin cambios para guardar' });
+
+    const updated = await pool.query(
+      `UPDATE users SET ${updates.join(', ')} WHERE id = $${idx} RETURNING id, email, name, role`,
+      [...values, req.user.id]
+    );
+
+    const newToken = jwt.sign(
+      { id: updated.rows[0].id, email: updated.rows[0].email, name: updated.rows[0].name, role: updated.rows[0].role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ user: updated.rows[0], token: newToken });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al actualizar perfil' });
+  }
+});
+
 // GET /api/auth/me — usuario actual
 router.get('/me', requireAuth, async (req, res) => {
   try {

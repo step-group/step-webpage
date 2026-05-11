@@ -33,16 +33,19 @@ async function requestEmpty(path, options = {}) {
 
 export const api = {
   auth: {
-    register: (body) => request('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
-    login:    (body) => request('/auth/login',    { method: 'POST', body: JSON.stringify(body) }),
-    me:       ()     => request('/auth/me'),
+    register:      (body) => request('/auth/register', { method: 'POST',  body: JSON.stringify(body) }),
+    login:         (body) => request('/auth/login',    { method: 'POST',  body: JSON.stringify(body) }),
+    me:            ()     => request('/auth/me'),
+    updateProfile: (body) => request('/auth/profile',  { method: 'PATCH', body: JSON.stringify(body) }),
   },
 
   admin: {
-    users:     ()           => request('/admin/users'),
-    setStatus: (id, status) => request(`/admin/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
-    setRole:   (id, role)   => request(`/admin/users/${id}/role`,   { method: 'PATCH', body: JSON.stringify({ role }) }),
+    users:        ()           => request('/admin/users'),
+    pendingCount: ()           => request('/admin/pending-count'),
+    setStatus:    (id, status) => request(`/admin/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+    setRole:      (id, role)   => request(`/admin/users/${id}/role`,   { method: 'PATCH', body: JSON.stringify({ role }) }),
   },
+
 
   experiments: {
     list:    (params = {}) => request(`/experiments?${new URLSearchParams(params)}`),
