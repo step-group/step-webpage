@@ -10,8 +10,8 @@ services:
     runtime: node
     rootDir: api
     buildCommand: npm install
-    # Migrations are idempotent — safe to run on every deploy
-    startCommand: node src/migrate.js && node src/index.js
+    # Both scripts are idempotent — safe to run on every deploy
+    startCommand: node src/migrate.js && node src/seed.js && node src/index.js
     plan: free
     envVars:
       - key: DATABASE_URL
