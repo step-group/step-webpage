@@ -63,6 +63,18 @@ export const api = {
 
     addLink:    (id, resource_id) => requestEmpty(`/experiments/${id}/links`, { method: 'POST',   body: JSON.stringify({ resource_id }) }),
     removeLink: (id, resource_id) => requestEmpty(`/experiments/${id}/links/${resource_id}`, { method: 'DELETE' }),
+
+    listDatasets:  (id)       => request(`/experiments/${id}/datasets`),
+    createDataset: (id, body) => request(`/experiments/${id}/datasets`, { method: 'POST', body: JSON.stringify(body) }),
+  },
+
+  datasets: {
+    get:         (id)            => request(`/datasets/${id}`),
+    update:      (id, body)      => request(`/datasets/${id}`,               { method: 'PATCH',  body: JSON.stringify(body) }),
+    delete:      (id)            => requestEmpty(`/datasets/${id}`,          { method: 'DELETE' }),
+    addPoint:    (id, body)      => request(`/datasets/${id}/points`,        { method: 'POST',   body: JSON.stringify(body) }),
+    updatePoint: (id, pid, body) => request(`/datasets/${id}/points/${pid}`, { method: 'PATCH',  body: JSON.stringify(body) }),
+    deletePoint: (id, pid)       => requestEmpty(`/datasets/${id}/points/${pid}`, { method: 'DELETE' }),
   },
 
   templates: {

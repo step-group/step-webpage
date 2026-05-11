@@ -8,6 +8,7 @@ const adminRoutes      = require('./routes/admin');
 const experimentRoutes = require('./routes/experiments');
 const templateRoutes   = require('./routes/templates');
 const resourceRoutes   = require('./routes/resources');
+const datasetRoutes    = require('./routes/datasets');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/admin',       adminRoutes);
 app.use('/api/experiments', experimentRoutes);
 app.use('/api/templates',   templateRoutes);
 app.use('/api/resources',   resourceRoutes);
+app.use('/api',             datasetRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);

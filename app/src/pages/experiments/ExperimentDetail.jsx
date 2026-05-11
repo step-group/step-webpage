@@ -4,6 +4,7 @@ import { api } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import AppLayout from '../../layouts/AppLayout';
 import MarkdownBody from '../../components/MarkdownBody';
+import DatasetSection from '../../components/DatasetSection';
 import styles from './Experiments.module.css';
 
 const STATUS_LABEL = {
@@ -215,6 +216,11 @@ export default function ExperimentDetail() {
           />
           <button className={styles.btnPrimary} onClick={addComment}>Enviar</button>
         </div>
+      </div>
+
+      {/* Datasets */}
+      <div className={styles.section}>
+        <DatasetSection experimentId={id} />
       </div>
     </AppLayout>
   );
