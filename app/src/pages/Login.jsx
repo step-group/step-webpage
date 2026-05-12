@@ -33,7 +33,7 @@ export default function Login() {
           <span className={styles.panelDot} />
           <span className={styles.panelName}>STEP Lab</span>
         </div>
-        <h1 className={styles.panelHeading}>Laboratorio de Tecnologías de Separación</h1>
+        <h1 className={styles.panelHeading}>Departamento de Química y Bioprocesos</h1>
         <p className={styles.panelSub}>Gestiona experimentos, plantillas e inventario de tu laboratorio en un solo lugar.</p>
       </div>
 
