@@ -91,12 +91,20 @@ export const api = {
     create:  (body)        => request('/resources',       { method: 'POST',  body: JSON.stringify(body) }),
     update:  (id, body)    => request(`/resources/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
     archive: (id, state)   => request(`/resources/${id}/archive`, { method: 'PATCH', body: JSON.stringify({ state }) }),
+    bulkImport: (items)    => request('/resources/bulk',  { method: 'POST',  body: JSON.stringify({ items }) }),
     categories: {
       list:   ()         => request('/resources/categories'),
       create: (body)     => request('/resources/categories',       { method: 'POST',   body: JSON.stringify(body) }),
       update: (id, body) => request(`/resources/categories/${id}`, { method: 'PATCH',  body: JSON.stringify(body) }),
       delete: (id)       => requestEmpty(`/resources/categories/${id}`, { method: 'DELETE' }),
     },
+  },
+
+  locations: {
+    list:   ()         => request('/resources/locations'),
+    create: (body)     => request('/resources/locations',       { method: 'POST',   body: JSON.stringify(body) }),
+    update: (id, body) => request(`/resources/locations/${id}`, { method: 'PATCH',  body: JSON.stringify(body) }),
+    delete: (id)       => requestEmpty(`/resources/locations/${id}`, { method: 'DELETE' }),
   },
 
   publications: {

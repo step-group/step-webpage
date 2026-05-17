@@ -1,0 +1,254 @@
+/* ── Overlay ────────────────────────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.panel {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border-radius: 6px;
+  width: min(980px, 96vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 0.25rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+}
+.closeBtn:hover { color: #fff; }
+
+/* ── Body layout ────────────────────────────────────────────────────────────── */
+.body {
+  display: grid;
+  grid-template-columns: 260px 1fr 1fr;
+  min-height: 400px;
+}
+
+/* ── Left: structure + GHS ──────────────────────────────────────────────────── */
+.left {
+  border-right: 1px solid #444;
+  display: flex;
+  flex-direction: column;
+}
+
+.structureBox {
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  flex-shrink: 0;
+}
+.structureImg {
+  max-width: 240px;
+  max-height: 190px;
+  object-fit: contain;
+}
+.noStructure {
+  font-size: 0.75rem;
+  color: #999;
+  font-style: italic;
+}
+
+.ghsSection {
+  padding: 0.75rem;
+  border-top: 1px solid #444;
+  flex: 1;
+}
+.ghsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.ghsTitle { font-size: 0.8rem; font-weight: 700; }
+.viewMore {
+  font-size: 0.72rem;
+  color: #7db3f5;
+  text-decoration: none;
+  cursor: pointer;
+}
+.viewMore:hover { text-decoration: underline; color: #a8cfff; }
+.ghsMuted { font-size: 0.73rem; color: #888; font-style: italic; margin: 0; }
+
+.ghsPics {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.ghsPic {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+.ghsEmoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+.ghsCodes {
+  font-size: 0.72rem;
+  color: #ccc;
+  margin: 0;
+  line-height: 1.8;
+}
+.signalWord {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #f5a623;
+  margin: 0.25rem 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.hCode {
+  color: #7db3f5;
+  font-weight: 600;
+  margin-right: 0.3rem;
+  white-space: nowrap;
+}
+
+/* ── Data columns ───────────────────────────────────────────────────────────── */
+.col {
+  border-right: 1px solid #444;
+  padding: 0;
+  overflow: hidden;
+}
+.col:last-child { border-right: none; }
+
+/* ── Field ──────────────────────────────────────────────────────────────────── */
+.field {
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid #3a3a3a;
+}
+.field:last-of-type { border-bottom: none; }
+
+.fieldHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.2rem;
+}
+.fieldLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ccc;
+}
+.editLink {
+  background: none;
+  border: none;
+  font-size: 0.7rem;
+  color: #7db3f5;
+  cursor: pointer;
+  padding: 0;
+}
+.editLink:hover { text-decoration: underline; }
+
+.fieldValue {
+  font-size: 0.82rem;
+  color: #e0e0e0;
+  word-break: break-word;
+}
+.none { color: #666; font-style: italic; font-size: 0.78rem; }
+
+.fieldEdit {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.fieldInput {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.25rem 0.45rem;
+  border: 1px solid #555;
+  border-radius: 3px;
+  background: #1e1e1e;
+  color: #e0e0e0;
+  font-size: 0.8rem;
+  outline: none;
+}
+.fieldInput:focus { border-color: #7db3f5; }
+.saveBtn {
+  background: #1a7a55;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 0.22rem 0.5rem;
+  font-size: 0.73rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.saveBtn:hover { background: #15694a; }
+.cancelBtn {
+  background: none;
+  border: 1px solid #555;
+  color: #aaa;
+  border-radius: 3px;
+  padding: 0.22rem 0.45rem;
+  font-size: 0.73rem;
+  cursor: pointer;
+}
+.cancelBtn:hover { border-color: #888; color: #ccc; }
+
+/* ── SDS field ──────────────────────────────────────────────────────────────── */
+.sdsField {
+  padding: 0.55rem 0.85rem;
+  border-bottom: 1px solid #3a3a3a;
+}
+.manageLink {
+  background: none;
+  border: none;
+  font-size: 0.7rem;
+  color: #7db3f5;
+  cursor: pointer;
+  padding: 0;
+}
+.manageLink:hover { text-decoration: underline; }
+.sdsGroup { margin-top: 0.3rem; }
+.sdsSubLabel {
+  display: block;
+  font-size: 0.72rem;
+  color: #888;
+  font-style: italic;
+  margin-bottom: 0.1rem;
+}
+
+/* ── Bottom action buttons ──────────────────────────────────────────────────── */
+.panelActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  padding: 0.5rem 0.85rem 0;
+  border-top: 1px solid #3a3a3a;
+}
+.panelActions + .panelActions { border-top: none; padding-top: 0.3rem; padding-bottom: 0.5rem; }
+
+.actionLink {
+  background: none;
+  border: none;
+  color: #7db3f5;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.actionLink:hover { color: #a8cfff; }
