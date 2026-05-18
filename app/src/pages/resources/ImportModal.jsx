@@ -99,6 +99,18 @@ function parseGenericFormat(workbook) {
 
 const STEPS = { UPLOAD: 'upload', FETCHING: 'fetching', PREVIEW: 'preview', DONE: 'done' };
 
+function flattenLocations(nodes, depth = 0, out = []) {
+  for (const n of nodes) {
+    out.push({ id: n.id, name: '  '.repeat(depth) + n.name });
+    if (n.children?.length) flattenLocations(n.children, depth + 1, out);
+  }
+  return out;
+}
+
+function rowHasError(r) {
+  return !r.cas_number || r._resolvedZone?.startsWith('⚠');
+}
+
 export default function ImportModal({ locations, onClose, onImported }) {
   const fileRef = useRef();
   const [step,       setStep]       = useState(STEPS.UPLOAD);
@@ -107,6 +119,8 @@ export default function ImportModal({ locations, onClose, onImported }) {
   const [progress,   setProgress]   = useState({ done: 0, total: 0 });
   const [importResult, setResult]   = useState(null);
   const [loading,    setLoading]    = useState(false);
+
+  const flatLocs = flattenLocations(locations);
 
   const zoneMap = buildZoneMap(locations);
   function buildZoneMap(nodes, map = {}) {
@@ -117,6 +131,10 @@ export default function ImportModal({ locations, onClose, onImported }) {
     return map;
   }
 
+  function updateRow(index, changes) {
+    setRows(rs => rs.map((r, i) => i === index ? { ...r, ...changes } : r));
+  }
+
   function resolveRows(parsed) {
     return parsed.map(r => ({
       ...r,
@@ -124,8 +142,8 @@ export default function ImportModal({ locations, onClose, onImported }) {
       _resolvedZone: r._zoneLabel
         ? (zoneMap[r._zoneLabel] ? r._zoneLabel : `⚠ "${r._zoneLabel}" no encontrada`)
         : '—',
-      // placeholders until PubChem fetch
       _ghs: null,
+      _selected: true,
     }));
   }
 
@@ -149,26 +167,27 @@ export default function ImportModal({ locations, onClose, onImported }) {
   }
 
   async function startPubChemFetch(parsed) {
-    const casNumbers = parsed.map(r => r.cas_number || '');
-    const withCAS    = casNumbers.filter(Boolean).length;
-    setProgress({ done: 0, total: withCAS });
+    setProgress({ done: 0, total: parsed.length });
     setStep(STEPS.FETCHING);
 
-    const ghsResults = await fetchGHSBatch(casNumbers, {
+    const items = parsed.map(r => ({ cas: r.cas_number || '', name: r.name || '' }));
+    const ghsResults = await fetchGHSBatch(items, {
       concurrency: 3,
       onProgress: (done) => setProgress(p => ({ ...p, done })),
     });
 
     const enriched = parsed.map((r, i) => {
-      const ghs = ghsResults[i];
-      return {
+      const { ghs, resolvedCas } = ghsResults[i] ?? {};
+      const row = {
         ...r,
-        _ghs:             ghs,
+        cas_number:       resolvedCas || r.cas_number || '',
+        _ghs:             ghs ?? null,
         hazard_codes:     ghs?.hazardCodes?.join(', ') ?? '',
         ghs_signal_word:  ghs?.signalWord  ?? '',
-        // Use GHS physical state only if not already set
-        estado_fisico: r.estado_fisico || '',
+        estado_fisico:    r.estado_fisico || '',
       };
+      row._selected = !rowHasError(row);
+      return row;
     });
 
     setRows(enriched);
@@ -178,7 +197,8 @@ export default function ImportModal({ locations, onClose, onImported }) {
   async function handleImport() {
     setLoading(true);
     try {
-      const result = await api.resources.bulkImport(rows);
+      const toImport = rows.filter(r => r._selected);
+      const result = await api.resources.bulkImport(toImport);
       setResult(result);
       setStep(STEPS.DONE);
       onImported?.();
@@ -190,9 +210,15 @@ export default function ImportModal({ locations, onClose, onImported }) {
     }
   }
 
-  const withCAS  = rows.filter(r => r.cas_number).length;
-  const withGHS  = rows.filter(r => r._ghs?.hazardCodes?.length).length;
-  const warnZone = rows.some(r => r._resolvedZone?.startsWith('⚠'));
+  const selectedRows = rows.filter(r => r._selected);
+  const withCAS      = rows.filter(r => r.cas_number).length;
+  const withGHS      = rows.filter(r => r._ghs?.hazardCodes?.length).length;
+  const errorRows    = rows.filter(r => rowHasError(r)).length;
+  const allSelected  = rows.length > 0 && rows.every(r => r._selected);
+
+  function toggleAll(checked) {
+    setRows(rs => rs.map(r => ({ ...r, _selected: checked })));
+  }
 
   return (
     <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
@@ -235,7 +261,7 @@ export default function ImportModal({ locations, onClose, onImported }) {
               <Loader size={32} className={styles.spinIcon} />
               <p className={styles.fetchTitle}>Consultando PubChem…</p>
               <p className={styles.fetchSub}>
-                {progress.done} / {progress.total} compuestos con CAS procesados
+                {progress.done} / {progress.total} compuestos procesados
               </p>
               <div className={styles.progressBar}>
                 <div
@@ -253,57 +279,113 @@ export default function ImportModal({ locations, onClose, onImported }) {
           {step === STEPS.PREVIEW && (
             <div className={styles.previewWrap}>
               <div className={styles.previewStats}>
-                <span className={styles.statChip}>{rows.length} containers</span>
+                <span className={styles.statChip}>{rows.length} filas</span>
+                <span className={`${styles.statChip} ${styles.statGreen}`}>{selectedRows.length} seleccionadas</span>
                 <span className={styles.statChip}>{withCAS} con CAS</span>
-                <span className={`${styles.statChip} ${styles.statGreen}`}>{withGHS} con datos GHS</span>
-                {warnZone && <span className={`${styles.statChip} ${styles.statWarn}`}><AlertTriangle size={11} /> zonas sin asignar</span>}
+                <span className={`${styles.statChip} ${styles.statGreen}`}>{withGHS} con GHS</span>
+                {errorRows > 0 && (
+                  <span className={`${styles.statChip} ${styles.statError}`}>
+                    <AlertTriangle size={11} /> {errorRows} con errores (desmarcadas)
+                  </span>
+                )}
               </div>
+
+              {errorRows > 0 && (
+                <p className={styles.errorNote}>
+                  <AlertTriangle size={12} />
+                  Las filas con errores están desmarcadas. Puedes corregir el CAS o la zona y marcarlas para incluirlas.
+                </p>
+              )}
 
               <div className={styles.tableScroll}>
                 <table className={styles.previewTable}>
                   <thead>
                     <tr>
+                      <th className={styles.checkCol}>
+                        <input
+                          type="checkbox"
+                          checked={allSelected}
+                          onChange={e => toggleAll(e.target.checked)}
+                        />
+                      </th>
                       <th>Estructura</th>
                       <th>Nombre</th>
                       <th>CAS</th>
                       <th>Cantidad</th>
                       <th>Zona</th>
                       <th>GHS</th>
-                      <th>Proveedor</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.map((r, i) => (
-                      <tr key={i} className={r._resolvedZone?.startsWith('⚠') ? styles.rowWarn : ''}>
-                        <td className={styles.thumbCell}>
-                          {r.cas_number ? (
-                            <img
-                              src={structureUrl(r.cas_number, '80x60')}
-                              alt=""
-                              className={styles.thumb}
-                              onError={e => { e.target.style.opacity = '0.2'; }}
+                    {rows.map((r, i) => {
+                      const zoneError = r._resolvedZone?.startsWith('⚠');
+                      const casError  = !r.cas_number;
+                      const hasErr    = zoneError || casError;
+                      return (
+                        <tr
+                          key={i}
+                          className={hasErr ? styles.rowError : ''}
+                        >
+                          <td className={styles.checkCol}>
+                            <input
+                              type="checkbox"
+                              checked={r._selected}
+                              onChange={e => updateRow(i, { _selected: e.target.checked })}
                             />
-                          ) : <span className={styles.noThumb}>—</span>}
-                        </td>
-                        <td className={styles.nameCell}>{r.name}</td>
-                        <td className={styles.casCell}>{r.cas_number || '—'}</td>
-                        <td className={styles.sizeCell}>{r.quantity} {r.unit}</td>
-                        <td className={r._resolvedZone?.startsWith('⚠') ? styles.warnCell : ''}>
-                          {r._resolvedZone}
-                        </td>
-                        <td className={styles.ghsCell}>
-                          {r._ghs?.pictogramUrls?.length > 0
-                            ? r._ghs.pictogramUrls.slice(0, 3).map((url, j) => (
-                                <img key={j} src={url} alt="GHS" className={styles.ghsPic} />
-                              ))
-                            : r._ghs
-                              ? <span className={styles.noGHS}>{r._ghs.hazardCodes?.length ? r._ghs.hazardCodes.slice(0,3).join(' ') : '—'}</span>
-                              : <span className={styles.noGHS}>—</span>
-                          }
-                        </td>
-                        <td>{r.supplier}</td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className={styles.thumbCell}>
+                            {r.cas_number ? (
+                              <img
+                                src={structureUrl(r.cas_number, '80x60')}
+                                alt=""
+                                className={styles.thumb}
+                                onError={e => { e.target.style.opacity = '0.2'; }}
+                              />
+                            ) : <span className={styles.noThumb}>—</span>}
+                          </td>
+                          <td className={styles.nameCell}>{r.name}</td>
+                          <td className={styles.casCell}>
+                            {casError ? (
+                              <input
+                                className={styles.editInput}
+                                value={r.cas_number}
+                                placeholder="Ingresar CAS"
+                                onChange={e => updateRow(i, { cas_number: e.target.value.trim(), _selected: true })}
+                              />
+                            ) : r.cas_number}
+                          </td>
+                          <td className={styles.sizeCell}>{r.quantity} {r.unit}</td>
+                          <td className={zoneError ? styles.warnCell : ''}>
+                            {zoneError ? (
+                              <select
+                                className={styles.editSelect}
+                                value={r.location_id || ''}
+                                onChange={e => {
+                                  const id  = e.target.value || null;
+                                  const lbl = e.target.options[e.target.selectedIndex].text.trim();
+                                  updateRow(i, { location_id: id, _resolvedZone: id ? lbl : '—', _selected: !!id });
+                                }}
+                              >
+                                <option value="">— Sin zona —</option>
+                                {flatLocs.map(l => (
+                                  <option key={l.id} value={l.id}>{l.name}</option>
+                                ))}
+                              </select>
+                            ) : r._resolvedZone}
+                          </td>
+                          <td className={styles.ghsCell}>
+                            {r._ghs?.pictogramUrls?.length > 0
+                              ? r._ghs.pictogramUrls.slice(0, 3).map((url, j) => (
+                                  <img key={j} src={url} alt="GHS" className={styles.ghsPic} />
+                                ))
+                              : r._ghs
+                                ? <span className={styles.noGHS}>{r._ghs.hazardCodes?.length ? r._ghs.hazardCodes.slice(0,3).join(' ') : '—'}</span>
+                                : <span className={styles.noGHS}>—</span>
+                            }
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -339,9 +421,9 @@ export default function ImportModal({ locations, onClose, onImported }) {
               <button
                 className={styles.importBtn}
                 onClick={handleImport}
-                disabled={loading}
+                disabled={loading || selectedRows.length === 0}
               >
-                {loading ? 'Importando…' : `Importar ${rows.length} containers`}
+                {loading ? 'Importando…' : `Importar ${selectedRows.length} de ${rows.length}`}
               </button>
             </>
           )}

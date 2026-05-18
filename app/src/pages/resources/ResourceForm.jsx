@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../../api/client';
-import InventoryLayout from '../../layouts/InventoryLayout';
+import AppLayout from '../../layouts/AppLayout';
 import styles from './Resources.module.css';
 
 const UNITS = ['g', 'mg', 'kg', 'mL', 'L', 'µL', 'mol', 'mmol', 'unidades'];
@@ -121,7 +121,7 @@ export default function ResourceForm() {
   }
 
   return (
-    <InventoryLayout>
+    <AppLayout>
       <div className={styles.formPage}>
         <div className={styles.formCard}>
           <div className={styles.formCardHeader}>
@@ -404,6 +404,6 @@ export default function ResourceForm() {
           </form>
         </div>
       </div>
-    </InventoryLayout>
+    </AppLayout>
   );
 }

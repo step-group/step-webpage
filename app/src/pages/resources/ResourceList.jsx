@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
-import InventoryLayout from '../../layouts/InventoryLayout';
+import AppLayout from '../../layouts/AppLayout';
 import ContainerDetail from './ContainerDetail';
 import ImportModal from './ImportModal';
 import styles from './Resources.module.css';
 import {
-  ChevronRight, Info, Home, ShoppingCart, Trash2,
-  Download, List, LayoutGrid, Pencil, Folder, FileUp,
+  ChevronRight, Info, Trash2,
+  Download, List, LayoutGrid, Folder, FileUp, Package,
 } from 'lucide-react';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -87,8 +87,12 @@ export default function ResourceList() {
   const [checked,      setChecked]      = useState(new Set());
   const [detailId,     setDetailId]     = useState(null);
   const [showImport,   setShowImport]   = useState(false);
-  const { user } = useAuth();
+  const [confirmDialog, setConfirmDialog] = useState(null); // { message, onConfirm }
   const navigate = useNavigate();
+
+  function askConfirm(message, onConfirm) {
+    setConfirmDialog({ message, onConfirm });
+  }
 
   useEffect(() => {
     Promise.all([api.locations.list(), api.resources.list({})])
@@ -115,20 +119,22 @@ export default function ResourceList() {
     setChecked(s => s.size === visible.length ? new Set() : new Set(visible.map(c => c.id)));
   }
 
-  async function deleteOne(id, e) {
+  function deleteOne(id, e) {
     e.stopPropagation();
-    if (!confirm('¿Eliminar este container?')) return;
-    await api.resources.archive(id, 'archived');
-    setContainers(c => c.filter(x => x.id !== id));
-    setChecked(s => { const ns = new Set(s); ns.delete(id); return ns; });
+    askConfirm('¿Eliminar este container?', async () => {
+      await api.resources.archive(id, 'archived');
+      setContainers(c => c.filter(x => x.id !== id));
+      setChecked(s => { const ns = new Set(s); ns.delete(id); return ns; });
+    });
   }
 
-  async function deleteAll() {
+  function deleteAll() {
     if (!checked.size) return;
-    if (!confirm(`¿Eliminar ${checked.size} container(s)?`)) return;
-    await Promise.all([...checked].map(id => api.resources.archive(id, 'archived')));
-    setContainers(c => c.filter(x => !checked.has(x.id)));
-    setChecked(new Set());
+    askConfirm(`¿Eliminar ${checked.size} container(s) seleccionado(s)?`, async () => {
+      await Promise.all([...checked].map(id => api.resources.archive(id, 'archived')));
+      setContainers(c => c.filter(x => !checked.has(x.id)));
+      setChecked(new Set());
+    });
   }
 
   function downloadCSV() {
@@ -145,16 +151,20 @@ export default function ResourceList() {
   }
 
   return (
-    <InventoryLayout>
+    <AppLayout>
+      <div className={styles.pageHeader}>
+        <div className={styles.pageHeaderLeft}>
+          <Package size={20} className={styles.pageHeaderIcon} />
+          <h1 className={styles.pageTitle}>Inventario</h1>
+        </div>
+        <Link to="/app/dashboard" className={styles.backLink}>← Inicio</Link>
+      </div>
+
+      <div className={styles.inventoryBody}>
       {/* ── Locations Panel ─────────────────────────────────── */}
       <div className={styles.locPanel}>
         <div className={styles.panelHeader}>
           <span className={styles.panelTitle}>Locations</span>
-          {user?.role === 'admin' && (
-            <button className={styles.editBtn}>
-              <Pencil size={12} /> Edit
-            </button>
-          )}
         </div>
         <div className={styles.locTree}>
           {locations.map(root => (
@@ -184,9 +194,6 @@ export default function ResourceList() {
           <div className={styles.panelActions}>
             <button className={styles.importBtn} onClick={() => setShowImport(true)}>
               <FileUp size={13} /> Import
-            </button>
-            <button className={styles.moveAllBtn}>
-              <Home size={13} /> Move All
             </button>
             <button
               className={styles.deleteAllBtn}
@@ -270,20 +277,14 @@ export default function ResourceList() {
                 <span className={styles.colAct}>
                   <button
                     className={styles.actBtn}
-                    title="Info"
+                    title="Ver detalle"
                     onClick={() => setDetailId(c.id)}
                   >
                     <Info size={13} />
                   </button>
-                  <button className={styles.actBtn} title="Move">
-                    <Home size={13} />
-                  </button>
-                  <button className={styles.actBtn} title="Add to order">
-                    <ShoppingCart size={13} />
-                  </button>
                   <button
                     className={`${styles.actBtn} ${styles.actDanger}`}
-                    title="Delete"
+                    title="Eliminar"
                     onClick={e => deleteOne(c.id, e)}
                   >
                     <Trash2 size={13} />
@@ -333,6 +334,30 @@ export default function ResourceList() {
           onImported={() => api.resources.list({}).then(setContainers)}
         />
       )}
-    </InventoryLayout>
+      </div>
+
+      {confirmDialog && (
+        <div className={styles.confirmOverlay} onClick={() => setConfirmDialog(null)}>
+          <div className={styles.confirmBox} onClick={e => e.stopPropagation()}>
+            <div className={styles.confirmIcon}><Trash2 size={20} /></div>
+            <p className={styles.confirmMsg}>{confirmDialog.message}</p>
+            <div className={styles.confirmActions}>
+              <button
+                className={styles.confirmCancel}
+                onClick={() => setConfirmDialog(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className={styles.confirmDelete}
+                onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </AppLayout>
   );
 }
