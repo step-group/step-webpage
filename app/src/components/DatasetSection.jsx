@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
+import { downloadThermoML } from '../utils/thermoml';
 import styles from './DatasetSection.module.css';
 
 const EMPTY_POINT = {
@@ -8,92 +9,169 @@ const EMPTY_POINT = {
   phase: 'liquid', notes: '',
 };
 
-function NewDatasetForm({ experimentId, onCreated, onCancel }) {
-  const [form, setForm] = useState({
-    title: '', equipment: '', calibration_notes: '',
-    c1_name: '', c1_cas: '', c1_purity: '', c1_supplier: '',
-    c2_name: '', c2_cas: '', c2_purity: '', c2_supplier: '',
-  });
-  const [isMixture, setIsMixture] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+function CompoundPill({ resource }) {
+  if (!resource) return null;
+  return (
+    <div className={styles.compoundPill}>
+      <strong>{resource.name}</strong>
+      {resource.cas_number && <span>CAS {resource.cas_number}</span>}
+      {resource.grado      && <span>{resource.grado}</span>}
+      {resource.supplier   && <span>{resource.supplier}</span>}
+    </div>
+  );
+}
 
-  function set(f) { return e => setForm(p => ({ ...p, [f]: e.target.value })); }
+function NewDatasetForm({ experimentId, resourceLinks = [], onCreated, onCancel }) {
+  const [equipment, setEquipment]   = useState('');
+  const [calNotes, setCalNotes]     = useState('');
+  const [c1Id, setC1Id]             = useState('');
+  const [c2Id, setC2Id]             = useState('');
+  const [isMixture, setIsMixture]   = useState(false);
+  const [title, setTitle]           = useState('');
+  const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState('');
+
+  const c1 = resourceLinks.find(r => r.id === Number(c1Id)) || null;
+  const c2 = resourceLinks.find(r => r.id === Number(c2Id)) || null;
+
+  // auto-suggest title when compounds change
+  useEffect(() => {
+    if (!c1) { setTitle(''); return; }
+    const suggested = isMixture && c2
+      ? `Densidad: ${c1.name} + ${c2.name}`
+      : `Densidad: ${c1.name}`;
+    setTitle(t => (!t || t.startsWith('Densidad:')) ? suggested : t);
+  }, [c1Id, c2Id, isMixture]);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
-    if (!form.title.trim()) return setError('El título es requerido');
-    if (!form.c1_name.trim()) return setError('El nombre del compuesto 1 es requerido');
+    if (!title.trim()) return setError('El título es requerido');
+    if (!c1Id)         return setError('Selecciona el compuesto 1');
     setLoading(true);
     try {
       const compounds = [
-        { compound_index: 1, name: form.c1_name, cas_number: form.c1_cas, purity: form.c1_purity || null, supplier: form.c1_supplier },
-        ...(isMixture && form.c2_name.trim()
-          ? [{ compound_index: 2, name: form.c2_name, cas_number: form.c2_cas, purity: form.c2_purity || null, supplier: form.c2_supplier }]
+        { compound_index: 1, resource_id: Number(c1Id) },
+        ...(isMixture && c2Id
+          ? [{ compound_index: 2, resource_id: Number(c2Id) }]
           : []),
       ];
       const ds = await api.experiments.createDataset(experimentId, {
-        title: form.title, equipment: form.equipment,
-        calibration_notes: form.calibration_notes, compounds,
+        title, equipment, calibration_notes: calNotes, compounds,
       });
       onCreated(ds);
     } catch (err) { setError(err.message); }
     finally { setLoading(false); }
   }
 
+  const availableForC2 = resourceLinks.filter(r => r.id !== Number(c1Id));
+
   return (
     <form onSubmit={handleSubmit} className={styles.newDsForm}>
       <h4 className={styles.formHeading}>Nuevo dataset de densidad</h4>
 
-      <div className={styles.formGrid}>
-        <label className={styles.label}>
-          Título *
-          <input className={styles.input} value={form.title} onChange={set('title')} autoFocus required />
-        </label>
-        <label className={styles.label}>
-          Equipo
-          <input className={styles.input} value={form.equipment} onChange={set('equipment')} placeholder="Ej: Anton Paar DMA 5000 M" />
-        </label>
+      {/* Equipment */}
+      <div className={styles.formSection}>
+        <span className={styles.formSectionLabel}>Equipo</span>
+        <div className={styles.formGrid}>
+          <label className={styles.label}>
+            Densímetro *
+            <input
+              className={styles.input}
+              value={equipment}
+              onChange={e => setEquipment(e.target.value)}
+              placeholder="Ej: Anton Paar DMA 5000 M"
+              autoFocus
+            />
+          </label>
+          <label className={styles.label}>
+            Notas de calibración
+            <input
+              className={styles.input}
+              value={calNotes}
+              onChange={e => setCalNotes(e.target.value)}
+              placeholder="Fluido de ref., fecha, desviación..."
+            />
+          </label>
+        </div>
       </div>
 
-      <div className={styles.compoundGrid}>
-        <div className={styles.compoundBlock}>
-          <span className={styles.compoundLabel}>Compuesto 1 *</span>
-          <div className={styles.compoundRow}>
-            <input className={styles.input} placeholder="Nombre" value={form.c1_name} onChange={set('c1_name')} required />
-            <input className={styles.input} placeholder="N° CAS" value={form.c1_cas}  onChange={set('c1_cas')}  style={{width:110}} />
-            <input className={styles.input} placeholder="Pureza" value={form.c1_purity} onChange={set('c1_purity')} style={{width:80}} type="number" min="0" max="100" step="any" />
-            <input className={styles.input} placeholder="Proveedor" value={form.c1_supplier} onChange={set('c1_supplier')} />
-          </div>
-        </div>
+      {/* Compounds */}
+      <div className={styles.formSection}>
+        <span className={styles.formSectionLabel}>Sistema</span>
 
-        <label className={styles.mixtureToggle}>
-          <input type="checkbox" checked={isMixture} onChange={e => setIsMixture(e.target.checked)} />
-          Mezcla binaria (agregar compuesto 2)
-        </label>
-
-        {isMixture && (
-          <div className={styles.compoundBlock}>
-            <span className={styles.compoundLabel}>Compuesto 2</span>
-            <div className={styles.compoundRow}>
-              <input className={styles.input} placeholder="Nombre" value={form.c2_name} onChange={set('c2_name')} />
-              <input className={styles.input} placeholder="N° CAS" value={form.c2_cas}  onChange={set('c2_cas')}  style={{width:110}} />
-              <input className={styles.input} placeholder="Pureza" value={form.c2_purity} onChange={set('c2_purity')} style={{width:80}} type="number" min="0" max="100" step="any" />
-              <input className={styles.input} placeholder="Proveedor" value={form.c2_supplier} onChange={set('c2_supplier')} />
+        {resourceLinks.length === 0 ? (
+          <p className={styles.noResources}>
+            Vincula compuestos desde el inventario al experimento antes de crear un dataset.
+          </p>
+        ) : (
+          <>
+            <div className={styles.compoundBlock}>
+              <label className={styles.label}>
+                Compuesto 1 *
+                <select
+                  className={styles.input}
+                  value={c1Id}
+                  onChange={e => setC1Id(e.target.value)}
+                  required
+                >
+                  <option value="">Seleccionar...</option>
+                  {resourceLinks.map(r => (
+                    <option key={r.id} value={r.id}>{r.name}</option>
+                  ))}
+                </select>
+              </label>
+              <CompoundPill resource={c1} />
             </div>
-          </div>
+
+            <label className={styles.mixtureToggle}>
+              <input
+                type="checkbox"
+                checked={isMixture}
+                onChange={e => { setIsMixture(e.target.checked); if (!e.target.checked) setC2Id(''); }}
+              />
+              Mezcla binaria (agregar compuesto 2)
+            </label>
+
+            {isMixture && (
+              <div className={styles.compoundBlock}>
+                <label className={styles.label}>
+                  Compuesto 2
+                  <select
+                    className={styles.input}
+                    value={c2Id}
+                    onChange={e => setC2Id(e.target.value)}
+                  >
+                    <option value="">Seleccionar...</option>
+                    {availableForC2.map(r => (
+                      <option key={r.id} value={r.id}>{r.name}</option>
+                    ))}
+                  </select>
+                </label>
+                <CompoundPill resource={c2} />
+              </div>
+            )}
+          </>
         )}
       </div>
 
+      {/* Title */}
       <label className={styles.label}>
-        Notas de calibración
-        <textarea className={styles.input} value={form.calibration_notes} onChange={set('calibration_notes')} rows={2} placeholder="Fluidos de calibración, fecha, observaciones..." />
+        Título del dataset *
+        <input
+          className={styles.input}
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="Se auto-completa al seleccionar compuestos"
+          required
+        />
       </label>
 
       {error && <p className={styles.error}>{error}</p>}
       <div className={styles.formActions}>
-        <button type="submit" className={styles.btnPrimary} disabled={loading}>{loading ? 'Creando...' : 'Crear dataset'}</button>
+        <button type="submit" className={styles.btnPrimary} disabled={loading || resourceLinks.length === 0}>
+          {loading ? 'Creando...' : 'Crear dataset'}
+        </button>
         <button type="button" className={styles.btnSecondary} onClick={onCancel}>Cancelar</button>
       </div>
     </form>
@@ -217,7 +295,80 @@ function AddPointRow({ datasetId, isMixture, onAdded, nextOrdering }) {
   );
 }
 
-function DatasetCard({ dataset: initialDs }) {
+function CompoundSetupForm({ datasetId, resourceLinks, onDone }) {
+  const [c1Id, setC1Id]           = useState('');
+  const [c2Id, setC2Id]           = useState('');
+  const [isMixture, setIsMixture] = useState(false);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState('');
+
+  const c1 = resourceLinks.find(r => r.id === Number(c1Id)) || null;
+  const c2 = resourceLinks.find(r => r.id === Number(c2Id)) || null;
+
+  async function save() {
+    if (!c1Id) return setError('Selecciona el compuesto 1');
+    setLoading(true);
+    setError('');
+    try {
+      const compounds = [
+        { compound_index: 1, resource_id: Number(c1Id) },
+        ...(isMixture && c2Id ? [{ compound_index: 2, resource_id: Number(c2Id) }] : []),
+      ];
+      const updated = await api.datasets.setCompounds(datasetId, compounds);
+      onDone(updated);
+    } catch (err) { setError(err.message); }
+    finally { setLoading(false); }
+  }
+
+  if (resourceLinks.length === 0) {
+    return (
+      <p className={styles.noCompounds}>
+        Vincula compuestos desde el inventario al experimento para configurar este dataset.
+      </p>
+    );
+  }
+
+  return (
+    <div className={styles.compoundSetup}>
+      <p className={styles.compoundSetupTitle}>Selecciona los compuestos del sistema</p>
+      <div className={styles.compoundSetupRow}>
+        <label className={styles.compoundSetupLabel}>
+          Compuesto 1
+          <select className={styles.compoundSetupSelect} value={c1Id} onChange={e => setC1Id(e.target.value)}>
+            <option value="">Seleccionar...</option>
+            {resourceLinks.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+          </select>
+        </label>
+        {c1 && <CompoundPill resource={c1} />}
+      </div>
+
+      <label className={styles.mixtureToggleInline}>
+        <input type="checkbox" checked={isMixture} onChange={e => { setIsMixture(e.target.checked); if (!e.target.checked) setC2Id(''); }} />
+        Mezcla binaria
+      </label>
+
+      {isMixture && (
+        <div className={styles.compoundSetupRow}>
+          <label className={styles.compoundSetupLabel}>
+            Compuesto 2
+            <select className={styles.compoundSetupSelect} value={c2Id} onChange={e => setC2Id(e.target.value)}>
+              <option value="">Seleccionar...</option>
+              {resourceLinks.filter(r => r.id !== Number(c1Id)).map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+            </select>
+          </label>
+          {c2 && <CompoundPill resource={c2} />}
+        </div>
+      )}
+
+      {error && <p className={styles.error}>{error}</p>}
+      <button className={styles.btnPrimary} onClick={save} disabled={loading || !c1Id}>
+        {loading ? 'Guardando...' : 'Confirmar compuestos'}
+      </button>
+    </div>
+  );
+}
+
+function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
   const [ds, setDs] = useState(null);
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
@@ -237,6 +388,7 @@ function DatasetCard({ dataset: initialDs }) {
   if (ds === null && !loading) return null;
   if (loading) return <div className={styles.dsCard}><p className={styles.muted}>Cargando...</p></div>;
 
+  const noCompounds = ds.compounds.length === 0;
   const isMixture = ds.compounds.length === 2;
   const comp1 = ds.compounds.find(c => c.compound_index === 1);
   const comp2 = ds.compounds.find(c => c.compound_index === 2);
@@ -254,22 +406,39 @@ function DatasetCard({ dataset: initialDs }) {
           <span className={styles.dsTitle}>{ds.title}</span>
           <span className={styles.dsMeta}>
             {ds.equipment && <><strong>{ds.equipment}</strong> · </>}
-            {isMixture
-              ? `${comp1?.name} + ${comp2?.name}`
-              : comp1?.name}
-            {' · '}
-            {ds.points.length} puntos
+            {noCompounds
+              ? <span className={styles.pendingCompounds}>compuestos pendientes</span>
+              : isMixture
+                ? `${comp1?.name} + ${comp2?.name}`
+                : comp1?.name}
+            {!noCompounds && <> · {ds.points.length} puntos</>}
           </span>
         </div>
         <div className={styles.dsActions}>
           <button className={styles.btnSecondary} onClick={() => setCollapsed(c => !c)}>
             {collapsed ? 'Expandir' : 'Colapsar'}
           </button>
+          <button
+            className={styles.btnXml}
+            onClick={() => downloadThermoML(ds)}
+            title="Exportar como ThermoML (.xml)"
+            disabled={ds.points.length === 0}
+          >
+            ThermoML ↓
+          </button>
           <button className={styles.btnDanger} onClick={deleteDataset}>Eliminar</button>
         </div>
       </div>
 
-      {!collapsed && (
+      {!collapsed && noCompounds && (
+        <CompoundSetupForm
+          datasetId={ds.id}
+          resourceLinks={resourceLinks}
+          onDone={compounds => setDs(d => ({ ...d, compounds }))}
+        />
+      )}
+
+      {!collapsed && !noCompounds && (
         <>
           {/* Compound info */}
           <div className={styles.compoundsInfo}>
@@ -326,7 +495,7 @@ function DatasetCard({ dataset: initialDs }) {
   );
 }
 
-export default function DatasetSection({ experimentId }) {
+export default function DatasetSection({ experimentId, resourceLinks = [] }) {
   const [datasets, setDatasets]   = useState([]);
   const [loading, setLoading]     = useState(true);
   const [showForm, setShowForm]   = useState(false);
@@ -356,13 +525,14 @@ export default function DatasetSection({ experimentId }) {
       {showForm && (
         <NewDatasetForm
           experimentId={experimentId}
+          resourceLinks={resourceLinks}
           onCreated={onCreated}
           onCancel={() => setShowForm(false)}
         />
       )}
 
       {datasets.map(ds => (
-        <DatasetCard key={ds.id} dataset={ds} />
+        <DatasetCard key={ds.id} dataset={ds} resourceLinks={resourceLinks} />
       ))}
     </div>
   );

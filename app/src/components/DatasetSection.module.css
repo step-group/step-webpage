@@ -41,6 +41,16 @@
 }
 .btnDanger:hover { background: #fecaca; }
 
+.btnXml {
+  background: #f0fdf4; color: #166534;
+  padding: 0.35rem 0.7rem; border-radius: var(--radius);
+  font-size: 0.78rem; font-weight: 600;
+  border: 1px solid #bbf7d0; cursor: pointer; font-family: inherit;
+  white-space: nowrap;
+}
+.btnXml:hover { background: #dcfce7; }
+.btnXml:disabled { opacity: 0.45; cursor: not-allowed; }
+
 .btnSave {
   background: #dcfce7; color: #15803d;
   border: none; border-radius: 4px; cursor: pointer;
@@ -102,11 +112,46 @@
 .input:focus { border-color: var(--color-primary); }
 textarea.input { resize: vertical; }
 
-.compoundGrid { margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.formSection {
+  margin-bottom: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.formSectionLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
 .compoundBlock { display: flex; flex-direction: column; gap: 0.3rem; }
 .compoundLabel { font-size: 0.78rem; font-weight: 600; color: var(--color-text-muted); }
-.compoundRow { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.compoundRow .input { flex: 1; min-width: 120px; }
+
+.compoundPill {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  color: #1e40af;
+}
+.compoundPill strong { font-weight: 600; }
+.compoundPill span { color: #3b82f6; }
+
+.noResources {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  background: #fefce8;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius);
+  padding: 0.6rem 0.9rem;
+}
 
 .mixtureToggle {
   display: flex; align-items: center; gap: 0.4rem;
@@ -200,5 +245,66 @@ textarea.input { resize: vertical; }
   font-size: 0.78rem; color: var(--color-text-muted);
   padding: 0.5rem 1.125rem;
   border-top: 1px solid #f1f5f9;
+  font-style: italic;
+}
+
+/* Compound setup form (inline, shown when dataset has no compounds) */
+.compoundSetup {
+  padding: 1rem 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #f8fafc;
+  border-top: 1px solid var(--color-border);
+}
+.compoundSetupTitle {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.compoundSetupRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.compoundSetupLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+.compoundSetupSelect {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: var(--color-surface);
+  color: var(--color-text);
+  outline: none;
+  max-width: 320px;
+}
+.compoundSetupSelect:focus { border-color: var(--color-primary); }
+
+.mixtureToggleInline {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-size: 0.8rem; cursor: pointer; color: var(--color-text-muted);
+}
+
+.noCompounds {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  background: #fefce8;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius);
+  padding: 0.6rem 0.9rem;
+  margin: 0;
+}
+
+.pendingCompounds {
+  color: #d97706;
   font-style: italic;
 }

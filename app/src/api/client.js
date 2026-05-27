@@ -37,6 +37,7 @@ export const api = {
     login:         (body) => request('/auth/login',    { method: 'POST',  body: JSON.stringify(body) }),
     me:            ()     => request('/auth/me'),
     updateProfile: (body) => request('/auth/profile',  { method: 'PATCH', body: JSON.stringify(body) }),
+    activity:      ()     => request('/auth/activity'),
   },
 
   admin: {
@@ -44,6 +45,7 @@ export const api = {
     pendingCount: ()           => request('/admin/pending-count'),
     setStatus:    (id, status) => request(`/admin/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
     setRole:      (id, role)   => request(`/admin/users/${id}/role`,   { method: 'PATCH', body: JSON.stringify({ role }) }),
+    userActivity: (id)         => request(`/admin/users/${id}/activity`),
   },
 
 
@@ -61,7 +63,7 @@ export const api = {
     addComment:    (id, body)      => request(`/experiments/${id}/comments`, { method: 'POST', body: JSON.stringify({ body }) }),
     deleteComment: (id, commentId) => requestEmpty(`/experiments/${id}/comments/${commentId}`, { method: 'DELETE' }),
 
-    addLink:    (id, resource_id) => requestEmpty(`/experiments/${id}/links`, { method: 'POST',   body: JSON.stringify({ resource_id }) }),
+    addLink:       (id, resource_id, quantity_used) => requestEmpty(`/experiments/${id}/links`, { method: 'POST',   body: JSON.stringify({ resource_id, quantity_used }) }),
     removeLink: (id, resource_id) => requestEmpty(`/experiments/${id}/links/${resource_id}`, { method: 'DELETE' }),
 
     listDatasets:  (id)       => request(`/experiments/${id}/datasets`),
@@ -69,9 +71,10 @@ export const api = {
   },
 
   datasets: {
-    get:         (id)            => request(`/datasets/${id}`),
-    update:      (id, body)      => request(`/datasets/${id}`,               { method: 'PATCH',  body: JSON.stringify(body) }),
-    delete:      (id)            => requestEmpty(`/datasets/${id}`,          { method: 'DELETE' }),
+    get:           (id)            => request(`/datasets/${id}`),
+    update:        (id, body)      => request(`/datasets/${id}`,               { method: 'PATCH',  body: JSON.stringify(body) }),
+    delete:        (id)            => requestEmpty(`/datasets/${id}`,          { method: 'DELETE' }),
+    setCompounds:  (id, compounds) => request(`/datasets/${id}/compounds`,     { method: 'POST',   body: JSON.stringify({ compounds }) }),
     addPoint:    (id, body)      => request(`/datasets/${id}/points`,        { method: 'POST',   body: JSON.stringify(body) }),
     updatePoint: (id, pid, body) => request(`/datasets/${id}/points/${pid}`, { method: 'PATCH',  body: JSON.stringify(body) }),
     deletePoint: (id, pid)       => requestEmpty(`/datasets/${id}/points/${pid}`, { method: 'DELETE' }),

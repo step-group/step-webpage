@@ -28,42 +28,53 @@ export default function TemplateList() {
     <AppLayout>
       <div className={styles.pageHeader}>
         <h2>Plantillas de experimento</h2>
-        <Link to="/app/templates/new" className={styles.btnPrimary}>+ Nueva plantilla</Link>
+        <Link to="/app/templates/new" className={styles.btnSecondary}>+ Nueva plantilla</Link>
       </div>
 
       {loading && <p className={styles.muted}>Cargando...</p>}
 
       {!loading && templates.length === 0 && (
-        <p className={styles.muted}>No hay plantillas. <Link to="/app/templates/new">Crea la primera.</Link></p>
+        <div className={styles.emptyState}>
+          <p>No hay plantillas todavía.</p>
+          <Link to="/app/templates/new" className={styles.btnPrimary}>Crear primera plantilla</Link>
+        </div>
       )}
 
-      {!loading && (
+      {!loading && templates.length > 0 && (
         <div className={styles.list}>
           {templates.map(t => (
-            <div key={t.id} className={styles.card} onClick={() => navigate(`/app/templates/${t.id}/edit`)}>
-              <div className={styles.cardTop}>
-                <span className={styles.tmplTitle}>{t.title}</span>
-                <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
-                  <Link to={`/app/templates/${t.id}/edit`} className={styles.btnSecondary}>Editar</Link>
-                  {user?.role === 'admin' && (
-                    <button className={styles.btnDanger} onClick={(e) => handleDelete(t.id, e)}>Eliminar</button>
+            <div key={t.id} className={styles.card}>
+              <div
+                className={styles.cardContent}
+                onClick={() => navigate(`/app/templates/${t.id}/edit`)}
+              >
+                <div className={styles.tmplTitle}>{t.title}</div>
+                {t.body && <p className={styles.cardBody}>{t.body}</p>}
+                <div className={styles.cardMeta}>
+                  <span>{t.steps_count} {t.steps_count === 1 ? 'paso' : 'pasos'}</span>
+                  <span>{t.created_by_name}</span>
+                  {t.tags?.length > 0 && (
+                    <span className={styles.tags}>
+                      {t.tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}
+                    </span>
                   )}
-                  <Link
-                    to={`/app/experiments/new?template=${t.id}`}
-                    className={styles.btnPrimary}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    Usar
-                  </Link>
                 </div>
               </div>
-              <div className={styles.cardMeta}>
-                <span>{t.steps_count} pasos</span>
-                <span>{t.created_by_name}</span>
-                {t.tags?.length > 0 && (
-                  <span className={styles.tags}>
-                    {t.tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}
-                  </span>
+
+              <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
+                <Link
+                  to={`/app/experiments/new?template=${t.id}`}
+                  className={styles.usarBtn}
+                >
+                  Usar →
+                </Link>
+                <Link to={`/app/templates/${t.id}/edit`} className={styles.btnSecondary}>
+                  Editar
+                </Link>
+                {user?.role === 'admin' && (
+                  <button className={styles.btnDanger} onClick={e => handleDelete(t.id, e)}>
+                    Eliminar
+                  </button>
                 )}
               </div>
             </div>

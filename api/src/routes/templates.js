@@ -26,7 +26,7 @@ router.get('/', requireAuth, async (req, res) => {
 
 // ── CREATE ────────────────────────────────────────────────────────────────────
 router.post('/', requireAuth, async (req, res) => {
-  const { title, body = '', tags = [], steps = [] } = req.body;
+  const { title, body = '', tags = [], steps = [], datasets = [] } = req.body;
   if (!title) return res.status(400).json({ error: 'El título es requerido' });
 
   const client = await pool.connect();
@@ -42,6 +42,15 @@ router.post('/', requireAuth, async (req, res) => {
       await client.query(
         'INSERT INTO template_steps (template_id, body, ordering) VALUES ($1, $2, $3)',
         [template.id, steps[i].body, i]
+      );
+    }
+
+    for (let i = 0; i < datasets.length; i++) {
+      const d = datasets[i];
+      if (!d.title?.trim()) continue;
+      await client.query(
+        'INSERT INTO template_datasets (template_id, title, equipment, ordering) VALUES ($1, $2, $3, $4)',
+        [template.id, d.title.trim(), d.equipment || '', i]
       );
     }
 
@@ -72,7 +81,11 @@ router.get('/:id', requireAuth, async (req, res) => {
       'SELECT * FROM template_steps WHERE template_id = $1 ORDER BY ordering, id',
       [req.params.id]
     );
-    res.json({ ...tmpl.rows[0], steps: steps.rows });
+    const datasets = await pool.query(
+      'SELECT * FROM template_datasets WHERE template_id = $1 ORDER BY ordering',
+      [req.params.id]
+    );
+    res.json({ ...tmpl.rows[0], steps: steps.rows, datasets: datasets.rows });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al obtener plantilla' });
@@ -110,6 +123,19 @@ router.patch('/:id', requireAuth, async (req, res) => {
         await client.query(
           'INSERT INTO template_steps (template_id, body, ordering) VALUES ($1, $2, $3)',
           [req.params.id, req.body.steps[i].body, i]
+        );
+      }
+    }
+
+    // Replace datasets if provided
+    if (req.body.datasets !== undefined) {
+      await client.query('DELETE FROM template_datasets WHERE template_id = $1', [req.params.id]);
+      for (let i = 0; i < req.body.datasets.length; i++) {
+        const d = req.body.datasets[i];
+        if (!d.title?.trim()) continue;
+        await client.query(
+          'INSERT INTO template_datasets (template_id, title, equipment, ordering) VALUES ($1, $2, $3, $4)',
+          [req.params.id, d.title.trim(), d.equipment || '', i]
         );
       }
     }

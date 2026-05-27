@@ -70,6 +70,19 @@
 
 .actions { display: flex; gap: 0.5rem; }
 
+.btnView {
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #eff6ff;
+  color: #1d4ed8;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.btnView:hover { opacity: 0.8; text-decoration: none; }
+
 .btnApprove, .btnReject {
   padding: 0.3rem 0.75rem;
   border: none;

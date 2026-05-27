@@ -28,6 +28,7 @@
   border: 1px solid var(--color-border);
   cursor: pointer;
   text-decoration: none;
+  white-space: nowrap;
 }
 .btnSecondary:hover { background: #f3f4f6; text-decoration: none; }
 
@@ -39,10 +40,21 @@
   font-size: 0.8rem;
   border: none;
   cursor: pointer;
+  white-space: nowrap;
 }
 .btnDanger:hover { background: #fecaca; }
 
 .muted { color: var(--color-text-muted); font-size: 0.9rem; }
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
 
 .list { display: flex; flex-direction: column; gap: 0.75rem; }
 
@@ -51,32 +63,49 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: 1rem 1.25rem;
-  cursor: pointer;
-  transition: box-shadow 0.15s;
-}
-.card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-
-.cardTop {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.4rem;
+  gap: 1.25rem;
+  transition: box-shadow 0.15s;
 }
-.tmplTitle { font-weight: 600; font-size: 0.95rem; }
+.card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
 
-.cardActions { display: flex; gap: 0.5rem; align-items: center; }
+.cardContent {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.tmplTitle {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardBody {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.45rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.45;
+}
 
 .cardMeta {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  font-size: 0.8rem;
+  gap: 0.75rem;
+  font-size: 0.79rem;
   color: var(--color-text-muted);
   flex-wrap: wrap;
 }
 
-.tags { display: flex; gap: 0.3rem; }
+.tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
 .tag {
   background: #eff6ff;
   color: #1d4ed8;
@@ -85,7 +114,29 @@
   font-size: 0.73rem;
 }
 
-/* Form */
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.usarBtn {
+  background: var(--color-primary);
+  color: white;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.usarBtn:hover { background: var(--color-primary-dark); color: white; text-decoration: none; }
+
+/* Form (TemplateForm uses this too) */
 .form { display: flex; flex-direction: column; gap: 1.1rem; max-width: 720px; }
 .form label { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.875rem; font-weight: 500; }
 .form input, .form textarea {
@@ -113,6 +164,39 @@
   outline: none;
 }
 .stepEditorItem input:focus { border-color: var(--color-primary); }
+.stepNumber {
+  width: 1.4rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.datasetEditorItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+}
+.datasetInput {
+  flex: 1;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  outline: none;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.datasetInput:focus { border-color: var(--color-primary); }
+
+.stepsHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
 .stepDelete { background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 1.1rem; padding: 0; }
 .stepDelete:hover { color: var(--color-error); }
 
