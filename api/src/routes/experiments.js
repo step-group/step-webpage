@@ -53,7 +53,7 @@ router.post('/', requireAuth, async (req, res) => {
     );
     const experiment = result.rows[0];
 
-    // Copy steps from template if provided
+    // Copy steps and datasets from template if provided
     if (template_id) {
       const tmplSteps = await client.query(
         'SELECT body, ordering FROM template_steps WHERE template_id = $1 ORDER BY ordering',
@@ -63,6 +63,18 @@ router.post('/', requireAuth, async (req, res) => {
         await client.query(
           'INSERT INTO experiment_steps (experiment_id, body, ordering) VALUES ($1, $2, $3)',
           [experiment.id, step.body, step.ordering]
+        );
+      }
+
+      const tmplDatasets = await client.query(
+        'SELECT title, equipment, ordering FROM template_datasets WHERE template_id = $1 ORDER BY ordering',
+        [template_id]
+      );
+      for (const td of tmplDatasets.rows) {
+        await client.query(
+          `INSERT INTO datasets (experiment_id, title, equipment, calibration_notes, created_by)
+           VALUES ($1, $2, $3, '', $4)`,
+          [experiment.id, td.title, td.equipment, req.user.id]
         );
       }
     }
@@ -104,7 +116,9 @@ router.get('/:id', requireAuth, async (req, res) => {
     );
     const links = await pool.query(
       `SELECT r.id, r.name, r.quantity, r.unit, r.location,
-              rc.name AS category_name, rc.color AS category_color
+              r.cas_number, r.supplier, r.grado,
+              rc.name AS category_name, rc.color AS category_color,
+              l.quantity_used
        FROM exp_resource_links l
        JOIN resources r ON r.id = l.resource_id
        LEFT JOIN resource_categories rc ON rc.id = r.category_id
@@ -258,30 +272,91 @@ router.delete('/:id/comments/:commentId', requireAuth, async (req, res) => {
 
 // ── RESOURCE LINKS ────────────────────────────────────────────────────────────
 router.post('/:id/links', requireAuth, async (req, res) => {
-  const { resource_id } = req.body;
+  const { resource_id, quantity_used = 0 } = req.body;
   if (!resource_id) return res.status(400).json({ error: 'resource_id requerido' });
+
+  const client = await pool.connect();
   try {
-    await pool.query(
-      'INSERT INTO exp_resource_links (experiment_id, resource_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-      [req.params.id, resource_id]
+    await client.query('BEGIN');
+
+    const resourceRes = await client.query(
+      'SELECT quantity, unit FROM resources WHERE id = $1',
+      [resource_id]
     );
+    if (!resourceRes.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Recurso no encontrado' });
+    }
+
+    const qty = Number(quantity_used);
+    if (qty > 0 && qty > Number(resourceRes.rows[0].quantity)) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        error: `Stock insuficiente. Disponible: ${resourceRes.rows[0].quantity} ${resourceRes.rows[0].unit}`,
+      });
+    }
+
+    await client.query(
+      `INSERT INTO exp_resource_links (experiment_id, resource_id, quantity_used)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (experiment_id, resource_id) DO NOTHING`,
+      [req.params.id, resource_id, qty]
+    );
+
+    if (qty > 0) {
+      await client.query(
+        'UPDATE resources SET quantity = quantity - $1 WHERE id = $2',
+        [qty, resource_id]
+      );
+    }
+
+    await client.query('COMMIT');
     res.status(201).end();
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error(err);
     res.status(500).json({ error: 'Error al vincular recurso' });
+  } finally {
+    client.release();
   }
 });
 
 router.delete('/:id/links/:resourceId', requireAuth, async (req, res) => {
+  const client = await pool.connect();
   try {
-    await pool.query(
+    await client.query('BEGIN');
+
+    const linkRes = await client.query(
+      'SELECT quantity_used FROM exp_resource_links WHERE experiment_id = $1 AND resource_id = $2',
+      [req.params.id, req.params.resourceId]
+    );
+
+    if (!linkRes.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Vínculo no encontrado' });
+    }
+
+    await client.query(
       'DELETE FROM exp_resource_links WHERE experiment_id = $1 AND resource_id = $2',
       [req.params.id, req.params.resourceId]
     );
+
+    const qty = Number(linkRes.rows[0].quantity_used);
+    if (qty > 0) {
+      await client.query(
+        'UPDATE resources SET quantity = quantity + $1 WHERE id = $2',
+        [qty, req.params.resourceId]
+      );
+    }
+
+    await client.query('COMMIT');
     res.status(204).end();
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error(err);
     res.status(500).json({ error: 'Error al desvincular recurso' });
+  } finally {
+    client.release();
   }
 });
 

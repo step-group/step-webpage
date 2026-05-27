@@ -31,6 +31,7 @@ router.get('/experiments/:expId/datasets', requireAuth, async (req, res) => {
 router.post('/experiments/:expId/datasets', requireAuth, async (req, res) => {
   const { title, equipment = '', calibration_notes = '', compounds = [] } = req.body;
   if (!title) return res.status(400).json({ error: 'El título es requerido' });
+  // compounds is optional — datasets can start empty and get compounds configured later
 
   const client = await pool.connect();
   try {
@@ -44,11 +45,31 @@ router.post('/experiments/:expId/datasets', requireAuth, async (req, res) => {
     const dataset = result.rows[0];
 
     for (const c of compounds) {
-      if (!c.name || !c.compound_index) continue;
+      if (!c.compound_index) continue;
+
+      let name = c.name, cas = c.cas_number || '', supplier = c.supplier || '', grade = c.grade || '';
+
+      if (c.resource_id) {
+        const rRes = await client.query(
+          'SELECT name, cas_number, supplier, grado FROM resources WHERE id = $1',
+          [c.resource_id]
+        );
+        if (rRes.rows[0]) {
+          const r = rRes.rows[0];
+          name     = r.name;
+          cas      = r.cas_number || '';
+          supplier = r.supplier   || '';
+          grade    = r.grado      || '';
+        }
+      }
+
+      if (!name) continue;
+
       await client.query(
-        `INSERT INTO dataset_compounds (dataset_id, compound_index, name, cas_number, purity, purity_unit, supplier)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [dataset.id, c.compound_index, c.name, c.cas_number || '', c.purity || null, c.purity_unit || 'mol%', c.supplier || '']
+        `INSERT INTO dataset_compounds
+           (dataset_id, compound_index, name, cas_number, purity, purity_unit, supplier, resource_id, grade)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [dataset.id, c.compound_index, name, cas, c.purity || null, c.purity_unit || 'mol%', supplier, c.resource_id || null, grade]
       );
     }
 
@@ -90,6 +111,53 @@ router.get('/datasets/:id', requireAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al obtener dataset' });
+  }
+});
+
+// POST /api/datasets/:id/compounds — set/replace compounds on an existing dataset
+router.post('/datasets/:id/compounds', requireAuth, async (req, res) => {
+  const { compounds = [] } = req.body;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('DELETE FROM dataset_compounds WHERE dataset_id = $1', [req.params.id]);
+
+    for (const c of compounds) {
+      if (!c.compound_index) continue;
+      let name = c.name || '', cas = c.cas_number || '', supplier = c.supplier || '', grade = c.grade || '';
+
+      if (c.resource_id) {
+        const rRes = await client.query(
+          'SELECT name, cas_number, supplier, grado FROM resources WHERE id = $1',
+          [c.resource_id]
+        );
+        if (rRes.rows[0]) {
+          const r = rRes.rows[0];
+          name = r.name; cas = r.cas_number || ''; supplier = r.supplier || ''; grade = r.grado || '';
+        }
+      }
+
+      if (!name) continue;
+      await client.query(
+        `INSERT INTO dataset_compounds
+           (dataset_id, compound_index, name, cas_number, purity, purity_unit, supplier, resource_id, grade)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [req.params.id, c.compound_index, name, cas, c.purity || null, c.purity_unit || 'mol%', supplier, c.resource_id || null, grade]
+      );
+    }
+
+    await client.query('COMMIT');
+    const updated = await pool.query(
+      'SELECT * FROM dataset_compounds WHERE dataset_id = $1 ORDER BY compound_index',
+      [req.params.id]
+    );
+    res.json(updated.rows);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error(err);
+    res.status(500).json({ error: 'Error al configurar compuestos' });
+  } finally {
+    client.release();
   }
 });
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { api } from '../../api/client';
 import AppLayout from '../../layouts/AppLayout';
 import styles from './Experiments.module.css';
@@ -13,6 +13,7 @@ const STATUS_OPTIONS = [
 
 export default function ExperimentForm() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
 
@@ -21,34 +22,60 @@ export default function ExperimentForm() {
     date: new Date().toISOString().slice(0, 10),
     tags: [], template_id: '',
   });
-  const [steps, setSteps]       = useState([]);
-  const [templates, setTemplates] = useState([]);
-  const [tagInput, setTagInput]  = useState('');
-  const [error, setError]        = useState('');
-  const [loading, setLoading]    = useState(false);
+  const [steps, setSteps]               = useState([]);
+  const [templates, setTemplates]       = useState([]);
+  const [appliedTemplate, setApplied]   = useState(null); // { id, title }
+  const [tagInput, setTagInput]         = useState('');
+  const [error, setError]               = useState('');
+  const [loading, setLoading]           = useState(false);
 
   useEffect(() => {
-    api.templates.list().then(setTemplates);
-    if (isEdit) {
-      api.experiments.get(id).then(exp => {
+    const templateParam = searchParams.get('template');
+
+    Promise.all([
+      api.templates.list(),
+      isEdit ? api.experiments.get(id) : Promise.resolve(null),
+    ]).then(([tmplList, expData]) => {
+      setTemplates(tmplList);
+
+      if (isEdit && expData) {
         setForm({
-          title:       exp.title,
-          body:        exp.body,
-          status:      exp.status,
-          date:        exp.date?.slice(0, 10) || new Date().toISOString().slice(0, 10),
-          tags:        exp.tags || [],
-          template_id: exp.template_id || '',
+          title:       expData.title,
+          body:        expData.body,
+          status:      expData.status,
+          date:        expData.date?.slice(0, 10) || new Date().toISOString().slice(0, 10),
+          tags:        expData.tags || [],
+          template_id: expData.template_id ? String(expData.template_id) : '',
         });
-        setSteps(exp.steps || []);
-      });
-    }
+        setSteps(expData.steps || []);
+        if (expData.template_id) {
+          const matched = tmplList.find(x => x.id === expData.template_id);
+          if (matched) setApplied({ id: matched.id, title: matched.title });
+        }
+      } else if (templateParam) {
+        const matched = tmplList.find(t => String(t.id) === templateParam);
+        if (matched) {
+          api.templates.get(matched.id).then(t => {
+            setForm(f => ({ ...f, body: t.body || '', tags: t.tags || [], template_id: String(t.id) }));
+            setSteps((t.steps || []).map(s => ({ body: s.body, ordering: s.ordering, finished: false })));
+            setApplied({ id: t.id, title: t.title });
+          });
+        }
+      }
+    });
   }, [id, isEdit]);
 
   function applyTemplate(tmplId) {
-    if (!tmplId) return;
+    if (!tmplId) {
+      setApplied(null);
+      setForm(f => ({ ...f, body: '', tags: [], template_id: '' }));
+      setSteps([]);
+      return;
+    }
     api.templates.get(tmplId).then(t => {
-      setForm(f => ({ ...f, body: t.body, tags: t.tags, template_id: tmplId }));
-      setSteps(t.steps.map(s => ({ body: s.body, ordering: s.ordering, finished: false })));
+      setForm(f => ({ ...f, body: t.body || '', tags: t.tags || [], template_id: String(t.id) }));
+      setSteps((t.steps || []).map(s => ({ body: s.body, ordering: s.ordering, finished: false })));
+      setApplied({ id: t.id, title: t.title });
     });
   }
 
@@ -78,22 +105,19 @@ export default function ExperimentForm() {
     if (!form.title.trim()) return setError('El título es requerido');
     setLoading(true);
     try {
-      const payload = {
-        ...form,
-        template_id: form.template_id || undefined,
-        tags: form.tags,
-      };
+      const payload = { ...form, template_id: form.template_id || undefined };
 
       if (isEdit) {
-        await api.experiments.update(id, { title: payload.title, body: payload.body, status: payload.status, date: payload.date, tags: payload.tags });
-        // Sync steps: for edit, we add new steps only (existing steps managed inline on detail page)
+        await api.experiments.update(id, {
+          title: payload.title, body: payload.body,
+          status: payload.status, date: payload.date, tags: payload.tags,
+        });
         for (const s of steps.filter(s => !s.id)) {
           await api.experiments.addStep(id, { body: s.body, ordering: s.ordering });
         }
         navigate(`/app/experiments/${id}`);
       } else {
         const exp = await api.experiments.create(payload);
-        // Steps are copied from template automatically by the API; add extra ones if any
         for (const s of steps.filter(s => !s.id)) {
           await api.experiments.addStep(exp.id, { body: s.body, ordering: s.ordering });
         }
@@ -110,23 +134,38 @@ export default function ExperimentForm() {
     <AppLayout>
       <div className={styles.pageHeader}>
         <h2>{isEdit ? 'Editar experimento' : 'Nuevo experimento'}</h2>
-        <Link to={isEdit ? `/app/experiments/${id}` : '/app/experiments'} className={styles.btnSecondary}>Cancelar</Link>
+        <Link
+          to={isEdit ? `/app/experiments/${id}` : '/app/experiments'}
+          className={styles.btnSecondary}
+        >
+          Cancelar
+        </Link>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         {error && <p className={styles.error}>{error}</p>}
 
+        {/* Template selector / banner */}
         {!isEdit && (
-          <label>
-            Usar plantilla (opcional)
-            <select
-              value={form.template_id}
-              onChange={e => { setForm(f => ({ ...f, template_id: e.target.value })); applyTemplate(e.target.value); }}
-            >
-              <option value="">Sin plantilla</option>
-              {templates.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
-            </select>
-          </label>
+          appliedTemplate ? (
+            <div className={styles.templateBanner}>
+              <span>📋 Plantilla: <strong>{appliedTemplate.title}</strong></span>
+              <button type="button" onClick={() => applyTemplate('')}>Cambiar</button>
+            </div>
+          ) : (
+            <label>
+              Usar plantilla <span className={styles.optional}>(opcional)</span>
+              <select
+                value={form.template_id}
+                onChange={e => applyTemplate(e.target.value)}
+              >
+                <option value="">Sin plantilla</option>
+                {templates.map(t => (
+                  <option key={t.id} value={t.id}>{t.title}</option>
+                ))}
+              </select>
+            </label>
+          )
         )}
 
         <label>
@@ -134,7 +173,13 @@ export default function ExperimentForm() {
           <input
             value={form.title}
             onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-            required autoFocus
+            required
+            autoFocus
+            placeholder={
+              appliedTemplate
+                ? `Ej: ${appliedTemplate.title} — ${form.date}`
+                : 'Nombre del experimento'
+            }
           />
         </label>
 
@@ -147,7 +192,11 @@ export default function ExperimentForm() {
           </label>
           <label>
             Fecha
-            <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+            <input
+              type="date"
+              value={form.date}
+              onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+            />
           </label>
         </div>
 
@@ -162,11 +211,13 @@ export default function ExperimentForm() {
             <input
               value={tagInput}
               onChange={e => setTagInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(tagInput); } }}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(tagInput); }
+              }}
               placeholder="Agregar etiqueta..."
             />
           </div>
-          <span style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>Presiona Enter o coma para agregar</span>
+          <span className={styles.hint}>Presiona Enter o coma para agregar</span>
         </label>
 
         <label>
@@ -179,13 +230,16 @@ export default function ExperimentForm() {
         </label>
 
         <div>
-          <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-            Pasos del protocolo
+          <div className={styles.stepsHeader}>
+            <span>Pasos del protocolo</span>
+            {appliedTemplate && steps.length > 0 && (
+              <span className={styles.stepsFromTemplate}>copiados desde la plantilla — puedes editarlos</span>
+            )}
           </div>
           <div className={styles.stepsEditor}>
             {steps.map((s, i) => (
               <div key={i} className={styles.stepEditorItem}>
-                <span className={styles.dragHandle}>⠿</span>
+                <span className={styles.stepNumber}>{i + 1}</span>
                 <input
                   value={s.body}
                   onChange={e => updateStepBody(i, e.target.value)}
@@ -195,7 +249,12 @@ export default function ExperimentForm() {
               </div>
             ))}
           </div>
-          <button type="button" className={styles.btnSecondary} style={{ marginTop: '0.5rem', fontSize: '0.8rem' }} onClick={addStep}>
+          <button
+            type="button"
+            className={styles.btnSecondary}
+            style={{ marginTop: '0.5rem', fontSize: '0.8rem' }}
+            onClick={addStep}
+          >
             + Agregar paso
           </button>
         </div>

@@ -134,7 +134,73 @@ async function seed() {
   await seedZone(zone11, 'Zone 1.1', ZONE_1_1, admin.id);
   await seedZone(zone12, 'Zone 1.2', ZONE_1_2, admin.id);
 
+  await seedTemplates(admin.id);
+
   await pool.end();
+}
+
+async function seedTemplates(adminId) {
+  const DENSIMETER_TEMPLATE = {
+    title: 'Medición de densidad con densímetro de vibración',
+    body:
+      'Protocolo para medir la densidad de mezclas líquidas usando un densímetro de tubo vibrante (ej. Anton Paar DMA).\n\n' +
+      'Antes de iniciar, vincular al experimento los compuestos del inventario que se van a usar. ' +
+      'El modelo del densímetro y las notas de calibración se registran al crear el dataset.',
+    tags: ['densidad', 'densímetro', 'mezclas'],
+    steps: [
+      { ordering: 1,  body: 'Registrar modelo y número de serie del densímetro (se ingresa al crear el dataset)' },
+      { ordering: 2,  body: 'Calibrar con agua Milli-Q y aire seco a la temperatura de trabajo — verificar que ρ(H₂O, 298.15 K) = 997.045 kg·m⁻³ ± 0.005 kg·m⁻³' },
+      { ordering: 3,  body: 'Preparar las mezclas gravimétricamente con balanza analítica (u(m) ≤ 0.1 mg) para las fracciones molares objetivo' },
+      { ordering: 4,  body: 'Desgasificar las muestras en baño de ultrasonido (15 min) para eliminar burbujas disueltas' },
+      { ordering: 5,  body: 'Limpiar la celda de medición con el solvente más volátil de la mezcla y secar con flujo de N₂ seco' },
+      { ordering: 6,  body: 'Cargar la primera muestra en la celda y esperar estabilización de temperatura (ΔT < 0.005 K durante 10 min)' },
+      { ordering: 7,  body: 'Registrar densidad, temperatura y presión para cada punto de concentración en el dataset' },
+      { ordering: 8,  body: 'Limpiar y secar la celda entre cada medición (repetir paso 5)' },
+      { ordering: 9,  body: 'Verificar reproducibilidad midiendo un componente puro conocido al finalizar la sesión' },
+      { ordering: 10, body: 'Calcular incertidumbres expandidas U(ρ) con factor de cobertura k = 2 y registrarlas en cada punto del dataset' },
+    ],
+  };
+
+  const existing = await pool.query(
+    'SELECT id FROM experiment_templates WHERE title = $1 LIMIT 1',
+    [DENSIMETER_TEMPLATE.title]
+  );
+
+  if (existing.rows.length > 0) {
+    console.log('  Templates: already seeded, skipping.');
+    return;
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: [tmpl] } = await client.query(
+      `INSERT INTO experiment_templates (title, body, tags, created_by)
+       VALUES ($1, $2, $3, $4) RETURNING id`,
+      [DENSIMETER_TEMPLATE.title, DENSIMETER_TEMPLATE.body, DENSIMETER_TEMPLATE.tags, adminId]
+    );
+
+    for (const s of DENSIMETER_TEMPLATE.steps) {
+      await client.query(
+        'INSERT INTO template_steps (template_id, body, ordering) VALUES ($1, $2, $3)',
+        [tmpl.id, s.body, s.ordering]
+      );
+    }
+
+    await client.query(
+      'INSERT INTO template_datasets (template_id, title, equipment, ordering) VALUES ($1, $2, $3, $4)',
+      [tmpl.id, 'Dataset de densidad', 'Anton Paar DMA 5000 M', 0]
+    );
+
+    await client.query('COMMIT');
+    console.log(`  Templates: "${DENSIMETER_TEMPLATE.title}" seeded (${DENSIMETER_TEMPLATE.steps.length} pasos).`);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 seed().catch(err => { console.error(err); process.exit(1); });

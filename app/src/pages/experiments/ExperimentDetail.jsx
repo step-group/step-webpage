@@ -26,6 +26,8 @@ export default function ExperimentDetail() {
   const [comment, setComment]   = useState('');
   const [allResources, setAll]  = useState([]);
   const [linkId, setLinkId]     = useState('');
+  const [linkQty, setLinkQty]   = useState('');
+  const [linkError, setLinkError] = useState('');
   const [error, setError]       = useState('');
 
   useEffect(() => {
@@ -71,10 +73,28 @@ export default function ExperimentDetail() {
 
   async function addLink() {
     if (!linkId) return;
-    await api.experiments.addLink(id, Number(linkId));
+    setLinkError('');
     const resource = allResources.find(r => r.id === Number(linkId));
-    setExp(e => ({ ...e, resource_links: [...e.resource_links, resource] }));
-    setLinkId('');
+    const qty = linkQty === '' ? 0 : Number(linkQty);
+    if (linkQty !== '' && (isNaN(qty) || qty < 0)) {
+      setLinkError('La cantidad debe ser un número positivo.');
+      return;
+    }
+    if (qty > 0 && qty > Number(resource.quantity)) {
+      setLinkError(`Stock insuficiente. Disponible: ${resource.quantity} ${resource.unit}`);
+      return;
+    }
+    try {
+      await api.experiments.addLink(id, Number(linkId), qty);
+      setExp(e => ({
+        ...e,
+        resource_links: [...e.resource_links, { ...resource, quantity_used: qty }],
+      }));
+      setLinkId('');
+      setLinkQty('');
+    } catch (err) {
+      setLinkError(err.message);
+    }
   }
 
   async function removeLink(rid) {
@@ -172,22 +192,38 @@ export default function ExperimentDetail() {
         <div className={styles.resourceLinks}>
           {exp.resource_links.map(r => (
             <span key={r.id} className={styles.resourceChip}>
-              {r.name} {r.quantity > 0 && `(${r.quantity} ${r.unit})`}
+              {r.name}
+              {r.quantity_used > 0
+                ? ` — ${r.quantity_used} ${r.unit}`
+                : r.quantity > 0 ? ` (${r.quantity} ${r.unit} disponibles)` : ''}
               <button onClick={() => removeLink(r.id)} title="Desvincular">×</button>
             </span>
           ))}
         </div>
         {availableResources.length > 0 && (
           <div className={styles.linkSelect}>
-            <select value={linkId} onChange={e => setLinkId(e.target.value)}>
+            <select value={linkId} onChange={e => { setLinkId(e.target.value); setLinkQty(''); setLinkError(''); }}>
               <option value="">Seleccionar recurso...</option>
               {availableResources.map(r => (
-                <option key={r.id} value={r.id}>{r.name} ({r.quantity} {r.unit})</option>
+                <option key={r.id} value={r.id}>{r.name} (disp: {r.quantity} {r.unit})</option>
               ))}
             </select>
+            {linkId && (
+              <input
+                type="number"
+                min="0"
+                step="any"
+                className={styles.addStepInput}
+                style={{ width: '100px' }}
+                placeholder={`Cantidad (${availableResources.find(r => r.id === Number(linkId))?.unit || ''})`}
+                value={linkQty}
+                onChange={e => { setLinkQty(e.target.value); setLinkError(''); }}
+              />
+            )}
             <button className={styles.btnSecondary} onClick={addLink}>Vincular</button>
           </div>
         )}
+        {linkError && <p style={{ color: 'var(--color-danger, #dc2626)', fontSize: '0.82rem', marginTop: '0.35rem' }}>{linkError}</p>}
       </div>
 
       {/* Comments */}
@@ -220,7 +256,7 @@ export default function ExperimentDetail() {
 
       {/* Datasets */}
       <div className={styles.section}>
-        <DatasetSection experimentId={id} />
+        <DatasetSection experimentId={id} resourceLinks={exp.resource_links} />
       </div>
     </AppLayout>
   );

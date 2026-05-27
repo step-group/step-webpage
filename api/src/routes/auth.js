@@ -140,6 +140,49 @@ router.patch('/profile', requireAuth, async (req, res) => {
   }
 });
 
+// GET /api/auth/activity — experiments, datasets, publications for the logged-in user
+router.get('/activity', requireAuth, async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const [expsRes, datasetsRes, pubsRes] = await Promise.all([
+      pool.query(`
+        SELECT e.id, e.title, e.status, e.date, e.state, e.created_at, e.updated_at,
+          COUNT(DISTINCT d.id)::int                                     AS dataset_count,
+          COUNT(DISTINCT s.id)::int                                     AS steps_total,
+          COUNT(DISTINCT s.id) FILTER (WHERE s.finished = true)::int   AS steps_done
+        FROM experiments e
+        LEFT JOIN datasets d ON d.experiment_id = e.id
+        LEFT JOIN experiment_steps s ON s.experiment_id = e.id
+        WHERE e.created_by = $1
+        GROUP BY e.id
+        ORDER BY e.updated_at DESC
+      `, [userId]),
+      pool.query(`
+        SELECT d.id, d.title, d.equipment, d.created_at,
+          e.id AS experiment_id, e.title AS experiment_title,
+          COUNT(dp.id)::int AS point_count
+        FROM datasets d
+        JOIN experiments e ON e.id = d.experiment_id
+        LEFT JOIN dataset_points dp ON dp.dataset_id = d.id
+        WHERE d.created_by = $1
+        GROUP BY d.id, e.id, e.title
+        ORDER BY d.created_at DESC
+      `, [userId]),
+      pool.query(`
+        SELECT id, title, status, created_at FROM publications WHERE created_by = $1 ORDER BY created_at DESC
+      `, [userId]),
+    ]);
+    res.json({
+      experiments:  expsRes.rows,
+      datasets:     datasetsRes.rows,
+      publications: pubsRes.rows,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener actividad' });
+  }
+});
+
 // GET /api/auth/me — usuario actual
 router.get('/me', requireAuth, async (req, res) => {
   try {

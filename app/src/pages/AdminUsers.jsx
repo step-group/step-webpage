@@ -82,6 +82,9 @@ export default function AdminUsers() {
                       </select>
                     </td>
                     <td className={styles.actions}>
+                      <Link to={`/app/admin/users/${u.id}`} className={styles.btnView}>
+                        Ver actividad
+                      </Link>
                       {u.status !== 'approved' && (
                         <button className={styles.btnApprove} onClick={() => updateStatus(u.id, 'approved')}>
                           Aprobar

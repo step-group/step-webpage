@@ -12,6 +12,7 @@ import TemplateForm     from './pages/templates/TemplateForm';
 import ResourceList     from './pages/resources/ResourceList';
 import ResourceForm     from './pages/resources/ResourceForm';
 import Profile             from './pages/Profile';
+import UserActivity        from './pages/UserActivity';
 import PublicationList    from './pages/publications/PublicationList';
 import PublicationDetail  from './pages/publications/PublicationDetail';
 import PublicationForm    from './pages/publications/PublicationForm';
@@ -40,6 +41,7 @@ function AppRoutes() {
 
       <Route path="/app/dashboard"            element={<P><Dashboard /></P>} />
       <Route path="/app/admin/users"          element={<AdminRoute><AdminUsers /></AdminRoute>} />
+      <Route path="/app/admin/users/:id"      element={<AdminRoute><UserActivity /></AdminRoute>} />
 
       <Route path="/app/experiments"          element={<P><ExperimentList /></P>} />
       <Route path="/app/experiments/new"      element={<P><ExperimentForm /></P>} />
