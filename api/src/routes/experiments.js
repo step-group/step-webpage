@@ -67,14 +67,20 @@ router.post('/', requireAuth, async (req, res) => {
       }
 
       const tmplDatasets = await client.query(
-        'SELECT title, equipment, ordering FROM template_datasets WHERE template_id = $1 ORDER BY ordering',
+        'SELECT id, title, equipment, ordering FROM template_datasets WHERE template_id = $1 ORDER BY ordering',
         [template_id]
       );
       for (const td of tmplDatasets.rows) {
-        await client.query(
+        const dsRes = await client.query(
           `INSERT INTO datasets (experiment_id, title, equipment, calibration_notes, created_by)
-           VALUES ($1, $2, $3, '', $4)`,
+           VALUES ($1, $2, $3, '', $4) RETURNING id`,
           [experiment.id, td.title, td.equipment, req.user.id]
+        );
+        const dsId = dsRes.rows[0].id;
+        await client.query(
+          `INSERT INTO dataset_columns (dataset_id, name, unit, ordering)
+           SELECT $1, name, unit, ordering FROM template_columns WHERE template_dataset_id = $2`,
+          [dsId, td.id]
         );
       }
     }

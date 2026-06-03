@@ -308,3 +308,137 @@ textarea.input { resize: vertical; }
   color: #d97706;
   font-style: italic;
 }
+
+/* Columns bar */
+.columnsBar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1.125rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+  background: #fafafa;
+  flex-wrap: wrap;
+}
+.colsList { flex: 1; }
+.btnEditCols {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  padding: 0;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btnEditCols:hover { color: var(--color-primary-dark); }
+
+/* Inline columns editor */
+.colsEditor {
+  padding: 0.75rem 1.125rem;
+  border-bottom: 1px solid var(--color-border);
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.colEditorRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.colInput {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  font-family: inherit;
+  background: var(--color-surface);
+  color: var(--color-text);
+  outline: none;
+}
+.colInput:focus { border-color: var(--color-primary); }
+.colInputName { width: 110px; }
+.colInputUnit { width: 75px; }
+.colEditorActions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+.btnAddCol {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--color-primary);
+  text-decoration: underline;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+}
+.btnAddCol:hover { color: var(--color-primary-dark); }
+
+/* Excel actions bar */
+.excelBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.125rem;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+  flex-wrap: wrap;
+}
+.btnExcelDown {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  border: 1px solid #bfdbfe;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.btnExcelDown:hover:not(:disabled) { background: #dbeafe; }
+.btnExcelDown:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnExcelUp {
+  background: #f0fdf4;
+  color: #166534;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  border: 1px solid #bbf7d0;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+.btnExcelUp:hover { background: #dcfce7; }
+.btnDisabled { opacity: 0.5; cursor: not-allowed; }
+.importMsg {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius);
+}
+.importMsgOk  { color: #166534; background: #f0fdf4; }
+.importMsgErr { color: var(--color-error); background: #fee2e2; }
+.rowCount {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+
+/* Empty data state */
+.noData {
+  padding: 1.5rem 1.125rem;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  border-bottom: 1px solid #f1f5f9;
+}

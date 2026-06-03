@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
 import AppLayout from '../../layouts/AppLayout';
+import WosImportModal from './WosImportModal';
 import styles from './Publications.module.css';
 
 const STATUS_LABEL = { draft: 'Borrador', submitted: 'Enviado', under_review: 'En revisión', published: 'Publicado' };
@@ -11,6 +12,7 @@ export default function PublicationList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState('');
   const [status, setStatus]   = useState('');
+  const [showWos, setShowWos] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,8 +27,22 @@ export default function PublicationList() {
     <AppLayout>
       <div className={styles.pageHeader}>
         <h2>Publicaciones</h2>
-        <Link to="/app/publications/new" className={styles.btnPrimary}>+ Nueva</Link>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className={styles.btnSecondary} onClick={() => setShowWos(true)}>
+            Importar WOS
+          </button>
+          <Link to="/app/publications/new" className={styles.btnPrimary}>+ Nueva</Link>
+        </div>
       </div>
+
+      {showWos && (
+        <WosImportModal
+          onClose={() => setShowWos(false)}
+          onImported={() => {
+            api.publications.list({}).then(setPubs);
+          }}
+        />
+      )}
 
       <div className={styles.filters}>
         <input className={styles.searchInput} placeholder="Buscar por título o autores..."

@@ -48,6 +48,81 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
+// ── WOS SEARCH ────────────────────────────────────────────────────────────────
+const WOS_AUTHORS = [
+  'Canales, Roberto',
+  'Gajardo-Parra, Nicolas',
+  'Cea-Klapp, Esteban',
+];
+
+router.get('/wos', requireAuth, async (req, res) => {
+  const apiKey = process.env.WOS_API_KEY;
+  if (!apiKey) return res.status(503).json({ error: 'WOS_API_KEY no configurada en el servidor' });
+
+  try {
+    const responses = await Promise.all(WOS_AUTHORS.map(author => {
+      const q = encodeURIComponent(`AU=${author}`);
+      return fetch(
+        `https://api.clarivate.com/apis/wos-starter/v1/documents?q=${q}&limit=50&db=WOS`,
+        { headers: { 'X-ApiKey': apiKey } }
+      ).then(r => {
+        if (!r.ok) throw new Error(`WOS ${r.status} para autor "${author}"`);
+        return r.json();
+      });
+    }));
+
+    // Deduplicate by UID
+    const seen = new Set();
+    const hits = responses.flatMap(r => r.hits || []).filter(h => {
+      if (seen.has(h.uid)) return false;
+      seen.add(h.uid);
+      return true;
+    });
+
+    // Check which DOIs already exist
+    const dois = hits.map(h => h.identifiers?.doi).filter(Boolean);
+    const existingRows = dois.length
+      ? (await pool.query('SELECT doi FROM publications WHERE doi = ANY($1)', [dois])).rows
+      : [];
+    const existingDois = new Set(existingRows.map(r => r.doi));
+
+    res.json(hits.map(h => ({
+      uid:              h.uid,
+      title:            h.title || '(sin título)',
+      authors:          (h.names?.authors || []).map(a => a.displayName).join('; '),
+      journal:          h.source?.sourceTitle || '',
+      year:             h.source?.publishYear || null,
+      doi:              h.identifiers?.doi || '',
+      already_imported: existingDois.has(h.identifiers?.doi),
+    })).sort((a, b) => (b.year || 0) - (a.year || 0)));
+  } catch (err) {
+    console.error(err);
+    res.status(502).json({ error: err.message });
+  }
+});
+
+// ── WOS IMPORT ────────────────────────────────────────────────────────────────
+router.post('/wos-import', requireAuth, async (req, res) => {
+  const { title, authors, journal, year, doi } = req.body;
+  if (!title) return res.status(400).json({ error: 'Título requerido' });
+
+  try {
+    if (doi) {
+      const dup = await pool.query('SELECT id FROM publications WHERE doi = $1', [doi]);
+      if (dup.rows[0]) return res.status(409).json({ error: 'Ya existe una publicación con este DOI', id: dup.rows[0].id });
+    }
+    const result = await pool.query(
+      `INSERT INTO publications (title, authors, journal, year, doi, abstract, status, created_by)
+       VALUES ($1,$2,$3,$4,$5,'','published',$6) RETURNING *`,
+      [title, authors || '', journal || '', year || null, doi || '', req.user.id]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al importar publicación' });
+  }
+});
+
 // ── GET ONE ───────────────────────────────────────────────────────────────────
 router.get('/:id', requireAuth, async (req, res) => {
   try {

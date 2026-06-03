@@ -48,10 +48,20 @@ router.post('/', requireAuth, async (req, res) => {
     for (let i = 0; i < datasets.length; i++) {
       const d = datasets[i];
       if (!d.title?.trim()) continue;
-      await client.query(
-        'INSERT INTO template_datasets (template_id, title, equipment, ordering) VALUES ($1, $2, $3, $4)',
+      const tdRes = await client.query(
+        'INSERT INTO template_datasets (template_id, title, equipment, ordering) VALUES ($1, $2, $3, $4) RETURNING id',
         [template.id, d.title.trim(), d.equipment || '', i]
       );
+      const tdId = tdRes.rows[0].id;
+      const cols = d.columns || [];
+      for (let j = 0; j < cols.length; j++) {
+        const c = cols[j];
+        if (!c.name?.trim()) continue;
+        await client.query(
+          'INSERT INTO template_columns (template_dataset_id, name, unit, ordering) VALUES ($1, $2, $3, $4)',
+          [tdId, c.name.trim(), c.unit || '', j]
+        );
+      }
     }
 
     await client.query('COMMIT');
@@ -82,7 +92,19 @@ router.get('/:id', requireAuth, async (req, res) => {
       [req.params.id]
     );
     const datasets = await pool.query(
-      'SELECT * FROM template_datasets WHERE template_id = $1 ORDER BY ordering',
+      `SELECT td.*,
+              COALESCE(
+                json_agg(
+                  json_build_object('id', tc.id, 'name', tc.name, 'unit', tc.unit, 'ordering', tc.ordering)
+                  ORDER BY tc.ordering
+                ) FILTER (WHERE tc.id IS NOT NULL),
+                '[]'
+              ) AS columns
+       FROM template_datasets td
+       LEFT JOIN template_columns tc ON tc.template_dataset_id = td.id
+       WHERE td.template_id = $1
+       GROUP BY td.id
+       ORDER BY td.ordering`,
       [req.params.id]
     );
     res.json({ ...tmpl.rows[0], steps: steps.rows, datasets: datasets.rows });
@@ -116,7 +138,6 @@ router.patch('/:id', requireAuth, async (req, res) => {
       template = result.rows[0];
     }
 
-    // Replace steps if provided
     if (req.body.steps !== undefined) {
       await client.query('DELETE FROM template_steps WHERE template_id = $1', [req.params.id]);
       for (let i = 0; i < req.body.steps.length; i++) {
@@ -127,16 +148,26 @@ router.patch('/:id', requireAuth, async (req, res) => {
       }
     }
 
-    // Replace datasets if provided
     if (req.body.datasets !== undefined) {
+      // CASCADE deletes template_columns too
       await client.query('DELETE FROM template_datasets WHERE template_id = $1', [req.params.id]);
       for (let i = 0; i < req.body.datasets.length; i++) {
         const d = req.body.datasets[i];
         if (!d.title?.trim()) continue;
-        await client.query(
-          'INSERT INTO template_datasets (template_id, title, equipment, ordering) VALUES ($1, $2, $3, $4)',
+        const tdRes = await client.query(
+          'INSERT INTO template_datasets (template_id, title, equipment, ordering) VALUES ($1, $2, $3, $4) RETURNING id',
           [req.params.id, d.title.trim(), d.equipment || '', i]
         );
+        const tdId = tdRes.rows[0].id;
+        const cols = d.columns || [];
+        for (let j = 0; j < cols.length; j++) {
+          const c = cols[j];
+          if (!c.name?.trim()) continue;
+          await client.query(
+            'INSERT INTO template_columns (template_dataset_id, name, unit, ordering) VALUES ($1, $2, $3, $4)',
+            [tdId, c.name.trim(), c.unit || '', j]
+          );
+        }
       }
     }
 

@@ -21,7 +21,11 @@ export default function TemplateForm() {
       api.templates.get(id).then(t => {
         setForm({ title: t.title, body: t.body, tags: t.tags || [] });
         setSteps(t.steps || []);
-        setDatasets((t.datasets || []).map(d => ({ title: d.title, equipment: d.equipment })));
+        setDatasets((t.datasets || []).map(d => ({
+          title: d.title,
+          equipment: d.equipment,
+          columns: (d.columns || []).map(c => ({ name: c.name, unit: c.unit })),
+        })));
       });
     }
   }, [id, isEdit]);
@@ -37,6 +41,25 @@ export default function TemplateForm() {
   function updateStep(i, value) { setSteps(s => s.map((x, idx) => idx === i ? { ...x, body: value } : x)); }
   function removeStep(i) { setSteps(s => s.filter((_, idx) => idx !== i)); }
 
+  function updateDataset(i, field, value) {
+    setDatasets(ds => ds.map((x, idx) => idx === i ? { ...x, [field]: value } : x));
+  }
+  function addColumn(di) {
+    setDatasets(ds => ds.map((x, i) => i !== di ? x : { ...x, columns: [...(x.columns || []), { name: '', unit: '' }] }));
+  }
+  function updateColumn(di, ci, field, value) {
+    setDatasets(ds => ds.map((x, i) => i !== di ? x : {
+      ...x,
+      columns: x.columns.map((c, j) => j !== ci ? c : { ...c, [field]: value }),
+    }));
+  }
+  function removeColumn(di, ci) {
+    setDatasets(ds => ds.map((x, i) => i !== di ? x : {
+      ...x,
+      columns: x.columns.filter((_, j) => j !== ci),
+    }));
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
@@ -45,16 +68,20 @@ export default function TemplateForm() {
     try {
       const payload = {
         ...form,
-        steps:    steps.filter(s => s.body.trim()).map((s, i) => ({ body: s.body, ordering: i })),
-        datasets: datasets.filter(d => d.title.trim()).map((d, i) => ({ title: d.title.trim(), equipment: d.equipment, ordering: i })),
+        steps: steps.filter(s => s.body.trim()).map((s, i) => ({ body: s.body, ordering: i })),
+        datasets: datasets.filter(d => d.title.trim()).map((d, i) => ({
+          title:    d.title.trim(),
+          equipment: d.equipment,
+          ordering: i,
+          columns:  (d.columns || []).filter(c => c.name.trim()).map((c, j) => ({ name: c.name.trim(), unit: c.unit, ordering: j })),
+        })),
       };
       if (isEdit) {
         await api.templates.update(id, payload);
-        navigate('/app/templates');
       } else {
         await api.templates.create(payload);
-        navigate('/app/templates');
       }
+      navigate('/app/templates');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -103,6 +130,7 @@ export default function TemplateForm() {
           />
         </label>
 
+        {/* Steps */}
         <div>
           <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.5rem' }}>
             Pasos del protocolo
@@ -125,6 +153,7 @@ export default function TemplateForm() {
           </button>
         </div>
 
+        {/* Datasets */}
         <div>
           <div className={styles.stepsHeader} style={{ marginBottom: '0.5rem' }}>
             <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>Datasets del experimento</span>
@@ -133,26 +162,54 @@ export default function TemplateForm() {
             </span>
           </div>
           <div className={styles.stepsEditor}>
-            {datasets.map((d, i) => (
-              <div key={i} className={styles.datasetEditorItem}>
-                <span className={styles.stepNumber}>{i + 1}</span>
-                <input
-                  className={styles.datasetInput}
-                  value={d.title}
-                  onChange={e => setDatasets(ds => ds.map((x, idx) => idx === i ? { ...x, title: e.target.value } : x))}
-                  placeholder="Título del dataset"
-                />
-                <input
-                  className={styles.datasetInput}
-                  value={d.equipment}
-                  onChange={e => setDatasets(ds => ds.map((x, idx) => idx === i ? { ...x, equipment: e.target.value } : x))}
-                  placeholder="Equipo (ej: Anton Paar DMA 5000 M)"
-                />
-                <button
-                  type="button"
-                  className={styles.stepDelete}
-                  onClick={() => setDatasets(ds => ds.filter((_, idx) => idx !== i))}
-                >×</button>
+            {datasets.map((d, di) => (
+              <div key={di} className={styles.datasetEditorBlock}>
+                {/* Title + equipment row */}
+                <div className={styles.datasetEditorMainRow}>
+                  <span className={styles.stepNumber}>{di + 1}</span>
+                  <input
+                    className={styles.datasetInput}
+                    value={d.title}
+                    onChange={e => updateDataset(di, 'title', e.target.value)}
+                    placeholder="Título del dataset"
+                  />
+                  <input
+                    className={styles.datasetInput}
+                    value={d.equipment}
+                    onChange={e => updateDataset(di, 'equipment', e.target.value)}
+                    placeholder="Equipo"
+                  />
+                  <button
+                    type="button"
+                    className={styles.stepDelete}
+                    onClick={() => setDatasets(ds => ds.filter((_, idx) => idx !== di))}
+                  >×</button>
+                </div>
+
+                {/* Columns sub-editor */}
+                <div className={styles.columnsSubSection}>
+                  <span className={styles.colsLabel}>Columnas de datos</span>
+                  {(d.columns || []).map((col, ci) => (
+                    <div key={ci} className={styles.colEditorRow}>
+                      <input
+                        className={`${styles.colInput} ${styles.colInputName}`}
+                        value={col.name}
+                        onChange={e => updateColumn(di, ci, 'name', e.target.value)}
+                        placeholder="Nombre (T)"
+                      />
+                      <input
+                        className={`${styles.colInput} ${styles.colInputUnit}`}
+                        value={col.unit}
+                        onChange={e => updateColumn(di, ci, 'unit', e.target.value)}
+                        placeholder="Unidad (K)"
+                      />
+                      <button type="button" className={styles.stepDelete} onClick={() => removeColumn(di, ci)}>×</button>
+                    </div>
+                  ))}
+                  <button type="button" className={styles.btnAddCol} onClick={() => addColumn(di)}>
+                    + columna
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -160,7 +217,7 @@ export default function TemplateForm() {
             type="button"
             className={styles.btnSecondary}
             style={{ marginTop: '0.5rem', fontSize: '0.8rem' }}
-            onClick={() => setDatasets(ds => [...ds, { title: 'Dataset de densidad', equipment: '' }])}
+            onClick={() => setDatasets(ds => [...ds, { title: '', equipment: '', columns: [] }])}
           >
             + Agregar dataset
           </button>

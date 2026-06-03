@@ -1,13 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../api/client';
-import { downloadThermoML } from '../utils/thermoml';
 import styles from './DatasetSection.module.css';
-
-const EMPTY_POINT = {
-  temperature_k: '', pressure_kpa: '101.325', mole_fraction_1: '',
-  density_kg_m3: '', u_density: '', u_temperature: '', u_pressure: '',
-  phase: 'liquid', notes: '',
-};
 
 function CompoundPill({ resource }) {
   if (!resource) return null;
@@ -22,39 +15,33 @@ function CompoundPill({ resource }) {
 }
 
 function NewDatasetForm({ experimentId, resourceLinks = [], onCreated, onCancel }) {
-  const [equipment, setEquipment]   = useState('');
-  const [calNotes, setCalNotes]     = useState('');
-  const [c1Id, setC1Id]             = useState('');
-  const [c2Id, setC2Id]             = useState('');
-  const [isMixture, setIsMixture]   = useState(false);
-  const [title, setTitle]           = useState('');
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState('');
+  const [equipment, setEquipment] = useState('');
+  const [calNotes, setCalNotes]   = useState('');
+  const [c1Id, setC1Id]           = useState('');
+  const [c2Id, setC2Id]           = useState('');
+  const [isMixture, setIsMixture] = useState(false);
+  const [title, setTitle]         = useState('');
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState('');
 
   const c1 = resourceLinks.find(r => r.id === Number(c1Id)) || null;
   const c2 = resourceLinks.find(r => r.id === Number(c2Id)) || null;
 
-  // auto-suggest title when compounds change
   useEffect(() => {
     if (!c1) { setTitle(''); return; }
-    const suggested = isMixture && c2
-      ? `Densidad: ${c1.name} + ${c2.name}`
-      : `Densidad: ${c1.name}`;
-    setTitle(t => (!t || t.startsWith('Densidad:')) ? suggested : t);
+    const suggested = isMixture && c2 ? `${c1.name} + ${c2.name}` : c1.name;
+    setTitle(t => (!t || resourceLinks.some(r => t === r.name || t.includes(' + '))) ? suggested : t);
   }, [c1Id, c2Id, isMixture]);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     if (!title.trim()) return setError('El título es requerido');
-    if (!c1Id)         return setError('Selecciona el compuesto 1');
     setLoading(true);
     try {
       const compounds = [
-        { compound_index: 1, resource_id: Number(c1Id) },
-        ...(isMixture && c2Id
-          ? [{ compound_index: 2, resource_id: Number(c2Id) }]
-          : []),
+        ...(c1Id ? [{ compound_index: 1, resource_id: Number(c1Id) }] : []),
+        ...(isMixture && c2Id ? [{ compound_index: 2, resource_id: Number(c2Id) }] : []),
       ];
       const ds = await api.experiments.createDataset(experimentId, {
         title, equipment, calibration_notes: calNotes, compounds,
@@ -68,230 +55,65 @@ function NewDatasetForm({ experimentId, resourceLinks = [], onCreated, onCancel 
 
   return (
     <form onSubmit={handleSubmit} className={styles.newDsForm}>
-      <h4 className={styles.formHeading}>Nuevo dataset de densidad</h4>
+      <h4 className={styles.formHeading}>Nuevo dataset</h4>
 
-      {/* Equipment */}
       <div className={styles.formSection}>
         <span className={styles.formSectionLabel}>Equipo</span>
         <div className={styles.formGrid}>
           <label className={styles.label}>
-            Densímetro *
-            <input
-              className={styles.input}
-              value={equipment}
-              onChange={e => setEquipment(e.target.value)}
-              placeholder="Ej: Anton Paar DMA 5000 M"
-              autoFocus
-            />
+            Equipo
+            <input className={styles.input} value={equipment} onChange={e => setEquipment(e.target.value)} placeholder="Ej: Anton Paar DMA 5000 M" autoFocus />
           </label>
           <label className={styles.label}>
             Notas de calibración
-            <input
-              className={styles.input}
-              value={calNotes}
-              onChange={e => setCalNotes(e.target.value)}
-              placeholder="Fluido de ref., fecha, desviación..."
-            />
+            <input className={styles.input} value={calNotes} onChange={e => setCalNotes(e.target.value)} placeholder="Fluido de ref., fecha, desviación..." />
           </label>
         </div>
       </div>
 
-      {/* Compounds */}
-      <div className={styles.formSection}>
-        <span className={styles.formSectionLabel}>Sistema</span>
-
-        {resourceLinks.length === 0 ? (
-          <p className={styles.noResources}>
-            Vincula compuestos desde el inventario al experimento antes de crear un dataset.
-          </p>
-        ) : (
-          <>
+      {resourceLinks.length > 0 && (
+        <div className={styles.formSection}>
+          <span className={styles.formSectionLabel}>Sistema (opcional)</span>
+          <div className={styles.compoundBlock}>
+            <label className={styles.label}>
+              Compuesto 1
+              <select className={styles.input} value={c1Id} onChange={e => setC1Id(e.target.value)}>
+                <option value="">Seleccionar...</option>
+                {resourceLinks.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+              </select>
+            </label>
+            {c1 && <CompoundPill resource={c1} />}
+          </div>
+          <label className={styles.mixtureToggle}>
+            <input type="checkbox" checked={isMixture} onChange={e => { setIsMixture(e.target.checked); if (!e.target.checked) setC2Id(''); }} />
+            Mezcla binaria
+          </label>
+          {isMixture && (
             <div className={styles.compoundBlock}>
               <label className={styles.label}>
-                Compuesto 1 *
-                <select
-                  className={styles.input}
-                  value={c1Id}
-                  onChange={e => setC1Id(e.target.value)}
-                  required
-                >
+                Compuesto 2
+                <select className={styles.input} value={c2Id} onChange={e => setC2Id(e.target.value)}>
                   <option value="">Seleccionar...</option>
-                  {resourceLinks.map(r => (
-                    <option key={r.id} value={r.id}>{r.name}</option>
-                  ))}
+                  {availableForC2.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                 </select>
               </label>
-              <CompoundPill resource={c1} />
+              {c2 && <CompoundPill resource={c2} />}
             </div>
+          )}
+        </div>
+      )}
 
-            <label className={styles.mixtureToggle}>
-              <input
-                type="checkbox"
-                checked={isMixture}
-                onChange={e => { setIsMixture(e.target.checked); if (!e.target.checked) setC2Id(''); }}
-              />
-              Mezcla binaria (agregar compuesto 2)
-            </label>
-
-            {isMixture && (
-              <div className={styles.compoundBlock}>
-                <label className={styles.label}>
-                  Compuesto 2
-                  <select
-                    className={styles.input}
-                    value={c2Id}
-                    onChange={e => setC2Id(e.target.value)}
-                  >
-                    <option value="">Seleccionar...</option>
-                    {availableForC2.map(r => (
-                      <option key={r.id} value={r.id}>{r.name}</option>
-                    ))}
-                  </select>
-                </label>
-                <CompoundPill resource={c2} />
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Title */}
       <label className={styles.label}>
         Título del dataset *
-        <input
-          className={styles.input}
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          placeholder="Se auto-completa al seleccionar compuestos"
-          required
-        />
+        <input className={styles.input} value={title} onChange={e => setTitle(e.target.value)} placeholder="Nombre del dataset" required />
       </label>
 
       {error && <p className={styles.error}>{error}</p>}
       <div className={styles.formActions}>
-        <button type="submit" className={styles.btnPrimary} disabled={loading || resourceLinks.length === 0}>
-          {loading ? 'Creando...' : 'Crear dataset'}
-        </button>
+        <button type="submit" className={styles.btnPrimary} disabled={loading}>{loading ? 'Creando...' : 'Crear dataset'}</button>
         <button type="button" className={styles.btnSecondary} onClick={onCancel}>Cancelar</button>
       </div>
     </form>
-  );
-}
-
-function PointRow({ point, isMixture, datasetId, onUpdated, onDeleted }) {
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({
-    temperature_k:   String(point.temperature_k),
-    pressure_kpa:    String(point.pressure_kpa),
-    mole_fraction_1: point.mole_fraction_1 != null ? String(point.mole_fraction_1) : '',
-    density_kg_m3:   String(point.density_kg_m3),
-    u_density:       point.u_density   != null ? String(point.u_density)   : '',
-    u_temperature:   point.u_temperature != null ? String(point.u_temperature) : '',
-    u_pressure:      point.u_pressure  != null ? String(point.u_pressure)  : '',
-  });
-
-  function set(f) { return e => setForm(p => ({ ...p, [f]: e.target.value })); }
-
-  async function save() {
-    const payload = {
-      temperature_k:   Number(form.temperature_k),
-      pressure_kpa:    Number(form.pressure_kpa),
-      density_kg_m3:   Number(form.density_kg_m3),
-      mole_fraction_1: form.mole_fraction_1 !== '' ? Number(form.mole_fraction_1) : null,
-      u_density:       form.u_density      !== '' ? Number(form.u_density)      : null,
-      u_temperature:   form.u_temperature  !== '' ? Number(form.u_temperature)  : null,
-      u_pressure:      form.u_pressure     !== '' ? Number(form.u_pressure)     : null,
-    };
-    const updated = await api.datasets.updatePoint(datasetId, point.id, payload);
-    onUpdated(updated);
-    setEditing(false);
-  }
-
-  async function del() {
-    if (!confirm('¿Eliminar este punto?')) return;
-    await api.datasets.deletePoint(datasetId, point.id);
-    onDeleted(point.id);
-  }
-
-  if (editing) {
-    return (
-      <tr className={styles.editRow}>
-        <td><input className={styles.cellInput} value={form.temperature_k}   onChange={set('temperature_k')}   type="number" step="any" /></td>
-        <td><input className={styles.cellInput} value={form.pressure_kpa}    onChange={set('pressure_kpa')}    type="number" step="any" /></td>
-        {isMixture && <td><input className={styles.cellInput} value={form.mole_fraction_1} onChange={set('mole_fraction_1')} type="number" step="any" min="0" max="1" /></td>}
-        <td><input className={styles.cellInput} value={form.density_kg_m3}   onChange={set('density_kg_m3')}   type="number" step="any" /></td>
-        <td><input className={styles.cellInput} value={form.u_density}       onChange={set('u_density')}       type="number" step="any" placeholder="—" /></td>
-        <td><input className={styles.cellInput} value={form.u_temperature}   onChange={set('u_temperature')}   type="number" step="any" placeholder="—" /></td>
-        <td>
-          <button className={styles.btnSave} onClick={save}>✓</button>
-          <button className={styles.btnCancel} onClick={() => setEditing(false)}>✕</button>
-        </td>
-      </tr>
-    );
-  }
-
-  return (
-    <tr>
-      <td>{point.temperature_k}</td>
-      <td>{point.pressure_kpa}</td>
-      {isMixture && <td>{point.mole_fraction_1 != null ? point.mole_fraction_1 : '—'}</td>}
-      <td className={styles.boldCell}>{point.density_kg_m3}</td>
-      <td className={styles.muted}>{point.u_density   != null ? `±${point.u_density}`   : '—'}</td>
-      <td className={styles.muted}>{point.u_temperature != null ? `±${point.u_temperature}` : '—'}</td>
-      <td>
-        <button className={styles.btnIcon} onClick={() => setEditing(true)} title="Editar">✎</button>
-        <button className={styles.btnIconDanger} onClick={del} title="Eliminar">✕</button>
-      </td>
-    </tr>
-  );
-}
-
-function AddPointRow({ datasetId, isMixture, onAdded, nextOrdering }) {
-  const [form, setForm] = useState({ ...EMPTY_POINT });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  function set(f) { return e => setForm(p => ({ ...p, [f]: e.target.value })); }
-
-  async function submit(e) {
-    e.preventDefault();
-    setError('');
-    if (!form.temperature_k || !form.density_kg_m3) return setError('T y ρ son requeridos');
-    setLoading(true);
-    try {
-      const point = await api.datasets.addPoint(datasetId, {
-        temperature_k:   Number(form.temperature_k),
-        pressure_kpa:    form.pressure_kpa !== '' ? Number(form.pressure_kpa) : 101.325,
-        mole_fraction_1: form.mole_fraction_1 !== '' ? Number(form.mole_fraction_1) : null,
-        density_kg_m3:   Number(form.density_kg_m3),
-        u_density:       form.u_density      !== '' ? Number(form.u_density)      : null,
-        u_temperature:   form.u_temperature  !== '' ? Number(form.u_temperature)  : null,
-        u_pressure:      form.u_pressure     !== '' ? Number(form.u_pressure)     : null,
-        ordering: nextOrdering,
-      });
-      onAdded(point);
-      setForm({ ...EMPTY_POINT });
-    } catch (err) { setError(err.message); }
-    finally { setLoading(false); }
-  }
-
-  return (
-    <>
-      {error && <tr><td colSpan={isMixture ? 7 : 6}><p className={styles.error}>{error}</p></td></tr>}
-      <tr className={styles.addRow}>
-        <td><input className={styles.cellInput} value={form.temperature_k}   onChange={set('temperature_k')}   type="number" step="any" placeholder="298.15" /></td>
-        <td><input className={styles.cellInput} value={form.pressure_kpa}    onChange={set('pressure_kpa')}    type="number" step="any" placeholder="101.325" /></td>
-        {isMixture && <td><input className={styles.cellInput} value={form.mole_fraction_1} onChange={set('mole_fraction_1')} type="number" step="any" min="0" max="1" placeholder="0.5" /></td>}
-        <td><input className={styles.cellInput} value={form.density_kg_m3}   onChange={set('density_kg_m3')}   type="number" step="any" placeholder="850.230" /></td>
-        <td><input className={styles.cellInput} value={form.u_density}       onChange={set('u_density')}       type="number" step="any" placeholder="—" /></td>
-        <td><input className={styles.cellInput} value={form.u_temperature}   onChange={set('u_temperature')}   type="number" step="any" placeholder="—" /></td>
-        <td>
-          <button className={styles.btnSave} onClick={submit} disabled={loading} title="Agregar punto">
-            {loading ? '...' : '+'}
-          </button>
-        </td>
-      </tr>
-    </>
   );
 }
 
@@ -307,8 +129,7 @@ function CompoundSetupForm({ datasetId, resourceLinks, onDone }) {
 
   async function save() {
     if (!c1Id) return setError('Selecciona el compuesto 1');
-    setLoading(true);
-    setError('');
+    setLoading(true); setError('');
     try {
       const compounds = [
         { compound_index: 1, resource_id: Number(c1Id) },
@@ -341,12 +162,10 @@ function CompoundSetupForm({ datasetId, resourceLinks, onDone }) {
         </label>
         {c1 && <CompoundPill resource={c1} />}
       </div>
-
       <label className={styles.mixtureToggleInline}>
         <input type="checkbox" checked={isMixture} onChange={e => { setIsMixture(e.target.checked); if (!e.target.checked) setC2Id(''); }} />
         Mezcla binaria
       </label>
-
       {isMixture && (
         <div className={styles.compoundSetupRow}>
           <label className={styles.compoundSetupLabel}>
@@ -359,7 +178,6 @@ function CompoundSetupForm({ datasetId, resourceLinks, onDone }) {
           {c2 && <CompoundPill resource={c2} />}
         </div>
       )}
-
       {error && <p className={styles.error}>{error}</p>}
       <button className={styles.btnPrimary} onClick={save} disabled={loading || !c1Id}>
         {loading ? 'Guardando...' : 'Confirmar compuestos'}
@@ -368,39 +186,133 @@ function CompoundSetupForm({ datasetId, resourceLinks, onDone }) {
   );
 }
 
+function ColumnsEditor({ columns, onSave, onCancel }) {
+  const [cols, setCols] = useState(columns.map(c => ({ name: c.name, unit: c.unit })));
+  const [saving, setSaving] = useState(false);
+
+  function add()           { setCols(c => [...c, { name: '', unit: '' }]); }
+  function remove(i)       { setCols(c => c.filter((_, j) => j !== i)); }
+  function update(i, f, v) { setCols(c => c.map((x, j) => j !== i ? x : { ...x, [f]: v })); }
+
+  async function save() {
+    setSaving(true);
+    try { await onSave(cols.filter(c => c.name.trim())); }
+    finally { setSaving(false); }
+  }
+
+  return (
+    <div className={styles.colsEditor}>
+      {cols.map((col, i) => (
+        <div key={i} className={styles.colEditorRow}>
+          <input
+            className={`${styles.colInput} ${styles.colInputName}`}
+            value={col.name}
+            onChange={e => update(i, 'name', e.target.value)}
+            placeholder="Nombre (T)"
+            autoFocus={i === cols.length - 1 && col.name === ''}
+          />
+          <input
+            className={`${styles.colInput} ${styles.colInputUnit}`}
+            value={col.unit}
+            onChange={e => update(i, 'unit', e.target.value)}
+            placeholder="Unidad (K)"
+          />
+          <button className={styles.btnIcon} onClick={() => remove(i)} title="Eliminar columna">✕</button>
+        </div>
+      ))}
+      <button className={styles.btnAddCol} onClick={add}>+ columna</button>
+      <div className={styles.colEditorActions}>
+        <button className={styles.btnPrimary} onClick={save} disabled={saving}>{saving ? 'Guardando...' : 'Guardar columnas'}</button>
+        <button className={styles.btnSecondary} onClick={onCancel}>Cancelar</button>
+      </div>
+    </div>
+  );
+}
+
 function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
-  const [ds, setDs] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [ds, setDs]               = useState(null);
+  const [loading, setLoading]     = useState(true);
   const [collapsed, setCollapsed] = useState(false);
+  const [editingCols, setEditingCols] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importMsg, setImportMsg] = useState(null);
+  const fileRef = useRef(null);
 
   useEffect(() => {
-    api.datasets.get(initialDs.id)
-      .then(setDs)
-      .finally(() => setLoading(false));
+    api.datasets.get(initialDs.id).then(setDs).finally(() => setLoading(false));
   }, [initialDs.id]);
 
   async function deleteDataset() {
-    if (!confirm('¿Eliminar este dataset y todos sus puntos?')) return;
+    if (!confirm('¿Eliminar este dataset y todos sus datos?')) return;
     await api.datasets.delete(initialDs.id);
     setDs(null);
+  }
+
+  async function saveColumns(cols) {
+    const updated = await api.datasets.setColumns(ds.id, cols);
+    setDs(d => ({ ...d, columns: updated }));
+    setEditingCols(false);
+  }
+
+  async function downloadExcel() {
+    try {
+      const res = await api.datasets.exportExcel(ds.id);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Error al generar Excel');
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${ds.title}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setImportMsg({ ok: false, text: err.message });
+    }
+  }
+
+  async function handleFileChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImportLoading(true);
+    setImportMsg(null);
+    try {
+      const result = await api.datasets.importExcel(ds.id, file);
+      setImportMsg({ ok: true, text: `${result.imported} fila${result.imported !== 1 ? 's' : ''} importada${result.imported !== 1 ? 's' : ''}` });
+      const updated = await api.datasets.get(ds.id);
+      setDs(updated);
+    } catch (err) {
+      setImportMsg({ ok: false, text: err.message });
+    } finally {
+      setImportLoading(false);
+      e.target.value = '';
+    }
+  }
+
+  async function deleteRow(rowId) {
+    if (!confirm('¿Eliminar esta fila?')) return;
+    await api.datasets.deleteRow(ds.id, rowId);
+    setDs(d => ({ ...d, rows: d.rows.filter(r => r.id !== rowId) }));
   }
 
   if (ds === null && !loading) return null;
   if (loading) return <div className={styles.dsCard}><p className={styles.muted}>Cargando...</p></div>;
 
   const noCompounds = ds.compounds.length === 0;
-  const isMixture = ds.compounds.length === 2;
+  const isMixture   = ds.compounds.length === 2;
   const comp1 = ds.compounds.find(c => c.compound_index === 1);
   const comp2 = ds.compounds.find(c => c.compound_index === 2);
+  const hasColumns = ds.columns.length > 0;
 
-  function addPoint(p)    { setDs(d => ({ ...d, points: [...d.points, p] })); }
-  function updatePoint(p) { setDs(d => ({ ...d, points: d.points.map(x => x.id === p.id ? p : x) })); }
-  function deletePoint(id){ setDs(d => ({ ...d, points: d.points.filter(x => x.id !== id) })); }
-
-  const x2Label = isMixture ? `x(${comp2?.name?.split(' ')[0] || 'C2'})` : null;
+  const colHeader = hasColumns
+    ? ds.columns.map(c => c.unit ? `${c.name} (${c.unit})` : c.name).join(', ')
+    : 'Sin columnas';
 
   return (
     <div className={styles.dsCard}>
+      {/* Header */}
       <div className={styles.dsHeader}>
         <div className={styles.dsInfo}>
           <span className={styles.dsTitle}>{ds.title}</span>
@@ -408,83 +320,126 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
             {ds.equipment && <><strong>{ds.equipment}</strong> · </>}
             {noCompounds
               ? <span className={styles.pendingCompounds}>compuestos pendientes</span>
-              : isMixture
-                ? `${comp1?.name} + ${comp2?.name}`
-                : comp1?.name}
-            {!noCompounds && <> · {ds.points.length} puntos</>}
+              : isMixture ? `${comp1?.name} + ${comp2?.name}` : comp1?.name}
+            {!noCompounds && <> · {ds.rows.length} fila{ds.rows.length !== 1 ? 's' : ''}</>}
           </span>
         </div>
         <div className={styles.dsActions}>
           <button className={styles.btnSecondary} onClick={() => setCollapsed(c => !c)}>
             {collapsed ? 'Expandir' : 'Colapsar'}
           </button>
-          <button
-            className={styles.btnXml}
-            onClick={() => downloadThermoML(ds)}
-            title="Exportar como ThermoML (.xml)"
-            disabled={ds.points.length === 0}
-          >
-            ThermoML ↓
-          </button>
           <button className={styles.btnDanger} onClick={deleteDataset}>Eliminar</button>
         </div>
       </div>
 
-      {!collapsed && noCompounds && (
-        <CompoundSetupForm
-          datasetId={ds.id}
-          resourceLinks={resourceLinks}
-          onDone={compounds => setDs(d => ({ ...d, compounds }))}
-        />
-      )}
-
-      {!collapsed && !noCompounds && (
+      {!collapsed && (
         <>
-          {/* Compound info */}
-          <div className={styles.compoundsInfo}>
-            {ds.compounds.map(c => (
-              <span key={c.compound_index} className={styles.compoundChip}>
-                <strong>{c.name}</strong>
-                {c.cas_number && <> · CAS {c.cas_number}</>}
-                {c.purity && <> · {c.purity} {c.purity_unit}</>}
+          {/* Compound setup (if needed) */}
+          {noCompounds && (
+            <CompoundSetupForm
+              datasetId={ds.id}
+              resourceLinks={resourceLinks}
+              onDone={compounds => setDs(d => ({ ...d, compounds }))}
+            />
+          )}
+
+          {/* Compound info chips */}
+          {!noCompounds && (
+            <div className={styles.compoundsInfo}>
+              {ds.compounds.map(c => (
+                <span key={c.compound_index} className={styles.compoundChip}>
+                  <strong>{c.name}</strong>
+                  {c.cas_number && <> · CAS {c.cas_number}</>}
+                  {c.purity && <> · {c.purity} {c.purity_unit}</>}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Columns bar */}
+          {!editingCols && (
+            <div className={styles.columnsBar}>
+              <span className={styles.colsList}>
+                <strong>Columnas:</strong>{' '}
+                <span className={hasColumns ? '' : styles.pendingCompounds}>{colHeader}</span>
               </span>
-            ))}
+              <button className={styles.btnEditCols} onClick={() => setEditingCols(true)}>
+                {hasColumns ? 'Editar columnas' : 'Definir columnas'}
+              </button>
+            </div>
+          )}
+
+          {/* Inline column editor */}
+          {editingCols && (
+            <ColumnsEditor
+              columns={ds.columns}
+              onSave={saveColumns}
+              onCancel={() => setEditingCols(false)}
+            />
+          )}
+
+          {/* Excel actions */}
+          <div className={styles.excelBar}>
+            <button
+              className={styles.btnExcelDown}
+              onClick={downloadExcel}
+              disabled={!hasColumns}
+              title={hasColumns ? 'Descargar plantilla Excel con las columnas definidas' : 'Define columnas primero'}
+            >
+              ⬇ Descargar plantilla Excel
+            </button>
+            <label className={`${styles.btnExcelUp} ${importLoading ? styles.btnDisabled : ''}`}>
+              {importLoading ? 'Importando...' : '⬆ Subir Excel con datos'}
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".xlsx,.xls"
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+                disabled={importLoading || !hasColumns}
+              />
+            </label>
+            {importMsg && (
+              <span className={`${styles.importMsg} ${importMsg.ok ? styles.importMsgOk : styles.importMsgErr}`}>
+                {importMsg.ok ? '✓ ' : '✗ '}{importMsg.text}
+              </span>
+            )}
+            <span className={styles.rowCount}>{ds.rows.length} fila{ds.rows.length !== 1 ? 's' : ''}</span>
           </div>
 
           {/* Data table */}
-          <div className={styles.tableWrap}>
-            <table className={styles.dataTable}>
-              <thead>
-                <tr>
-                  <th>T / K</th>
-                  <th>P / kPa</th>
-                  {isMixture && <th>x₁ ({comp1?.name?.split(' ')[0]})</th>}
-                  <th>ρ / kg·m⁻³</th>
-                  <th>u(ρ)</th>
-                  <th>u(T)</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {ds.points.map(p => (
-                  <PointRow
-                    key={p.id}
-                    point={p}
-                    isMixture={isMixture}
-                    datasetId={ds.id}
-                    onUpdated={updatePoint}
-                    onDeleted={deletePoint}
-                  />
-                ))}
-                <AddPointRow
-                  datasetId={ds.id}
-                  isMixture={isMixture}
-                  onAdded={addPoint}
-                  nextOrdering={ds.points.length}
-                />
-              </tbody>
-            </table>
-          </div>
+          {hasColumns && ds.rows.length > 0 && (
+            <div className={styles.tableWrap}>
+              <table className={styles.dataTable}>
+                <thead>
+                  <tr>
+                    {ds.columns.map(c => (
+                      <th key={c.id}>{c.unit ? `${c.name} / ${c.unit}` : c.name}</th>
+                    ))}
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ds.rows.map(row => (
+                    <tr key={row.id}>
+                      {ds.columns.map(c => (
+                        <td key={c.id}>{row.data[c.name] ?? '—'}</td>
+                      ))}
+                      <td>
+                        <button className={styles.btnIconDanger} onClick={() => deleteRow(row.id)} title="Eliminar fila">✕</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {hasColumns && ds.rows.length === 0 && (
+            <p className={styles.noData}>
+              Sin datos. Descarga la plantilla Excel, complétala y súbela para importar.
+            </p>
+          )}
 
           {ds.calibration_notes && (
             <p className={styles.calibration}>📋 {ds.calibration_notes}</p>
@@ -496,14 +451,12 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
 }
 
 export default function DatasetSection({ experimentId, resourceLinks = [] }) {
-  const [datasets, setDatasets]   = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [showForm, setShowForm]   = useState(false);
+  const [datasets, setDatasets] = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    api.experiments.listDatasets(experimentId)
-      .then(setDatasets)
-      .finally(() => setLoading(false));
+    api.experiments.listDatasets(experimentId).then(setDatasets).finally(() => setLoading(false));
   }, [experimentId]);
 
   function onCreated(ds) {
@@ -514,7 +467,7 @@ export default function DatasetSection({ experimentId, resourceLinks = [] }) {
   return (
     <div>
       <div className={styles.sectionHeader}>
-        <span className={styles.sectionTitle}>Datasets de densidad ({datasets.length})</span>
+        <span className={styles.sectionTitle}>Datasets ({datasets.length})</span>
         {!showForm && (
           <button className={styles.btnPrimary} onClick={() => setShowForm(true)}>+ Nuevo dataset</button>
         )}

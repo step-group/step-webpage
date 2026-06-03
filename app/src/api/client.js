@@ -71,13 +71,33 @@ export const api = {
   },
 
   datasets: {
-    get:           (id)            => request(`/datasets/${id}`),
-    update:        (id, body)      => request(`/datasets/${id}`,               { method: 'PATCH',  body: JSON.stringify(body) }),
-    delete:        (id)            => requestEmpty(`/datasets/${id}`,          { method: 'DELETE' }),
-    setCompounds:  (id, compounds) => request(`/datasets/${id}/compounds`,     { method: 'POST',   body: JSON.stringify({ compounds }) }),
-    addPoint:    (id, body)      => request(`/datasets/${id}/points`,        { method: 'POST',   body: JSON.stringify(body) }),
-    updatePoint: (id, pid, body) => request(`/datasets/${id}/points/${pid}`, { method: 'PATCH',  body: JSON.stringify(body) }),
-    deletePoint: (id, pid)       => requestEmpty(`/datasets/${id}/points/${pid}`, { method: 'DELETE' }),
+    get:          (id)            => request(`/datasets/${id}`),
+    update:       (id, body)      => request(`/datasets/${id}`,           { method: 'PATCH',  body: JSON.stringify(body) }),
+    delete:       (id)            => requestEmpty(`/datasets/${id}`,      { method: 'DELETE' }),
+    setCompounds: (id, compounds) => request(`/datasets/${id}/compounds`, { method: 'POST',   body: JSON.stringify({ compounds }) }),
+    setColumns:   (id, columns)   => request(`/datasets/${id}/columns`,   { method: 'PATCH',  body: JSON.stringify({ columns }) }),
+    addRow:       (id, body)      => request(`/datasets/${id}/rows`,      { method: 'POST',   body: JSON.stringify(body) }),
+    deleteRow:    (id, rowId)     => requestEmpty(`/datasets/${id}/rows/${rowId}`, { method: 'DELETE' }),
+    exportExcel:  (id) => {
+      const token = localStorage.getItem('token');
+      return fetch(`${BASE}/datasets/${id}/export`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+    },
+    importExcel: (id, file) => {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('file', file);
+      return fetch(`${BASE}/datasets/${id}/import`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      }).then(async r => {
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || 'Error al importar');
+        return data;
+      });
+    },
   },
 
   templates: {
@@ -119,5 +139,7 @@ export const api = {
     linkDataset:       (id, dataset_id)   => requestEmpty(`/publications/${id}/datasets`, { method: 'POST',   body: JSON.stringify({ dataset_id }) }),
     unlinkDataset:     (id, dataset_id)   => requestEmpty(`/publications/${id}/datasets/${dataset_id}`, { method: 'DELETE' }),
     availableDatasets: (id)               => request(`/publications/${id}/available-datasets`),
+    wosSearch:         ()            => request('/publications/wos'),
+    wosImport:         (body)        => request('/publications/wos-import', { method: 'POST', body: JSON.stringify(body) }),
   },
 };

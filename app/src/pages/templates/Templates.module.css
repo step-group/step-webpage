@@ -173,6 +173,69 @@
   flex-shrink: 0;
 }
 
+.datasetEditorBlock {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+.datasetEditorMainRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+}
+.columnsSubSection {
+  border-top: 1px solid #f1f5f9;
+  background: #fafbfc;
+  padding: 0.45rem 0.5rem 0.45rem 2.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.colsLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.1rem;
+}
+.colEditorRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.colInput {
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  outline: none;
+  font-family: inherit;
+}
+.colInput:focus { border-color: var(--color-primary); }
+.colInputName { width: 90px; }
+.colInputUnit { width: 65px; }
+.btnAddCol {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  text-decoration: underline;
+  padding: 0;
+  font-family: inherit;
+  margin-top: 0.1rem;
+  text-align: left;
+}
+.btnAddCol:hover { color: var(--color-primary-dark); }
+
+/* Keep old name as alias for backwards compat */
 .datasetEditorItem {
   display: flex;
   align-items: center;
