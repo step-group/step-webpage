@@ -308,7 +308,7 @@
 .locLabel { flex: 1; }
 
 /* ── Search ─────────────────────────────────────────────────────────────── */
-.searchRow { padding: 0.5rem 0.75rem 0; }
+.searchRow { margin-bottom: 1rem; }
 .searchInput {
   width: 100%;
   padding: 0.4rem 0.7rem;

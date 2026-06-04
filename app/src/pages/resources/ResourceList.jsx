@@ -166,6 +166,16 @@ export default function ResourceList() {
         <Link to="/app/dashboard" className={styles.backLink}>← Inicio</Link>
       </div>
 
+      <div className={styles.searchRow}>
+        <input
+          className={styles.searchInput}
+          type="search"
+          placeholder="Buscar por nombre, CAS o proveedor..."
+          value={search}
+          onChange={e => { setSearch(e.target.value); setChecked(new Set()); }}
+        />
+      </div>
+
       <div className={styles.inventoryBody}>
       {/* ── Locations Panel ─────────────────────────────────── */}
       <div className={styles.locPanel}>
@@ -209,16 +219,6 @@ export default function ResourceList() {
               <Trash2 size={13} /> Delete All
             </button>
           </div>
-        </div>
-
-        <div className={styles.searchRow}>
-          <input
-            className={styles.searchInput}
-            type="search"
-            placeholder="Buscar por nombre, CAS o proveedor..."
-            value={search}
-            onChange={e => { setSearch(e.target.value); setChecked(new Set()); }}
-          />
         </div>
 
         <div className={styles.containersMeta}>
