@@ -54,6 +54,7 @@ export const api = {
     get:     (id)          => request(`/experiments/${id}`),
     create:  (body)        => request('/experiments',       { method: 'POST',  body: JSON.stringify(body) }),
     update:  (id, body)    => request(`/experiments/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    delete:  (id)          => requestEmpty(`/experiments/${id}`, { method: 'DELETE' }),
     archive: (id, state)   => request(`/experiments/${id}/archive`, { method: 'PATCH', body: JSON.stringify({ state }) }),
 
     addStep:    (id, body)         => request(`/experiments/${id}/steps`, { method: 'POST',   body: JSON.stringify(body) }),

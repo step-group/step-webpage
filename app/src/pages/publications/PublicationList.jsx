@@ -12,6 +12,7 @@ export default function PublicationList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState('');
   const [status, setStatus]   = useState('');
+  const [sortOrder, setSort]  = useState('desc');
   const [showWos, setShowWos] = useState(false);
   const navigate = useNavigate();
 
@@ -22,6 +23,10 @@ export default function PublicationList() {
     setLoading(true);
     api.publications.list(params).then(setPubs).finally(() => setLoading(false));
   }, [search, status]);
+
+  const sorted = [...pubs].sort((a, b) =>
+    sortOrder === 'desc' ? (b.year || 0) - (a.year || 0) : (a.year || 0) - (b.year || 0)
+  );
 
   return (
     <AppLayout>
@@ -38,9 +43,7 @@ export default function PublicationList() {
       {showWos && (
         <WosImportModal
           onClose={() => setShowWos(false)}
-          onImported={() => {
-            api.publications.list({}).then(setPubs);
-          }}
+          onImported={() => api.publications.list({}).then(setPubs)}
         />
       )}
 
@@ -51,15 +54,22 @@ export default function PublicationList() {
           <option value="">Todos los estados</option>
           {Object.entries(STATUS_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
+        <button
+          className={styles.sortBtn}
+          onClick={() => setSort(s => s === 'desc' ? 'asc' : 'desc')}
+          title="Ordenar por año"
+        >
+          Año {sortOrder === 'desc' ? '↓' : '↑'}
+        </button>
       </div>
 
       {loading && <p className={styles.muted}>Cargando...</p>}
-      {!loading && pubs.length === 0 && (
+      {!loading && sorted.length === 0 && (
         <p className={styles.muted}>No hay publicaciones. <Link to="/app/publications/new">Crea la primera.</Link></p>
       )}
 
       <div className={styles.list}>
-        {pubs.map(p => (
+        {sorted.map(p => (
           <div key={p.id} className={styles.card} onClick={() => navigate(`/app/publications/${p.id}`)}>
             <div className={styles.cardTop}>
               <span className={styles.cardTitle}>{p.title}</span>

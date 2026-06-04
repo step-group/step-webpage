@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import AppLayout from '../../layouts/AppLayout';
 import MarkdownBody from '../../components/MarkdownBody';
 import DatasetSection from '../../components/DatasetSection';
+import ConfirmModal from '../../components/ConfirmModal';
 import styles from './Experiments.module.css';
 
 const STATUS_LABEL = {
@@ -29,6 +30,7 @@ export default function ExperimentDetail() {
   const [linkQty, setLinkQty]   = useState('');
   const [linkError, setLinkError] = useState('');
   const [error, setError]       = useState('');
+  const [modal, setModal]       = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -111,10 +113,20 @@ export default function ExperimentDetail() {
     setExp(e => ({ ...e, resource_links: e.resource_links.filter(r => r.id !== rid) }));
   }
 
-  async function archive() {
-    if (!confirm('¿Archivar este experimento?')) return;
-    await api.experiments.archive(id, 'archived');
-    navigate('/app/experiments');
+  function deleteExp() {
+    setModal({
+      message: '¿Eliminar este experimento? Esta acción no se puede deshacer.',
+      confirmLabel: 'Eliminar',
+      onConfirm: async () => { await api.experiments.delete(id); navigate('/app/experiments'); },
+    });
+  }
+
+  function archive() {
+    setModal({
+      message: '¿Archivar este experimento?',
+      confirmLabel: 'Archivar',
+      onConfirm: async () => { await api.experiments.archive(id, 'archived'); navigate('/app/experiments'); },
+    });
   }
 
   if (loading) return <AppLayout><p className={styles.muted}>Cargando...</p></AppLayout>;
@@ -144,6 +156,9 @@ export default function ExperimentDetail() {
         </div>
         <div className={styles.detailActions}>
           <Link to={`/app/experiments/${id}/edit`} className={styles.btnSecondary}>Editar</Link>
+          {(user?.id === exp.created_by || user?.role === 'admin') && (
+            <button onClick={deleteExp} className={styles.btnDanger}>Eliminar</button>
+          )}
           {user?.role === 'admin' && (
             <button onClick={archive} className={styles.btnDanger}>Archivar</button>
           )}
@@ -306,6 +321,16 @@ export default function ExperimentDetail() {
       <div className={styles.section}>
         <DatasetSection experimentId={id} resourceLinks={exp.resource_links} />
       </div>
+
+      {modal && (
+        <ConfirmModal
+          message={modal.message}
+          confirmLabel={modal.confirmLabel}
+          danger
+          onConfirm={async () => { await modal.onConfirm(); setModal(null); }}
+          onCancel={() => setModal(null)}
+        />
+      )}
     </AppLayout>
   );
 }

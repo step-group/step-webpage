@@ -170,6 +170,22 @@ router.patch('/:id', requireAuth, async (req, res) => {
   }
 });
 
+// ── DELETE ───────────────────────────────────────────────────────────────────
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    const exp = await pool.query('SELECT created_by FROM experiments WHERE id = $1', [req.params.id]);
+    if (!exp.rows[0]) return res.status(404).json({ error: 'Experimento no encontrado' });
+    if (exp.rows[0].created_by !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Sin permiso para eliminar este experimento' });
+    }
+    await pool.query('DELETE FROM experiments WHERE id = $1', [req.params.id]);
+    res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al eliminar experimento' });
+  }
+});
+
 // ── ARCHIVE (soft delete) ────────────────────────────────────────────────────
 router.patch('/:id/archive', requireAdmin, async (req, res) => {
   const { state } = req.body;

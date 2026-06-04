@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import AppLayout from '../../layouts/AppLayout';
+import ConfirmModal from '../../components/ConfirmModal';
 import styles from './Templates.module.css';
 
 export default function TemplateList() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading]     = useState(true);
+  const [modal, setModal]         = useState(null);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -17,11 +19,12 @@ export default function TemplateList() {
       .finally(() => setLoading(false));
   }, []);
 
-  async function handleDelete(id, e) {
+  function handleDelete(id, e) {
     e.stopPropagation();
-    if (!confirm('¿Eliminar esta plantilla?')) return;
-    await api.templates.delete(id);
-    setTemplates(t => t.filter(x => x.id !== id));
+    setModal({
+      id,
+      message: '¿Eliminar esta plantilla?',
+    });
   }
 
   return (
@@ -80,6 +83,20 @@ export default function TemplateList() {
             </div>
           ))}
         </div>
+      )}
+
+      {modal && (
+        <ConfirmModal
+          message={modal.message}
+          confirmLabel="Eliminar"
+          danger
+          onConfirm={async () => {
+            await api.templates.delete(modal.id);
+            setTemplates(t => t.filter(x => x.id !== modal.id));
+            setModal(null);
+          }}
+          onCancel={() => setModal(null)}
+        />
       )}
     </AppLayout>
   );

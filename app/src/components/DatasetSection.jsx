@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api/client';
+import ConfirmModal from './ConfirmModal';
 import styles from './DatasetSection.module.css';
 
 function CompoundPill({ resource }) {
@@ -251,6 +252,7 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
   const [editingCols, setEditingCols] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
   const [importMsg, setImportMsg] = useState(null);
+  const [modal, setModal]         = useState(null);
   const fileRef = useRef(null);
 
   useEffect(() => {
@@ -264,10 +266,11 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
     return () => clearTimeout(t);
   }, [importMsg]);
 
-  async function deleteDataset() {
-    if (!confirm('¿Eliminar este dataset y todos sus datos?')) return;
-    await api.datasets.delete(initialDs.id);
-    setDs(null);
+  function deleteDataset() {
+    setModal({
+      message: '¿Eliminar este dataset y todos sus datos?',
+      onConfirm: async () => { await api.datasets.delete(initialDs.id); setDs(null); },
+    });
   }
 
   async function saveColumns(cols) {
@@ -313,10 +316,14 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
     }
   }
 
-  async function deleteRow(rowId) {
-    if (!confirm('¿Eliminar esta fila?')) return;
-    await api.datasets.deleteRow(ds.id, rowId);
-    setDs(d => ({ ...d, rows: d.rows.filter(r => r.id !== rowId) }));
+  function deleteRow(rowId) {
+    setModal({
+      message: '¿Eliminar esta fila?',
+      onConfirm: async () => {
+        await api.datasets.deleteRow(ds.id, rowId);
+        setDs(d => ({ ...d, rows: d.rows.filter(r => r.id !== rowId) }));
+      },
+    });
   }
 
   if (ds === null && !loading) return null;
@@ -505,6 +512,16 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
             <p className={styles.calibration}>📋 {ds.calibration_notes}</p>
           )}
         </>
+      )}
+
+      {modal && (
+        <ConfirmModal
+          message={modal.message}
+          confirmLabel="Eliminar"
+          danger
+          onConfirm={async () => { await modal.onConfirm(); setModal(null); }}
+          onCancel={() => setModal(null)}
+        />
       )}
     </div>
   );
