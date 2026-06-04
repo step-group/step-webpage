@@ -66,7 +66,6 @@ export default function PublicationDetail() {
           )}
         </div>
         <div className={styles.detailActions}>
-          <Link to={`/app/publications/${id}/edit`} className={styles.btnSecondary}>Editar</Link>
           <button onClick={handleDelete} className={styles.btnDanger}>Eliminar</button>
         </div>
       </div>
