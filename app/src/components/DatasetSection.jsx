@@ -51,12 +51,9 @@ function NewDatasetForm({ experimentId, resourceLinks = [], onCreated, onCancel 
     finally { setLoading(false); }
   }
 
-  const availableForC2 = resourceLinks.filter(r => r.id !== Number(c1Id));
-
   return (
     <form onSubmit={handleSubmit} className={styles.newDsForm}>
       <h4 className={styles.formHeading}>Nuevo dataset</h4>
-
       <div className={styles.formSection}>
         <span className={styles.formSectionLabel}>Equipo</span>
         <div className={styles.formGrid}>
@@ -94,7 +91,7 @@ function NewDatasetForm({ experimentId, resourceLinks = [], onCreated, onCancel 
                 Compuesto 2
                 <select className={styles.input} value={c2Id} onChange={e => setC2Id(e.target.value)}>
                   <option value="">Seleccionar...</option>
-                  {availableForC2.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                  {resourceLinks.filter(r => r.id !== Number(c1Id)).map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                 </select>
               </label>
               {c2 && <CompoundPill resource={c2} />}
@@ -187,7 +184,11 @@ function CompoundSetupForm({ datasetId, resourceLinks, onDone }) {
 }
 
 function ColumnsEditor({ columns, onSave, onCancel }) {
-  const [cols, setCols] = useState(columns.map(c => ({ name: c.name, unit: c.unit })));
+  const [cols, setCols] = useState(
+    columns.length > 0
+      ? columns.map(c => ({ name: c.name, unit: c.unit }))
+      : [{ name: '', unit: '' }]
+  );
   const [saving, setSaving] = useState(false);
 
   function add()           { setCols(c => [...c, { name: '', unit: '' }]); }
@@ -195,34 +196,48 @@ function ColumnsEditor({ columns, onSave, onCancel }) {
   function update(i, f, v) { setCols(c => c.map((x, j) => j !== i ? x : { ...x, [f]: v })); }
 
   async function save() {
+    const valid = cols.filter(c => c.name.trim());
+    if (!valid.length) return;
     setSaving(true);
-    try { await onSave(cols.filter(c => c.name.trim())); }
+    try { await onSave(valid); }
     finally { setSaving(false); }
   }
 
   return (
     <div className={styles.colsEditor}>
-      {cols.map((col, i) => (
-        <div key={i} className={styles.colEditorRow}>
-          <input
-            className={`${styles.colInput} ${styles.colInputName}`}
-            value={col.name}
-            onChange={e => update(i, 'name', e.target.value)}
-            placeholder="Nombre (T)"
-            autoFocus={i === cols.length - 1 && col.name === ''}
-          />
-          <input
-            className={`${styles.colInput} ${styles.colInputUnit}`}
-            value={col.unit}
-            onChange={e => update(i, 'unit', e.target.value)}
-            placeholder="Unidad (K)"
-          />
-          <button className={styles.btnIcon} onClick={() => remove(i)} title="Eliminar columna">✕</button>
+      <div className={styles.colsEditorHeader}>
+        <span className={styles.colsEditorLabel}>Columnas de datos</span>
+        <span className={styles.colsEditorHint}>Define las variables que se medirán en cada fila</span>
+      </div>
+      <div className={styles.colsEditorFields}>
+        <div className={styles.colFieldHeaders}>
+          <span className={styles.colFieldLabel} style={{ width: 110 }}>Variable</span>
+          <span className={styles.colFieldLabel} style={{ width: 75 }}>Unidad</span>
         </div>
-      ))}
-      <button className={styles.btnAddCol} onClick={add}>+ columna</button>
+        {cols.map((col, i) => (
+          <div key={i} className={styles.colEditorRow}>
+            <input
+              className={`${styles.colInput} ${styles.colInputName}`}
+              value={col.name}
+              onChange={e => update(i, 'name', e.target.value)}
+              placeholder="ej: T"
+              autoFocus={i === cols.length - 1 && col.name === ''}
+            />
+            <input
+              className={`${styles.colInput} ${styles.colInputUnit}`}
+              value={col.unit}
+              onChange={e => update(i, 'unit', e.target.value)}
+              placeholder="ej: K"
+            />
+            <button className={styles.btnIcon} onClick={() => remove(i)} title="Eliminar columna">✕</button>
+          </div>
+        ))}
+        <button className={styles.btnAddCol} onClick={add}>+ agregar columna</button>
+      </div>
       <div className={styles.colEditorActions}>
-        <button className={styles.btnPrimary} onClick={save} disabled={saving}>{saving ? 'Guardando...' : 'Guardar columnas'}</button>
+        <button className={styles.btnPrimary} onClick={save} disabled={saving || !cols.some(c => c.name.trim())}>
+          {saving ? 'Guardando...' : 'Guardar columnas'}
+        </button>
         <button className={styles.btnSecondary} onClick={onCancel}>Cancelar</button>
       </div>
     </div>
@@ -241,6 +256,13 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
   useEffect(() => {
     api.datasets.get(initialDs.id).then(setDs).finally(() => setLoading(false));
   }, [initialDs.id]);
+
+  // Auto-dismiss success message after 4s
+  useEffect(() => {
+    if (!importMsg?.ok) return;
+    const t = setTimeout(() => setImportMsg(null), 4000);
+    return () => clearTimeout(t);
+  }, [importMsg]);
 
   async function deleteDataset() {
     if (!confirm('¿Eliminar este dataset y todos sus datos?')) return;
@@ -298,21 +320,18 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
   }
 
   if (ds === null && !loading) return null;
-  if (loading) return <div className={styles.dsCard}><p className={styles.muted}>Cargando...</p></div>;
+  if (loading) return <div className={styles.dsCard}><p className={styles.muted} style={{ padding: '1rem 1.125rem' }}>Cargando...</p></div>;
 
   const noCompounds = ds.compounds.length === 0;
   const isMixture   = ds.compounds.length === 2;
   const comp1 = ds.compounds.find(c => c.compound_index === 1);
   const comp2 = ds.compounds.find(c => c.compound_index === 2);
   const hasColumns = ds.columns.length > 0;
-
-  const colHeader = hasColumns
-    ? ds.columns.map(c => c.unit ? `${c.name} (${c.unit})` : c.name).join(', ')
-    : 'Sin columnas';
+  const hasRows    = ds.rows.length > 0;
 
   return (
     <div className={styles.dsCard}>
-      {/* Header */}
+      {/* ── Header ── */}
       <div className={styles.dsHeader}>
         <div className={styles.dsInfo}>
           <span className={styles.dsTitle}>{ds.title}</span>
@@ -321,7 +340,7 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
             {noCompounds
               ? <span className={styles.pendingCompounds}>compuestos pendientes</span>
               : isMixture ? `${comp1?.name} + ${comp2?.name}` : comp1?.name}
-            {!noCompounds && <> · {ds.rows.length} fila{ds.rows.length !== 1 ? 's' : ''}</>}
+            {hasRows && <> · <strong>{ds.rows.length}</strong> fila{ds.rows.length !== 1 ? 's' : ''}</>}
           </span>
         </div>
         <div className={styles.dsActions}>
@@ -334,7 +353,7 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
 
       {!collapsed && (
         <>
-          {/* Compound setup (if needed) */}
+          {/* ── Compound setup ── */}
           {noCompounds && (
             <CompoundSetupForm
               datasetId={ds.id}
@@ -343,7 +362,7 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
             />
           )}
 
-          {/* Compound info chips */}
+          {/* ── Compound info ── */}
           {!noCompounds && (
             <div className={styles.compoundsInfo}>
               {ds.compounds.map(c => (
@@ -356,20 +375,37 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
             </div>
           )}
 
-          {/* Columns bar */}
-          {!editingCols && (
-            <div className={styles.columnsBar}>
-              <span className={styles.colsList}>
-                <strong>Columnas:</strong>{' '}
-                <span className={hasColumns ? '' : styles.pendingCompounds}>{colHeader}</span>
-              </span>
-              <button className={styles.btnEditCols} onClick={() => setEditingCols(true)}>
-                {hasColumns ? 'Editar columnas' : 'Definir columnas'}
+          {/* ── No columns: prominent prompt ── */}
+          {!hasColumns && !editingCols && (
+            <div className={styles.noColumnsState}>
+              <div className={styles.noColumnsIcon}>⊞</div>
+              <div className={styles.noColumnsText}>
+                <strong>Sin columnas definidas</strong>
+                <span>Define las variables que se registrarán en cada fila de datos, por ejemplo: T (K), P (kPa), ρ (kg·m⁻³)</span>
+              </div>
+              <button className={styles.btnPrimary} onClick={() => setEditingCols(true)}>
+                Definir columnas
               </button>
             </div>
           )}
 
-          {/* Inline column editor */}
+          {/* ── Columns bar (when columns exist) ── */}
+          {hasColumns && !editingCols && (
+            <div className={styles.columnsBar}>
+              <div className={styles.colChips}>
+                {ds.columns.map(c => (
+                  <span key={c.id} className={styles.colChip}>
+                    {c.name}{c.unit && <em> ({c.unit})</em>}
+                  </span>
+                ))}
+              </div>
+              <button className={styles.btnEditCols} onClick={() => setEditingCols(true)}>
+                Editar columnas
+              </button>
+            </div>
+          )}
+
+          {/* ── Inline column editor ── */}
           {editingCols && (
             <ColumnsEditor
               columns={ds.columns}
@@ -378,43 +414,46 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
             />
           )}
 
-          {/* Excel actions */}
-          <div className={styles.excelBar}>
-            <button
-              className={styles.btnExcelDown}
-              onClick={downloadExcel}
-              disabled={!hasColumns}
-              title={hasColumns ? 'Descargar plantilla Excel con las columnas definidas' : 'Define columnas primero'}
-            >
-              ⬇ Descargar plantilla Excel
-            </button>
-            <label className={`${styles.btnExcelUp} ${importLoading ? styles.btnDisabled : ''}`}>
-              {importLoading ? 'Importando...' : '⬆ Subir Excel con datos'}
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".xlsx,.xls"
-                style={{ display: 'none' }}
-                onChange={handleFileChange}
-                disabled={importLoading || !hasColumns}
-              />
-            </label>
-            {importMsg && (
-              <span className={`${styles.importMsg} ${importMsg.ok ? styles.importMsgOk : styles.importMsgErr}`}>
-                {importMsg.ok ? '✓ ' : '✗ '}{importMsg.text}
-              </span>
-            )}
-            <span className={styles.rowCount}>{ds.rows.length} fila{ds.rows.length !== 1 ? 's' : ''}</span>
-          </div>
+          {/* ── Excel actions (only when columns defined) ── */}
+          {hasColumns && !editingCols && (
+            <div className={styles.excelBar}>
+              <button
+                className={styles.btnExcelDown}
+                onClick={downloadExcel}
+                title="Descarga una plantilla Excel con las columnas definidas"
+              >
+                ⬇ Descargar plantilla
+              </button>
+              <label className={`${styles.btnExcelUp} ${importLoading ? styles.btnDisabled : ''}`}>
+                {importLoading ? 'Importando...' : '⬆ Subir datos'}
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".xlsx,.xls"
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                  disabled={importLoading}
+                />
+              </label>
+              {importMsg && (
+                <span className={`${styles.importMsg} ${importMsg.ok ? styles.importMsgOk : styles.importMsgErr}`}>
+                  {importMsg.ok ? '✓ ' : '✗ '}{importMsg.text}
+                </span>
+              )}
+              {hasRows && (
+                <span className={styles.rowCount}>{ds.rows.length} fila{ds.rows.length !== 1 ? 's' : ''}</span>
+              )}
+            </div>
+          )}
 
-          {/* Data table */}
-          {hasColumns && ds.rows.length > 0 && (
+          {/* ── Data table ── */}
+          {hasColumns && hasRows && (
             <div className={styles.tableWrap}>
               <table className={styles.dataTable}>
                 <thead>
                   <tr>
                     {ds.columns.map(c => (
-                      <th key={c.id}>{c.unit ? `${c.name} / ${c.unit}` : c.name}</th>
+                      <th key={c.id}>{c.unit ? `${c.name} (${c.unit})` : c.name}</th>
                     ))}
                     <th></th>
                   </tr>
@@ -422,9 +461,14 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
                 <tbody>
                   {ds.rows.map(row => (
                     <tr key={row.id}>
-                      {ds.columns.map(c => (
-                        <td key={c.id}>{row.data[c.name] ?? '—'}</td>
-                      ))}
+                      {ds.columns.map(c => {
+                        const val = row.data[c.name];
+                        return (
+                          <td key={c.id}>
+                            {val == null ? <span className={styles.muted}>—</span> : val}
+                          </td>
+                        );
+                      })}
                       <td>
                         <button className={styles.btnIconDanger} onClick={() => deleteRow(row.id)} title="Eliminar fila">✕</button>
                       </td>
@@ -435,10 +479,26 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
             </div>
           )}
 
-          {hasColumns && ds.rows.length === 0 && (
-            <p className={styles.noData}>
-              Sin datos. Descarga la plantilla Excel, complétala y súbela para importar.
-            </p>
+          {/* ── Empty data state ── */}
+          {hasColumns && !hasRows && !editingCols && (
+            <div className={styles.noDataState}>
+              <div className={styles.noDataSteps}>
+                <div className={styles.noDataStep}>
+                  <span className={styles.noDataStepNum}>1</span>
+                  <span>Descarga la plantilla</span>
+                </div>
+                <span className={styles.noDataArrow}>→</span>
+                <div className={styles.noDataStep}>
+                  <span className={styles.noDataStepNum}>2</span>
+                  <span>Completa los datos en Excel</span>
+                </div>
+                <span className={styles.noDataArrow}>→</span>
+                <div className={styles.noDataStep}>
+                  <span className={styles.noDataStepNum}>3</span>
+                  <span>Sube el archivo</span>
+                </div>
+              </div>
+            </div>
           )}
 
           {ds.calibration_notes && (

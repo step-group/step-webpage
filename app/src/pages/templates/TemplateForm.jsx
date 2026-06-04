@@ -188,26 +188,39 @@ export default function TemplateForm() {
 
                 {/* Columns sub-editor */}
                 <div className={styles.columnsSubSection}>
-                  <span className={styles.colsLabel}>Columnas de datos</span>
+                  <div className={styles.colsSectionHeader}>
+                    <span className={styles.colsLabel}>Columnas de datos</span>
+                    <span className={styles.colsSectionHint}>
+                      {(d.columns || []).length === 0
+                        ? 'Define qué variables se medirán en cada fila'
+                        : `${(d.columns || []).length} columna${(d.columns || []).length !== 1 ? 's' : ''} definida${(d.columns || []).length !== 1 ? 's' : ''}`}
+                    </span>
+                  </div>
+                  {(d.columns || []).length > 0 && (
+                    <div className={styles.colFieldHeaders}>
+                      <span className={styles.colFieldLabel} style={{ width: 90 }}>Variable</span>
+                      <span className={styles.colFieldLabel} style={{ width: 65 }}>Unidad</span>
+                    </div>
+                  )}
                   {(d.columns || []).map((col, ci) => (
                     <div key={ci} className={styles.colEditorRow}>
                       <input
                         className={`${styles.colInput} ${styles.colInputName}`}
                         value={col.name}
                         onChange={e => updateColumn(di, ci, 'name', e.target.value)}
-                        placeholder="Nombre (T)"
+                        placeholder="ej: T"
                       />
                       <input
                         className={`${styles.colInput} ${styles.colInputUnit}`}
                         value={col.unit}
                         onChange={e => updateColumn(di, ci, 'unit', e.target.value)}
-                        placeholder="Unidad (K)"
+                        placeholder="ej: K"
                       />
                       <button type="button" className={styles.stepDelete} onClick={() => removeColumn(di, ci)}>×</button>
                     </div>
                   ))}
                   <button type="button" className={styles.btnAddCol} onClick={() => addColumn(di)}>
-                    + columna
+                    + agregar columna
                   </button>
                 </div>
               </div>
