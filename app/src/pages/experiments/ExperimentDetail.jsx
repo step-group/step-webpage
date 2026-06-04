@@ -41,6 +41,15 @@ export default function ExperimentDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  async function changeStatus(newStatus) {
+    try {
+      const updated = await api.experiments.update(id, { status: newStatus });
+      setExp(e => ({ ...e, status: updated.status }));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function toggleStep(step) {
     const updated = await api.experiments.updateStep(id, step.id, { finished: !step.finished });
     setExp(e => ({ ...e, steps: e.steps.map(s => s.id === updated.id ? updated : s) }));
@@ -113,6 +122,9 @@ export default function ExperimentDetail() {
 
   const linkedIds = new Set(exp.resource_links.map(r => r.id));
   const availableResources = allResources.filter(r => !linkedIds.has(r.id) && r.state === 'normal');
+  const doneSteps    = exp.steps.filter(s => s.finished).length;
+  const totalSteps   = exp.steps.length;
+  const stepsPercent = totalSteps > 0 ? Math.round((doneSteps / totalSteps) * 100) : 0;
 
   return (
     <AppLayout>
@@ -120,12 +132,6 @@ export default function ExperimentDetail() {
         <div>
           <div className={styles.detailTitle}>{exp.title}</div>
           <div className={styles.detailMeta}>
-            <span
-              className={styles.statusBadge}
-              style={{ background: STATUS_COLOR[exp.status] + '20', color: STATUS_COLOR[exp.status] }}
-            >
-              {STATUS_LABEL[exp.status]}
-            </span>
             <span>{new Date(exp.date).toLocaleDateString('es-CL')}</span>
             <span>{exp.created_by_name}</span>
             {exp.template_title && <span>Plantilla: {exp.template_title}</span>}
@@ -143,6 +149,48 @@ export default function ExperimentDetail() {
           )}
         </div>
       </div>
+
+      {/* Progress / Status block */}
+      {exp.status === 'success' ? (
+        <div className={styles.successBanner}>
+          <span className={styles.successIcon}>✓</span>
+          <div style={{ flex: 1 }}>
+            <div className={styles.successTitle}>Experimento completado</div>
+            <div className={styles.successMeta}>
+              {totalSteps > 0 && `${doneSteps}/${totalSteps} pasos`}
+              {Number(exp.dataset_count) > 0 && ` · ${exp.dataset_count} dataset${Number(exp.dataset_count) !== 1 ? 's' : ''}`}
+              {Number(exp.total_rows) > 0 && ` · ${exp.total_rows} fila${Number(exp.total_rows) !== 1 ? 's' : ''} de datos`}
+            </div>
+          </div>
+          <button className={styles.btnReopen} onClick={() => changeStatus('running')}>Reabrir</button>
+        </div>
+      ) : (
+        <div className={styles.progressBlock}>
+          <div className={styles.progressInfo}>
+            <span className={styles.progressLabel}>Pasos</span>
+            <div className={styles.progressBarOuter}>
+              <div className={styles.progressBarFill} style={{ width: `${stepsPercent}%` }} />
+            </div>
+            <span className={styles.progressCount}>{doneSteps}/{totalSteps}</span>
+          </div>
+          <div className={styles.statusActions}>
+            {exp.status !== 'running' && (
+              <span className={styles.statusNote} style={{ color: STATUS_COLOR[exp.status] }}>
+                {STATUS_LABEL[exp.status]}
+              </span>
+            )}
+            {exp.status === 'running' ? (
+              <>
+                <button className={styles.btnSuccess} onClick={() => changeStatus('success')}>✓ Completado</button>
+                <button className={styles.btnFail} onClick={() => changeStatus('failure')}>Fallido</button>
+                <button className={styles.btnRepeat} onClick={() => changeStatus('need_to_be_redone')}>Repetir</button>
+              </>
+            ) : (
+              <button className={styles.btnReopen} onClick={() => changeStatus('running')}>Reactivar</button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Body */}
       <div className={styles.section}>

@@ -13,7 +13,9 @@ router.get('/', requireAuth, async (req, res) => {
     SELECT e.id, e.title, e.status, e.date, e.tags, e.state, e.created_at, e.updated_at,
            u.name AS created_by_name,
            (SELECT COUNT(*) FROM experiment_steps s WHERE s.experiment_id = e.id) AS steps_total,
-           (SELECT COUNT(*) FROM experiment_steps s WHERE s.experiment_id = e.id AND s.finished = true) AS steps_done
+           (SELECT COUNT(*) FROM experiment_steps s WHERE s.experiment_id = e.id AND s.finished = true) AS steps_done,
+           (SELECT COUNT(*) FROM datasets d WHERE d.experiment_id = e.id) AS dataset_count,
+           (SELECT COUNT(*) FROM dataset_rows dr JOIN datasets d2 ON d2.id = dr.dataset_id WHERE d2.experiment_id = e.id) AS total_rows
     FROM experiments e
     LEFT JOIN users u ON u.id = e.created_by
     WHERE e.state = $1
@@ -100,7 +102,9 @@ router.post('/', requireAuth, async (req, res) => {
 router.get('/:id', requireAuth, async (req, res) => {
   try {
     const exp = await pool.query(
-      `SELECT e.*, u.name AS created_by_name, t.title AS template_title
+      `SELECT e.*, u.name AS created_by_name, t.title AS template_title,
+              (SELECT COUNT(*) FROM datasets d WHERE d.experiment_id = e.id) AS dataset_count,
+              (SELECT COUNT(*) FROM dataset_rows dr JOIN datasets d2 ON d2.id = dr.dataset_id WHERE d2.experiment_id = e.id) AS total_rows
        FROM experiments e
        LEFT JOIN users u ON u.id = e.created_by
        LEFT JOIN experiment_templates t ON t.id = e.template_id

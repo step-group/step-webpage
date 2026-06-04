@@ -4,17 +4,26 @@ import { api } from '../../api/client';
 import AppLayout from '../../layouts/AppLayout';
 import styles from './Experiments.module.css';
 
-const STATUS_LABEL = {
-  running:           'En curso',
-  success:           'Exitoso',
-  failure:           'Fallido',
-  need_to_be_redone: 'Repetir',
-};
+const STATUSES = [
+  { value: '',                  label: 'Todos' },
+  { value: 'running',           label: 'En curso' },
+  { value: 'success',           label: 'Completados' },
+  { value: 'failure',           label: 'Fallidos' },
+  { value: 'need_to_be_redone', label: 'Repetir' },
+];
+
 const STATUS_COLOR = {
   running:           '#3b82f6',
   success:           '#22c55e',
   failure:           '#ef4444',
   need_to_be_redone: '#f59e0b',
+};
+
+const STATUS_LABEL = {
+  running:           'En curso',
+  success:           'Completado',
+  failure:           'Fallido',
+  need_to_be_redone: 'Repetir',
 };
 
 export default function ExperimentList() {
@@ -48,12 +57,20 @@ export default function ExperimentList() {
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        <select className={styles.select} value={statusFilter} onChange={e => setStatus(e.target.value)}>
-          <option value="">Todos los estados</option>
-          {Object.entries(STATUS_LABEL).map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
+        <div className={styles.filterTabs}>
+          {STATUSES.map(s => (
+            <button
+              key={s.value}
+              className={`${styles.filterTab} ${statusFilter === s.value ? styles.filterTabActive : ''}`}
+              style={statusFilter === s.value && s.value
+                ? { borderColor: STATUS_COLOR[s.value], color: STATUS_COLOR[s.value], background: STATUS_COLOR[s.value] + '15' }
+                : {}}
+              onClick={() => setStatus(s.value)}
+            >
+              {s.label}
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
       {loading && <p className={styles.muted}>Cargando...</p>}
@@ -74,16 +91,16 @@ export default function ExperimentList() {
               <div className={styles.cardTop}>
                 <span className={styles.expTitle}>{exp.title}</span>
                 <span
-                  className={styles.statusDot}
-                  style={{ background: STATUS_COLOR[exp.status] }}
-                  title={STATUS_LABEL[exp.status]}
-                />
-              </div>
-              <div className={styles.cardMeta}>
-                <span className={styles.statusLabel} style={{ color: STATUS_COLOR[exp.status] }}>
+                  className={styles.statusBadge}
+                  style={{
+                    background: (STATUS_COLOR[exp.status] || '#64748b') + '18',
+                    color: STATUS_COLOR[exp.status] || '#64748b',
+                  }}
+                >
                   {STATUS_LABEL[exp.status] || exp.status}
                 </span>
-                <span>·</span>
+              </div>
+              <div className={styles.cardMeta}>
                 <span>{new Date(exp.date).toLocaleDateString('es-CL')}</span>
                 <span>·</span>
                 <span>{exp.created_by_name}</span>
@@ -91,6 +108,15 @@ export default function ExperimentList() {
                   <>
                     <span>·</span>
                     <span>{exp.steps_done}/{exp.steps_total} pasos</span>
+                  </>
+                )}
+                {Number(exp.dataset_count) > 0 && (
+                  <>
+                    <span>·</span>
+                    <span>
+                      {exp.dataset_count} dataset{Number(exp.dataset_count) !== 1 ? 's' : ''}
+                      {Number(exp.total_rows) > 0 && `, ${exp.total_rows} fila${Number(exp.total_rows) !== 1 ? 's' : ''}`}
+                    </span>
                   </>
                 )}
                 {exp.tags?.length > 0 && (
