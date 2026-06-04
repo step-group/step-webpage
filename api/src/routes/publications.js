@@ -137,13 +137,13 @@ router.get('/:id', requireAuth, async (req, res) => {
 
     const datasets = await pool.query(
       `SELECT d.id, d.title, d.equipment, e.id AS experiment_id, e.title AS experiment_title,
-              COUNT(dp.id) AS point_count,
+              COUNT(dr.id) AS point_count,
               json_agg(json_build_object('compound_index', dc.compound_index, 'name', dc.name, 'cas_number', dc.cas_number)
                 ORDER BY dc.compound_index) AS compounds
        FROM publication_datasets pd
        JOIN datasets d ON d.id = pd.dataset_id
        JOIN experiments e ON e.id = d.experiment_id
-       LEFT JOIN dataset_points dp ON dp.dataset_id = d.id
+       LEFT JOIN dataset_rows dr ON dr.dataset_id = d.id
        LEFT JOIN dataset_compounds dc ON dc.dataset_id = d.id
        WHERE pd.publication_id = $1
        GROUP BY d.id, e.id
@@ -224,11 +224,11 @@ router.get('/:id/available-datasets', requireAuth, async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT d.id, d.title, d.equipment, e.title AS experiment_title,
-              COUNT(dp.id) AS point_count,
+              COUNT(dr.id) AS point_count,
               json_agg(json_build_object('name', dc.name) ORDER BY dc.compound_index) AS compounds
        FROM datasets d
        JOIN experiments e ON e.id = d.experiment_id
-       LEFT JOIN dataset_points dp ON dp.dataset_id = d.id
+       LEFT JOIN dataset_rows dr ON dr.dataset_id = d.id
        LEFT JOIN dataset_compounds dc ON dc.dataset_id = d.id
        WHERE d.id NOT IN (
          SELECT dataset_id FROM publication_datasets WHERE publication_id = $1
