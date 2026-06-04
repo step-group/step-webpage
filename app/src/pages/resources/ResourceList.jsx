@@ -110,7 +110,7 @@ export default function ResourceList() {
 
   const q = search.trim().toLowerCase();
   const visible = containers
-    .filter(c => !selectedLoc || c.location_id === selectedLoc)
+    .filter(c => q ? true : (!selectedLoc || c.location_id === selectedLoc))
     .filter(c => !q ||
       (c.name || '').toLowerCase().includes(q) ||
       (c.cas_number || '').toLowerCase().includes(q) ||
