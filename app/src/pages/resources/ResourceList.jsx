@@ -82,6 +82,7 @@ export default function ResourceList() {
   const [locations,   setLocations]   = useState([]);
   const [containers,  setContainers]  = useState([]);
   const [selectedLoc,  setSelectedLoc]  = useState(null);
+  const [search,       setSearch]       = useState('');
   const [loading,      setLoading]      = useState(true);
   const [viewMode,     setViewMode]     = useState('table');
   const [checked,      setChecked]      = useState(new Set());
@@ -107,9 +108,14 @@ export default function ResourceList() {
 
   const flatMap = buildFlatMap(locations);
 
-  const visible = selectedLoc
-    ? containers.filter(c => c.location_id === selectedLoc)
-    : containers;
+  const q = search.trim().toLowerCase();
+  const visible = containers
+    .filter(c => !selectedLoc || c.location_id === selectedLoc)
+    .filter(c => !q ||
+      (c.name || '').toLowerCase().includes(q) ||
+      (c.cas_number || '').toLowerCase().includes(q) ||
+      (c.supplier || '').toLowerCase().includes(q)
+    );
 
   function toggleOne(id) {
     setChecked(s => { const ns = new Set(s); ns.has(id) ? ns.delete(id) : ns.add(id); return ns; });
@@ -205,9 +211,19 @@ export default function ResourceList() {
           </div>
         </div>
 
+        <div className={styles.searchRow}>
+          <input
+            className={styles.searchInput}
+            type="search"
+            placeholder="Buscar por nombre, CAS o proveedor..."
+            value={search}
+            onChange={e => { setSearch(e.target.value); setChecked(new Set()); }}
+          />
+        </div>
+
         <div className={styles.containersMeta}>
           <span className={styles.countText}>
-            The following {visible.length} container(s) were found:
+            {visible.length} container{visible.length !== 1 ? 's' : ''}{search ? ` para "${search}"` : ''}
           </span>
           <div className={styles.viewControls}>
             <button

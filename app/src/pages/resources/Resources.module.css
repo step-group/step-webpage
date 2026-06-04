@@ -307,6 +307,21 @@
 
 .locLabel { flex: 1; }
 
+/* ── Search ─────────────────────────────────────────────────────────────── */
+.searchRow { padding: 0.5rem 0.75rem 0; }
+.searchInput {
+  width: 100%;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.82rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  outline: none;
+  box-sizing: border-box;
+}
+.searchInput:focus { border-color: var(--color-primary); }
+
 /* ── Containers meta bar ────────────────────────────────────────────────── */
 .containersMeta {
   display: flex;
