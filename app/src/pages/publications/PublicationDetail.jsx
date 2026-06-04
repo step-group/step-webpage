@@ -66,7 +66,6 @@ export default function PublicationDetail() {
           )}
         </div>
         <div className={styles.detailActions}>
-          <button onClick={handleDelete} className={styles.btnDanger}>Eliminar</button>
         </div>
       </div>
 
