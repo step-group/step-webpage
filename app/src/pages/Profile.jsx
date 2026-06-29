@@ -6,12 +6,24 @@ import AppLayout from '../layouts/AppLayout';
 import styles from './Profile.module.css';
 
 const STATUS_LABEL = {
-  planned: 'Planificado', in_progress: 'En progreso', completed: 'Completado',
-  published: 'Publicado', draft: 'Borrador',
+  running:           'En curso',
+  success:           'Completado',
+  failure:           'Fallido',
+  need_to_be_redone: 'Repetir',
+  draft:             'Borrador',
+  submitted:         'Enviado',
+  under_review:      'En revisión',
+  published:         'Publicado',
 };
 const STATUS_CLASS = {
-  planned: 'planned', in_progress: 'inProgress', completed: 'completed',
-  published: 'published', draft: 'draft',
+  running:           'inProgress',
+  success:           'completed',
+  failure:           'failure',
+  need_to_be_redone: 'draft',
+  draft:             'draft',
+  submitted:         'inProgress',
+  under_review:      'draft',
+  published:         'published',
 };
 
 function fmtDate(iso) {
@@ -194,7 +206,7 @@ export default function Profile() {
                   <span className={styles.actTitle}>{d.title}</span>
                   <span className={styles.actMeta}>
                     {d.equipment && <>{d.equipment} · </>}
-                    {d.row_count} punto{d.row_count !== 1 ? 's' : ''} · <em>{d.experiment_title}</em>
+                    {d.row_count} fila{d.row_count !== 1 ? 's' : ''} · <em>{d.experiment_title}</em>
                   </span>
                 </div>
                 <span className={styles.pointCount}>{d.row_count} pts</span>
