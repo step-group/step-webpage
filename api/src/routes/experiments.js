@@ -322,14 +322,14 @@ router.post('/:id/links', requireAuth, async (req, res) => {
       });
     }
 
-    await client.query(
+    const insertResult = await client.query(
       `INSERT INTO exp_resource_links (experiment_id, resource_id, quantity_used)
        VALUES ($1, $2, $3)
        ON CONFLICT (experiment_id, resource_id) DO NOTHING`,
       [req.params.id, resource_id, qty]
     );
 
-    if (qty > 0) {
+    if (qty > 0 && insertResult.rowCount > 0) {
       await client.query(
         'UPDATE resources SET quantity = quantity - $1 WHERE id = $2',
         [qty, resource_id]
