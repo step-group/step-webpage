@@ -229,7 +229,7 @@ function ColumnsEditor({ columns, onSave, onCancel }) {
   );
 }
 
-function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
+function DatasetCard({ dataset: initialDs, resourceLinks = [], onDeleted }) {
   const [ds, setDs]               = useState(null);
   const [loading, setLoading]     = useState(true);
   const [collapsed, setCollapsed] = useState(false);
@@ -253,7 +253,7 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
   function deleteDataset() {
     setModal({
       message: '¿Eliminar este dataset y todos sus datos?',
-      onConfirm: async () => { await api.datasets.delete(initialDs.id); setDs(null); },
+      onConfirm: async () => { await api.datasets.delete(initialDs.id); onDeleted(initialDs.id); },
     });
   }
 
@@ -543,7 +543,12 @@ export default function DatasetSection({ experimentId, resourceLinks = [] }) {
       )}
 
       {datasets.map(ds => (
-        <DatasetCard key={ds.id} dataset={ds} resourceLinks={resourceLinks} />
+        <DatasetCard
+          key={ds.id}
+          dataset={ds}
+          resourceLinks={resourceLinks}
+          onDeleted={id => setDatasets(d => d.filter(x => x.id !== id))}
+        />
       ))}
     </div>
   );
