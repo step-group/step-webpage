@@ -101,6 +101,12 @@ export default function ExperimentDetail() {
         ...e,
         resource_links: [...e.resource_links, { ...resource, quantity_used: qty }],
       }));
+      if (qty > 0) {
+        setAll(rs => rs.map(r => r.id === Number(linkId)
+          ? { ...r, quantity: Number(r.quantity) - qty }
+          : r
+        ));
+      }
       setLinkId('');
       setLinkQty('');
     } catch (err) {
@@ -109,8 +115,16 @@ export default function ExperimentDetail() {
   }
 
   async function removeLink(rid) {
+    const link = exp.resource_links.find(r => r.id === rid);
     await api.experiments.removeLink(id, rid);
     setExp(e => ({ ...e, resource_links: e.resource_links.filter(r => r.id !== rid) }));
+    const restoredQty = Number(link?.quantity_used ?? 0);
+    if (restoredQty > 0) {
+      setAll(rs => rs.map(r => r.id === rid
+        ? { ...r, quantity: Number(r.quantity) + restoredQty }
+        : r
+      ));
+    }
   }
 
   function deleteExp() {
