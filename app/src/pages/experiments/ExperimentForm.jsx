@@ -4,12 +4,6 @@ import { api } from '../../api/client';
 import AppLayout from '../../layouts/AppLayout';
 import styles from './Experiments.module.css';
 
-const STATUS_OPTIONS = [
-  { value: 'running',           label: 'En curso' },
-  { value: 'success',           label: 'Exitoso' },
-  { value: 'failure',           label: 'Fallido' },
-  { value: 'need_to_be_redone', label: 'Repetir' },
-];
 
 export default function ExperimentForm() {
   const { id } = useParams();
@@ -113,7 +107,7 @@ export default function ExperimentForm() {
       if (isEdit) {
         await api.experiments.update(id, {
           title: payload.title, body: payload.body,
-          status: payload.status, date: payload.date, tags: payload.tags,
+          date: payload.date, tags: payload.tags,
           steps: newSteps,
         });
         navigate(`/app/experiments/${id}`);
@@ -181,22 +175,14 @@ export default function ExperimentForm() {
           />
         </label>
 
-        <div className={styles.formRow}>
-          <label>
-            Estado
-            <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-              {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </label>
-          <label>
-            Fecha
-            <input
-              type="date"
-              value={form.date}
-              onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-            />
-          </label>
-        </div>
+        <label>
+          Fecha
+          <input
+            type="date"
+            value={form.date}
+            onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+          />
+        </label>
 
         <label>
           Etiquetas
