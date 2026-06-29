@@ -141,7 +141,7 @@ async function seed() {
 
 async function seedTemplates(adminId) {
   const DENSIMETER_TEMPLATE = {
-    title: 'Medición de densidad con densímetro de vibración',
+    title: 'Medición de densidad con densímetro',
     body:
       'Protocolo para medir la densidad de mezclas líquidas usando un densímetro de tubo vibrante (ej. Anton Paar DMA).\n\n' +
       'Antes de iniciar, vincular al experimento los compuestos del inventario que se van a usar. ' +
