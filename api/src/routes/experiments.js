@@ -40,7 +40,7 @@ router.get('/', requireAuth, async (req, res) => {
 
 // ── CREATE ───────────────────────────────────────────────────────────────────
 router.post('/', requireAuth, async (req, res) => {
-  const { title, body = '', status = 'running', date, tags = [], template_id } = req.body;
+  const { title, body = '', status = 'running', date, tags = [], template_id, steps = [] } = req.body;
   if (!title) return res.status(400).json({ error: 'El título es requerido' });
 
   const client = await pool.connect();
@@ -85,6 +85,14 @@ router.post('/', requireAuth, async (req, res) => {
           [dsId, td.id]
         );
       }
+    }
+
+    for (const s of steps) {
+      if (!s.body?.trim()) continue;
+      await client.query(
+        'INSERT INTO experiment_steps (experiment_id, body, ordering) VALUES ($1, $2, $3)',
+        [experiment.id, s.body.trim(), s.ordering ?? 0]
+      );
     }
 
     await client.query('COMMIT');
@@ -150,23 +158,54 @@ router.get('/:id', requireAuth, async (req, res) => {
 
 // ── UPDATE ───────────────────────────────────────────────────────────────────
 router.patch('/:id', requireAuth, async (req, res) => {
+  const { steps: newSteps, ...rest } = req.body;
   const allowed = ['title', 'body', 'status', 'date', 'tags'];
-  const fields = Object.keys(req.body).filter(k => allowed.includes(k));
-  if (!fields.length) return res.status(400).json({ error: 'Sin campos válidos para actualizar' });
+  const fields = Object.keys(rest).filter(k => allowed.includes(k));
+  const stepsToAdd = Array.isArray(newSteps) ? newSteps.filter(s => s.body?.trim()) : [];
 
-  const sets = fields.map((f, i) => `${f} = $${i + 2}`).join(', ');
-  const values = fields.map(f => req.body[f]);
+  if (!fields.length && !stepsToAdd.length)
+    return res.status(400).json({ error: 'Sin campos válidos para actualizar' });
 
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
-      `UPDATE experiments SET ${sets} WHERE id = $1 RETURNING *`,
-      [req.params.id, ...values]
-    );
-    if (!result.rows[0]) return res.status(404).json({ error: 'Experimento no encontrado' });
-    res.json(result.rows[0]);
+    await client.query('BEGIN');
+
+    let updated;
+    if (fields.length) {
+      const sets = fields.map((f, i) => `${f} = $${i + 2}`).join(', ');
+      const result = await client.query(
+        `UPDATE experiments SET ${sets} WHERE id = $1 RETURNING *`,
+        [req.params.id, ...fields.map(f => rest[f])]
+      );
+      if (!result.rows[0]) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Experimento no encontrado' });
+      }
+      updated = result.rows[0];
+    } else {
+      const result = await client.query('SELECT * FROM experiments WHERE id = $1', [req.params.id]);
+      if (!result.rows[0]) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Experimento no encontrado' });
+      }
+      updated = result.rows[0];
+    }
+
+    for (const s of stepsToAdd) {
+      await client.query(
+        'INSERT INTO experiment_steps (experiment_id, body, ordering) VALUES ($1, $2, $3)',
+        [req.params.id, s.body.trim(), s.ordering ?? 0]
+      );
+    }
+
+    await client.query('COMMIT');
+    res.json(updated);
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error(err);
     res.status(500).json({ error: 'Error al actualizar experimento' });
+  } finally {
+    client.release();
   }
 });
 

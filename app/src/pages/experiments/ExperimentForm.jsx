@@ -106,21 +106,19 @@ export default function ExperimentForm() {
     setLoading(true);
     try {
       const payload = { ...form, template_id: form.template_id || undefined };
+      const newSteps = steps
+        .filter(s => !s.id && s.body?.trim())
+        .map(s => ({ body: s.body, ordering: s.ordering }));
 
       if (isEdit) {
         await api.experiments.update(id, {
           title: payload.title, body: payload.body,
           status: payload.status, date: payload.date, tags: payload.tags,
+          steps: newSteps,
         });
-        for (const s of steps.filter(s => !s.id)) {
-          await api.experiments.addStep(id, { body: s.body, ordering: s.ordering });
-        }
         navigate(`/app/experiments/${id}`);
       } else {
-        const exp = await api.experiments.create(payload);
-        for (const s of steps.filter(s => !s.id)) {
-          await api.experiments.addStep(exp.id, { body: s.body, ordering: s.ordering });
-        }
+        const exp = await api.experiments.create({ ...payload, steps: newSteps });
         navigate(`/app/experiments/${exp.id}`);
       }
     } catch (err) {
