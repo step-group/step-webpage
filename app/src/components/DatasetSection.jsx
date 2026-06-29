@@ -351,27 +351,11 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [], onDeleted }) {
             />
           )}
 
-          {/* ── Compound info ── */}
-          {!noCompounds && (
-            <div className={styles.compoundsInfo}>
-              {ds.compounds.map(c => (
-                <span key={c.compound_index} className={styles.compoundChip}>
-                  <strong>{c.name}</strong>
-                  {c.cas_number && <> · CAS {c.cas_number}</>}
-                  {c.purity && <> · {c.purity} {c.purity_unit}</>}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* ── No columns: prominent prompt ── */}
+          {/* ── No columns: subtle prompt ── */}
           {!hasColumns && !editingCols && (
-            <div className={styles.noColumnsState}>
-              <div className={styles.noColumnsText}>
-                <strong>Sin columnas definidas</strong>
-                <span>Define las variables que se registrarán en cada fila de datos, por ejemplo: T (K), P (kPa), ρ (kg·m⁻³)</span>
-              </div>
-              <button className={styles.btnPrimary} onClick={() => setEditingCols(true)}>
+            <div className={styles.columnsBar}>
+              <span className={styles.muted} style={{ fontSize: '0.8rem' }}>Sin columnas definidas</span>
+              <button className={styles.btnEditCols} onClick={() => setEditingCols(true)}>
                 Definir columnas
               </button>
             </div>
@@ -469,24 +453,9 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [], onDeleted }) {
 
           {/* ── Empty data state ── */}
           {hasColumns && !hasRows && !editingCols && (
-            <div className={styles.noDataState}>
-              <div className={styles.noDataSteps}>
-                <div className={styles.noDataStep}>
-                  <span className={styles.noDataStepNum}>1</span>
-                  <span>Descarga la plantilla</span>
-                </div>
-                <span className={styles.noDataArrow}>→</span>
-                <div className={styles.noDataStep}>
-                  <span className={styles.noDataStepNum}>2</span>
-                  <span>Completa los datos en Excel</span>
-                </div>
-                <span className={styles.noDataArrow}>→</span>
-                <div className={styles.noDataStep}>
-                  <span className={styles.noDataStepNum}>3</span>
-                  <span>Sube el archivo</span>
-                </div>
-              </div>
-            </div>
+            <p className={styles.noDataHint}>
+              Descarga la plantilla, completa los datos en Excel y súbela para registrar mediciones.
+            </p>
           )}
 
           {ds.calibration_notes && (
