@@ -1,0 +1,183 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.sidebar {
+  width: 232px;
+  min-width: 232px;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.25rem 1.25rem 1rem;
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 0.5rem;
+}
+.brand:hover { color: white; text-decoration: none; }
+
+.brandDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  flex-shrink: 0;
+}
+
+/* ── Nav sections ─────────────────────────────────────────────── */
+.navSection {
+  padding: 0.75rem 0.75rem 0.25rem;
+}
+
+.navLabel {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #475569;
+  padding: 0 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  color: var(--sidebar-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+}
+.navLink:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text-hover);
+  text-decoration: none;
+}
+.navLink.active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-text);
+}
+
+/* ── User row ─────────────────────────────────────────────────── */
+.userRow {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #1e40af;
+  color: #bfdbfe;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.userName {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userRole {
+  font-size: 0.7rem;
+  color: #475569;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  color: #475569;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: color 0.12s, background 0.12s;
+  flex-shrink: 0;
+}
+.iconBtn:hover { color: #94a3b8; background: rgba(255,255,255,0.06); text-decoration: none; }
+
+.badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* ── Content area ─────────────────────────────────────────────── */
+.content {
+  flex: 1;
+  min-width: 0;
+  padding: 2rem 2.5rem;
+  background: var(--color-bg);
+}
+
+@media (max-width: 700px) {
+  .sidebar   { width: 56px; min-width: 56px; }
+  .brand     { padding: 1rem 0; justify-content: center; }
+  .brandDot  { display: none; }
+  .brand span:last-child { display: none; }
+  .navLabel  { display: none; }
+  .navLink span { display: none; }
+  .navLink   { justify-content: center; padding: 0.6rem; }
+  .userInfo, .userRole, .userName { display: none; }
+  .userRow   { justify-content: center; padding: 0.75rem 0; }
+  .content   { padding: 1.25rem; }
+}

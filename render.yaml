@@ -1,0 +1,26 @@
+databases:
+  - name: step-db
+    plan: free
+    databaseName: step_db
+    user: step_user
+
+services:
+  - type: web
+    name: step-api
+    runtime: node
+    rootDir: api
+    buildCommand: npm install
+    # Both scripts are idempotent — safe to run on every deploy
+    startCommand: node src/migrate.js && node src/seed.js && node src/index.js
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: step-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://step-webpage.netlify.app

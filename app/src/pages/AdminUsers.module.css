@@ -1,0 +1,98 @@
+.layout { min-height: 100vh; display: flex; flex-direction: column; }
+
+.header {
+  background: var(--color-primary);
+  color: white;
+  padding: 0 1.5rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand { font-weight: 700; font-size: 1.1rem; color: white; text-decoration: none; }
+.backLink { font-size: 0.875rem; color: rgba(255,255,255,0.85); text-decoration: none; }
+.backLink:hover { color: white; }
+
+.main { max-width: 900px; margin: 2.5rem auto; padding: 0 1.5rem; width: 100%; }
+.main h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+.muted { color: var(--color-text-muted); }
+.error { color: var(--color-error); }
+
+.tableWrap { overflow-x: auto; }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  font-size: 0.875rem;
+}
+
+.table th {
+  background: #f9fafb;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.table tr:last-child td { border-bottom: none; }
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.pending  { background: #fef9c3; color: #854d0e; }
+.approved { background: #dcfce7; color: #166534; }
+.rejected { background: #fee2e2; color: #991b1b; }
+
+.select {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  background: white;
+}
+
+.actions { display: flex; gap: 0.5rem; }
+
+.btnView {
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #eff6ff;
+  color: #1d4ed8;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.btnView:hover { opacity: 0.8; text-decoration: none; }
+
+.btnApprove, .btnReject {
+  padding: 0.3rem 0.75rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btnApprove { background: #dcfce7; color: #166534; }
+.btnApprove:hover { opacity: 0.8; }
+.btnReject  { background: #fee2e2; color: #991b1b; }
+.btnReject:hover  { opacity: 0.8; }

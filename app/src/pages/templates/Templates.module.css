@@ -1,0 +1,309 @@
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.pageHeader h2 { font-size: 1.4rem; font-weight: 700; }
+
+.btnPrimary {
+  background: var(--color-primary);
+  color: white;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+.btnPrimary:hover { background: var(--color-primary-dark); color: white; text-decoration: none; }
+
+.btnSecondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btnSecondary:hover { background: #f3f4f6; text-decoration: none; }
+
+.btnDanger {
+  background: #fee2e2;
+  color: var(--color-error);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btnDanger:hover { background: #fecaca; }
+
+.muted { color: var(--color-text-muted); font-size: 0.9rem; }
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  transition: box-shadow 0.15s;
+}
+.card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+
+.cardContent {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.tmplTitle {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardBody {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.45rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.45;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.79rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.tag {
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.73rem;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.usarBtn {
+  background: var(--color-primary);
+  color: white;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.usarBtn:hover { background: var(--color-primary-dark); color: white; text-decoration: none; }
+
+/* Form (TemplateForm uses this too) */
+.form { display: flex; flex-direction: column; gap: 1.1rem; max-width: 720px; }
+.form label { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.875rem; font-weight: 500; }
+.form input, .form textarea {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  outline: none;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.form input:focus, .form textarea:focus { border-color: var(--color-primary); }
+.form textarea { resize: vertical; min-height: 200px; font-family: 'Courier New', monospace; line-height: 1.55; }
+.error { color: var(--color-error); font-size: 0.875rem; }
+.formActions { display: flex; gap: 0.75rem; padding-top: 0.5rem; }
+
+.stepsEditor { display: flex; flex-direction: column; gap: 0.4rem; }
+.stepEditorItem { display: flex; align-items: center; gap: 0.5rem; }
+.stepEditorItem input {
+  flex: 1;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  outline: none;
+}
+.stepEditorItem input:focus { border-color: var(--color-primary); }
+.stepNumber {
+  width: 1.4rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.datasetEditorBlock {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+.datasetEditorMainRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+}
+.columnsSubSection {
+  border-top: 1px solid #f1f5f9;
+  background: #fafbfc;
+  padding: 0.5rem 0.5rem 0.5rem 2.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.colsSectionHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.1rem;
+}
+.colsLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.colsSectionHint {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+.colFieldHeaders {
+  display: flex;
+  gap: 0.4rem;
+}
+.colFieldLabel {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  display: inline-block;
+}
+.colEditorRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.colInput {
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  outline: none;
+  font-family: inherit;
+}
+.colInput:focus { border-color: var(--color-primary); }
+.colInputName { width: 90px; }
+.colInputUnit { width: 65px; }
+.btnAddCol {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  text-decoration: underline;
+  padding: 0;
+  font-family: inherit;
+  margin-top: 0.1rem;
+  text-align: left;
+}
+.btnAddCol:hover { color: var(--color-primary-dark); }
+
+/* Keep old name as alias for backwards compat */
+.datasetEditorItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+}
+.datasetInput {
+  flex: 1;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  outline: none;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.datasetInput:focus { border-color: var(--color-primary); }
+
+.stepsHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.stepDelete { background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 1.1rem; padding: 0; }
+.stepDelete:hover { color: var(--color-error); }
+
+.tagInput {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  min-height: 2.4rem;
+  align-items: center;
+  cursor: text;
+}
+.tagInput:focus-within { border-color: var(--color-primary); }
+.tagInput input { border: none; outline: none; background: transparent; font-size: 0.875rem; min-width: 80px; flex: 1; }
+.tagChip {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.78rem;
+}
+.tagChip button { background: none; border: none; cursor: pointer; color: #1d4ed8; padding: 0; font-size: 0.9rem; line-height: 1; }
