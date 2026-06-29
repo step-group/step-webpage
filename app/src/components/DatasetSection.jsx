@@ -16,23 +16,23 @@ function CompoundPill({ resource }) {
 }
 
 function NewDatasetForm({ experimentId, resourceLinks = [], onCreated, onCancel }) {
-  const [equipment, setEquipment] = useState('');
-  const [calNotes, setCalNotes]   = useState('');
-  const [c1Id, setC1Id]           = useState('');
-  const [c2Id, setC2Id]           = useState('');
-  const [isMixture, setIsMixture] = useState(false);
-  const [title, setTitle]         = useState('');
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState('');
+  const [equipment, setEquipment]     = useState('');
+  const [calNotes, setCalNotes]       = useState('');
+  const [compoundIds, setCompoundIds] = useState(['']);
+  const [title, setTitle]             = useState('');
+  const [loading, setLoading]         = useState(false);
+  const [error, setError]             = useState('');
 
-  const c1 = resourceLinks.find(r => r.id === Number(c1Id)) || null;
-  const c2 = resourceLinks.find(r => r.id === Number(c2Id)) || null;
+  function addCompound()        { setCompoundIds(ids => [...ids, '']); }
+  function removeCompound(i)    { setCompoundIds(ids => ids.filter((_, j) => j !== i)); }
+  function updateCompound(i, v) { setCompoundIds(ids => ids.map((id, j) => j !== i ? id : v)); }
 
   useEffect(() => {
-    if (!c1) { setTitle(''); return; }
-    const suggested = isMixture && c2 ? `${c1.name} + ${c2.name}` : c1.name;
+    const selected = compoundIds.map(id => resourceLinks.find(r => r.id === Number(id))).filter(Boolean);
+    if (!selected.length) { setTitle(''); return; }
+    const suggested = selected.map(c => c.name).join(' + ');
     setTitle(t => (!t || resourceLinks.some(r => t === r.name || t.includes(' + '))) ? suggested : t);
-  }, [c1Id, c2Id, isMixture]);
+  }, [compoundIds]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -40,10 +40,9 @@ function NewDatasetForm({ experimentId, resourceLinks = [], onCreated, onCancel 
     if (!title.trim()) return setError('El título es requerido');
     setLoading(true);
     try {
-      const compounds = [
-        ...(c1Id ? [{ compound_index: 1, resource_id: Number(c1Id) }] : []),
-        ...(isMixture && c2Id ? [{ compound_index: 2, resource_id: Number(c2Id) }] : []),
-      ];
+      const compounds = compoundIds
+        .filter(id => id)
+        .map((id, i) => ({ compound_index: i + 1, resource_id: Number(id) }));
       const ds = await api.experiments.createDataset(experimentId, {
         title, equipment, calibration_notes: calNotes, compounds,
       });
@@ -72,32 +71,26 @@ function NewDatasetForm({ experimentId, resourceLinks = [], onCreated, onCancel 
       {resourceLinks.length > 0 && (
         <div className={styles.formSection}>
           <span className={styles.formSectionLabel}>Sistema (opcional)</span>
-          <div className={styles.compoundBlock}>
-            <label className={styles.label}>
-              Compuesto 1
-              <select className={styles.input} value={c1Id} onChange={e => setC1Id(e.target.value)}>
-                <option value="">Seleccionar...</option>
-                {resourceLinks.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-              </select>
-            </label>
-            {c1 && <CompoundPill resource={c1} />}
-          </div>
-          <label className={styles.mixtureToggle}>
-            <input type="checkbox" checked={isMixture} onChange={e => { setIsMixture(e.target.checked); if (!e.target.checked) setC2Id(''); }} />
-            Mezcla binaria
-          </label>
-          {isMixture && (
-            <div className={styles.compoundBlock}>
-              <label className={styles.label}>
-                Compuesto 2
-                <select className={styles.input} value={c2Id} onChange={e => setC2Id(e.target.value)}>
-                  <option value="">Seleccionar...</option>
-                  {resourceLinks.filter(r => r.id !== Number(c1Id)).map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                </select>
-              </label>
-              {c2 && <CompoundPill resource={c2} />}
-            </div>
-          )}
+          {compoundIds.map((cId, i) => {
+            const resource = resourceLinks.find(r => r.id === Number(cId)) || null;
+            const otherNums = compoundIds.filter((_, j) => j !== i).map(Number);
+            return (
+              <div key={i} className={styles.compoundBlock}>
+                <label className={styles.label}>
+                  Compuesto {i + 1}
+                  <select className={styles.input} value={cId} onChange={e => updateCompound(i, e.target.value)}>
+                    <option value="">Seleccionar...</option>
+                    {resourceLinks.filter(r => !otherNums.includes(r.id)).map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                  </select>
+                </label>
+                {resource && <CompoundPill resource={resource} />}
+                {compoundIds.length > 1 && (
+                  <button type="button" className={styles.btnIcon} onClick={() => removeCompound(i)}>Quitar</button>
+                )}
+              </div>
+            );
+          })}
+          <button type="button" className={styles.btnAddCol} onClick={addCompound}>+ Agregar compuesto</button>
         </div>
       )}
 
@@ -116,23 +109,20 @@ function NewDatasetForm({ experimentId, resourceLinks = [], onCreated, onCancel 
 }
 
 function CompoundSetupForm({ datasetId, resourceLinks, onDone }) {
-  const [c1Id, setC1Id]           = useState('');
-  const [c2Id, setC2Id]           = useState('');
-  const [isMixture, setIsMixture] = useState(false);
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState('');
+  const [compoundIds, setCompoundIds] = useState(['']);
+  const [loading, setLoading]         = useState(false);
+  const [error, setError]             = useState('');
 
-  const c1 = resourceLinks.find(r => r.id === Number(c1Id)) || null;
-  const c2 = resourceLinks.find(r => r.id === Number(c2Id)) || null;
+  function addCompound()        { setCompoundIds(ids => [...ids, '']); }
+  function removeCompound(i)    { setCompoundIds(ids => ids.filter((_, j) => j !== i)); }
+  function updateCompound(i, v) { setCompoundIds(ids => ids.map((id, j) => j !== i ? id : v)); }
 
   async function save() {
-    if (!c1Id) return setError('Selecciona el compuesto 1');
+    const selected = compoundIds.filter(id => id);
+    if (!selected.length) return setError('Selecciona al menos un compuesto');
     setLoading(true); setError('');
     try {
-      const compounds = [
-        { compound_index: 1, resource_id: Number(c1Id) },
-        ...(isMixture && c2Id ? [{ compound_index: 2, resource_id: Number(c2Id) }] : []),
-      ];
+      const compounds = selected.map((id, i) => ({ compound_index: i + 1, resource_id: Number(id) }));
       const updated = await api.datasets.setCompounds(datasetId, compounds);
       onDone(updated);
     } catch (err) { setError(err.message); }
@@ -150,34 +140,28 @@ function CompoundSetupForm({ datasetId, resourceLinks, onDone }) {
   return (
     <div className={styles.compoundSetup}>
       <p className={styles.compoundSetupTitle}>Selecciona los compuestos del sistema</p>
-      <div className={styles.compoundSetupRow}>
-        <label className={styles.compoundSetupLabel}>
-          Compuesto 1
-          <select className={styles.compoundSetupSelect} value={c1Id} onChange={e => setC1Id(e.target.value)}>
-            <option value="">Seleccionar...</option>
-            {resourceLinks.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-          </select>
-        </label>
-        {c1 && <CompoundPill resource={c1} />}
-      </div>
-      <label className={styles.mixtureToggleInline}>
-        <input type="checkbox" checked={isMixture} onChange={e => { setIsMixture(e.target.checked); if (!e.target.checked) setC2Id(''); }} />
-        Mezcla binaria
-      </label>
-      {isMixture && (
-        <div className={styles.compoundSetupRow}>
-          <label className={styles.compoundSetupLabel}>
-            Compuesto 2
-            <select className={styles.compoundSetupSelect} value={c2Id} onChange={e => setC2Id(e.target.value)}>
-              <option value="">Seleccionar...</option>
-              {resourceLinks.filter(r => r.id !== Number(c1Id)).map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-            </select>
-          </label>
-          {c2 && <CompoundPill resource={c2} />}
-        </div>
-      )}
+      {compoundIds.map((cId, i) => {
+        const resource = resourceLinks.find(r => r.id === Number(cId)) || null;
+        const otherNums = compoundIds.filter((_, j) => j !== i).map(Number);
+        return (
+          <div key={i} className={styles.compoundSetupRow}>
+            <label className={styles.compoundSetupLabel}>
+              Compuesto {i + 1}
+              <select className={styles.compoundSetupSelect} value={cId} onChange={e => updateCompound(i, e.target.value)}>
+                <option value="">Seleccionar...</option>
+                {resourceLinks.filter(r => !otherNums.includes(r.id)).map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+              </select>
+            </label>
+            {resource && <CompoundPill resource={resource} />}
+            {compoundIds.length > 1 && (
+              <button className={styles.btnIcon} onClick={() => removeCompound(i)}>Quitar</button>
+            )}
+          </div>
+        );
+      })}
+      <button className={styles.btnAddCol} onClick={addCompound}>+ Agregar compuesto</button>
       {error && <p className={styles.error}>{error}</p>}
-      <button className={styles.btnPrimary} onClick={save} disabled={loading || !c1Id}>
+      <button className={styles.btnPrimary} onClick={save} disabled={loading || !compoundIds.some(id => id)}>
         {loading ? 'Guardando...' : 'Confirmar compuestos'}
       </button>
     </div>
@@ -329,10 +313,8 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
   if (ds === null && !loading) return null;
   if (loading) return <div className={styles.dsCard}><p className={styles.muted} style={{ padding: '1rem 1.125rem' }}>Cargando...</p></div>;
 
-  const noCompounds = ds.compounds.length === 0;
-  const isMixture   = ds.compounds.length === 2;
-  const comp1 = ds.compounds.find(c => c.compound_index === 1);
-  const comp2 = ds.compounds.find(c => c.compound_index === 2);
+  const noCompounds    = ds.compounds.length === 0;
+  const sortedCompounds = [...ds.compounds].sort((a, b) => a.compound_index - b.compound_index);
   const hasColumns = ds.columns.length > 0;
   const hasRows    = ds.rows.length > 0;
 
@@ -346,7 +328,7 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
             {ds.equipment && <><strong>{ds.equipment}</strong> · </>}
             {noCompounds
               ? <span className={styles.pendingCompounds}>compuestos pendientes</span>
-              : isMixture ? `${comp1?.name} + ${comp2?.name}` : comp1?.name}
+              : sortedCompounds.map(c => c.name).join(' + ')}
             {hasRows && <> · <strong>{ds.rows.length}</strong> fila{ds.rows.length !== 1 ? 's' : ''}</>}
           </span>
         </div>
@@ -385,7 +367,6 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
           {/* ── No columns: prominent prompt ── */}
           {!hasColumns && !editingCols && (
             <div className={styles.noColumnsState}>
-              <div className={styles.noColumnsIcon}>⊞</div>
               <div className={styles.noColumnsText}>
                 <strong>Sin columnas definidas</strong>
                 <span>Define las variables que se registrarán en cada fila de datos, por ejemplo: T (K), P (kPa), ρ (kg·m⁻³)</span>
@@ -429,10 +410,10 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
                 onClick={downloadExcel}
                 title="Descarga una plantilla Excel con las columnas definidas"
               >
-                ⬇ Descargar plantilla
+                Descargar plantilla
               </button>
               <label className={`${styles.btnExcelUp} ${importLoading ? styles.btnDisabled : ''}`}>
-                {importLoading ? 'Importando...' : '⬆ Subir datos'}
+                {importLoading ? 'Importando...' : 'Subir datos'}
                 <input
                   ref={fileRef}
                   type="file"
@@ -444,7 +425,7 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
               </label>
               {importMsg && (
                 <span className={`${styles.importMsg} ${importMsg.ok ? styles.importMsgOk : styles.importMsgErr}`}>
-                  {importMsg.ok ? '✓ ' : '✗ '}{importMsg.text}
+                  {importMsg.text}
                 </span>
               )}
               {hasRows && (
@@ -509,7 +490,7 @@ function DatasetCard({ dataset: initialDs, resourceLinks = [] }) {
           )}
 
           {ds.calibration_notes && (
-            <p className={styles.calibration}>📋 {ds.calibration_notes}</p>
+            <p className={styles.calibration}>{ds.calibration_notes}</p>
           )}
         </>
       )}

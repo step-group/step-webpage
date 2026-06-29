@@ -149,7 +149,7 @@ export default function ExperimentForm() {
         {!isEdit && (
           appliedTemplate ? (
             <div className={styles.templateBanner}>
-              <span>📋 Plantilla: <strong>{appliedTemplate.title}</strong></span>
+              <span>Plantilla: <strong>{appliedTemplate.title}</strong></span>
               <button type="button" onClick={() => applyTemplate('')}>Cambiar</button>
             </div>
           ) : (

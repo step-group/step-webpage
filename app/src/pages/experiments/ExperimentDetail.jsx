@@ -196,7 +196,7 @@ export default function ExperimentDetail() {
             )}
             {exp.status === 'running' ? (
               <>
-                <button className={styles.btnSuccess} onClick={() => changeStatus('success')}>✓ Completado</button>
+                <button className={styles.btnSuccess} onClick={() => changeStatus('success')}>Completado</button>
                 <button className={styles.btnFail} onClick={() => changeStatus('failure')}>Fallido</button>
                 <button className={styles.btnRepeat} onClick={() => changeStatus('need_to_be_redone')}>Repetir</button>
               </>
