@@ -239,4 +239,134 @@ router.get('/:id/available-datasets', requireAuth, async (req, res) => {
   }
 });
 
+// ── THERMOML EXPORT ───────────────────────────────────────────────────────────
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function buildThermoML(pub, datasets) {
+  const compoundMap = new Map();
+  let orgNum = 1;
+  for (const ds of datasets) {
+    for (const c of ds.compounds || []) {
+      const key = c.cas_number || c.name;
+      if (key && !compoundMap.has(key)) {
+        compoundMap.set(key, { nOrgNum: orgNum++, name: c.name, cas: c.cas_number });
+      }
+    }
+  }
+
+  const L = [];
+  L.push('<?xml version="1.0" encoding="UTF-8"?>');
+  L.push('<DataReport xmlns="http://www.iupac.org/namespaces/ThermoML"');
+  L.push('            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"');
+  L.push('            xsi:schemaLocation="http://www.iupac.org/namespaces/ThermoML http://trc.nist.gov/ThermoML.xsd">');
+
+  L.push('  <Citation>');
+  if (pub.title)   L.push(`    <sTitle>${esc(pub.title)}</sTitle>`);
+  if (pub.authors) L.push(`    <sAuthor>${esc(pub.authors)}</sAuthor>`);
+  if (pub.journal) L.push(`    <sPubName>${esc(pub.journal)}</sPubName>`);
+  if (pub.year)    L.push(`    <yrPubYr>${esc(pub.year)}</yrPubYr>`);
+  if (pub.doi)     L.push(`    <DOI>${esc(pub.doi)}</DOI>`);
+  L.push('  </Citation>');
+
+  for (const [, c] of compoundMap) {
+    L.push('  <Compound>');
+    L.push('    <RegNum>');
+    L.push(`      <nOrgNum>${c.nOrgNum}</nOrgNum>`);
+    L.push('    </RegNum>');
+    if (c.name) L.push(`    <sCommonName>${esc(c.name)}</sCommonName>`);
+    if (c.cas)  L.push(`    <nuCAS>${esc(c.cas)}</nuCAS>`);
+    L.push('  </Compound>');
+  }
+
+  datasets.forEach((ds, i) => {
+    L.push('  <PureOrMixtureData>');
+    L.push(`    <nPureOrMixtureDataNumber>${i + 1}</nPureOrMixtureDataNumber>`);
+
+    for (const c of ds.compounds || []) {
+      const comp = compoundMap.get(c.cas_number || c.name);
+      if (comp) {
+        L.push('    <Component>');
+        L.push('      <RegNum>');
+        L.push(`        <nOrgNum>${comp.nOrgNum}</nOrgNum>`);
+        L.push('      </RegNum>');
+        L.push('    </Component>');
+      }
+    }
+
+    const cols = ds.columns || [];
+    cols.forEach((col, j) => {
+      const propName = col.unit ? `${col.name}, ${col.unit}` : col.name;
+      L.push('    <Property>');
+      L.push(`      <nPropNumber>${j + 1}</nPropNumber>`);
+      L.push('      <Property-MethodID>');
+      L.push('        <PropertyGroup>');
+      L.push('          <UserDefined>');
+      L.push(`            <ePropName>${esc(propName)}</ePropName>`);
+      L.push('          </UserDefined>');
+      L.push('        </PropertyGroup>');
+      L.push('      </Property-MethodID>');
+      L.push('      <ePresentation>Direct value, X</ePresentation>');
+      L.push('    </Property>');
+    });
+
+    for (const row of ds.rows || []) {
+      L.push('    <NumValues>');
+      cols.forEach((col, j) => {
+        const val = row.data?.[col.name];
+        if (val != null && val !== '') {
+          L.push(`      <nPropNumber>${j + 1}</nPropNumber>`);
+          L.push(`      <nPropValue>${esc(val)}</nPropValue>`);
+        }
+      });
+      L.push('    </NumValues>');
+    }
+
+    L.push('  </PureOrMixtureData>');
+  });
+
+  L.push('</DataReport>');
+  return L.join('\n');
+}
+
+router.get('/:id/thermoml', requireAuth, async (req, res) => {
+  try {
+    const pub = await pool.query(
+      'SELECT id, title, authors, journal, year, doi FROM publications WHERE id = $1',
+      [req.params.id]
+    );
+    if (!pub.rows[0]) return res.status(404).json({ error: 'Publicación no encontrada' });
+
+    const dsLinks = await pool.query(
+      `SELECT d.id, d.title,
+              (SELECT COALESCE(json_agg(json_build_object('name', name, 'cas_number', cas_number)
+                               ORDER BY compound_index), '[]'::json)
+               FROM dataset_compounds WHERE dataset_id = d.id) AS compounds
+       FROM publication_datasets pd
+       JOIN datasets d ON d.id = pd.dataset_id
+       WHERE pd.publication_id = $1
+       ORDER BY d.id`,
+      [req.params.id]
+    );
+
+    const datasets = await Promise.all(dsLinks.rows.map(async ds => {
+      const [colRes, rowRes] = await Promise.all([
+        pool.query('SELECT name, unit, ordering FROM dataset_columns WHERE dataset_id = $1 ORDER BY ordering', [ds.id]),
+        pool.query('SELECT data FROM dataset_rows WHERE dataset_id = $1 ORDER BY ordering', [ds.id]),
+      ]);
+      return { ...ds, columns: colRes.rows, rows: rowRes.rows };
+    }));
+
+    const xml = buildThermoML(pub.rows[0], datasets);
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="thermoml-${req.params.id}.xml"`);
+    res.send(xml);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al generar ThermoML' });
+  }
+});
+
 module.exports = router;

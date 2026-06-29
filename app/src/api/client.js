@@ -140,6 +140,12 @@ export const api = {
     linkDataset:       (id, dataset_id)   => requestEmpty(`/publications/${id}/datasets`, { method: 'POST',   body: JSON.stringify({ dataset_id }) }),
     unlinkDataset:     (id, dataset_id)   => requestEmpty(`/publications/${id}/datasets/${dataset_id}`, { method: 'DELETE' }),
     availableDatasets: (id)               => request(`/publications/${id}/available-datasets`),
+    thermoml: (id) => {
+      const token = localStorage.getItem('token');
+      return fetch(`${BASE}/publications/${id}/thermoml`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+    },
     wosSearch:         ()            => request('/publications/wos'),
     wosImport:         (body)        => request('/publications/wos-import', { method: 'POST', body: JSON.stringify(body) }),
   },
