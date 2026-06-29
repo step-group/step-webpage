@@ -194,10 +194,10 @@ export default function Profile() {
                   <span className={styles.actTitle}>{d.title}</span>
                   <span className={styles.actMeta}>
                     {d.equipment && <>{d.equipment} · </>}
-                    {d.point_count} punto{d.point_count !== 1 ? 's' : ''} · <em>{d.experiment_title}</em>
+                    {d.row_count} punto{d.row_count !== 1 ? 's' : ''} · <em>{d.experiment_title}</em>
                   </span>
                 </div>
-                <span className={styles.pointCount}>{d.point_count} pts</span>
+                <span className={styles.pointCount}>{d.row_count} pts</span>
               </Link>
             )}
           />

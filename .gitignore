@@ -4,3 +4,5 @@ _site
 .DS_Store
 .jekyll-cache
 _config.dev.yml
+.claude/worktrees/
+.claude/settings.local.json
