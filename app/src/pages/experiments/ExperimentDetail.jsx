@@ -146,6 +146,7 @@ export default function ExperimentDetail() {
   if (loading) return <AppLayout><p className={styles.muted}>Cargando...</p></AppLayout>;
   if (error || !exp) return <AppLayout><p className={styles.error}>{error || 'No encontrado'}</p></AppLayout>;
 
+  const isOwner = user?.id === exp.created_by || user?.role === 'admin';
   const linkedIds = new Set(exp.resource_links.map(r => r.id));
   const availableResources = allResources.filter(r => !linkedIds.has(r.id) && r.state === 'normal');
   const doneSteps    = exp.steps.filter(s => s.finished).length;
@@ -169,8 +170,8 @@ export default function ExperimentDetail() {
           </div>
         </div>
         <div className={styles.detailActions}>
-          <Link to={`/app/experiments/${id}/edit`} className={styles.btnSecondary}>Editar</Link>
-          {(user?.id === exp.created_by || user?.role === 'admin') && (
+          {isOwner && <Link to={`/app/experiments/${id}/edit`} className={styles.btnSecondary}>Editar</Link>}
+          {isOwner && (
             <button onClick={deleteExp} className={styles.btnDanger}>Eliminar</button>
           )}
           {user?.role === 'admin' && (
@@ -191,7 +192,7 @@ export default function ExperimentDetail() {
               {Number(exp.total_rows) > 0 && ` · ${exp.total_rows} fila${Number(exp.total_rows) !== 1 ? 's' : ''} de datos`}
             </div>
           </div>
-          <button className={styles.btnReopen} onClick={() => changeStatus('running')}>Reabrir</button>
+          {isOwner && <button className={styles.btnReopen} onClick={() => changeStatus('running')}>Reabrir</button>}
         </div>
       ) : (
         <div className={styles.progressBlock}>
@@ -202,22 +203,24 @@ export default function ExperimentDetail() {
             </div>
             <span className={styles.progressCount}>{doneSteps}/{totalSteps}</span>
           </div>
-          <div className={styles.statusActions}>
-            {exp.status !== 'running' && (
-              <span className={styles.statusNote} style={{ color: STATUS_COLOR[exp.status] }}>
-                {STATUS_LABEL[exp.status]}
-              </span>
-            )}
-            {exp.status === 'running' ? (
-              <>
-                <button className={styles.btnSuccess} onClick={() => changeStatus('success')}>Completado</button>
-                <button className={styles.btnFail} onClick={() => changeStatus('failure')}>Fallido</button>
-                <button className={styles.btnRepeat} onClick={() => changeStatus('need_to_be_redone')}>Repetir</button>
-              </>
-            ) : (
-              <button className={styles.btnReopen} onClick={() => changeStatus('running')}>Reactivar</button>
-            )}
-          </div>
+          {isOwner && (
+            <div className={styles.statusActions}>
+              {exp.status !== 'running' && (
+                <span className={styles.statusNote} style={{ color: STATUS_COLOR[exp.status] }}>
+                  {STATUS_LABEL[exp.status]}
+                </span>
+              )}
+              {exp.status === 'running' ? (
+                <>
+                  <button className={styles.btnSuccess} onClick={() => changeStatus('success')}>Completado</button>
+                  <button className={styles.btnFail} onClick={() => changeStatus('failure')}>Fallido</button>
+                  <button className={styles.btnRepeat} onClick={() => changeStatus('need_to_be_redone')}>Repetir</button>
+                </>
+              ) : (
+                <button className={styles.btnReopen} onClick={() => changeStatus('running')}>Reactivar</button>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -239,7 +242,8 @@ export default function ExperimentDetail() {
                 type="checkbox"
                 className={styles.stepCheck}
                 checked={s.finished}
-                onChange={() => toggleStep(s)}
+                onChange={isOwner ? () => toggleStep(s) : undefined}
+                disabled={!isOwner}
               />
               <span className={styles.stepBody}>{s.body}</span>
               {s.finished && s.finished_at && (
@@ -247,20 +251,22 @@ export default function ExperimentDetail() {
                   {new Date(s.finished_at).toLocaleDateString('es-CL')}
                 </span>
               )}
-              <button className={styles.stepDelete} onClick={() => deleteStep(s.id)} title="Eliminar">×</button>
+              {isOwner && <button className={styles.stepDelete} onClick={() => deleteStep(s.id)} title="Eliminar">×</button>}
             </div>
           ))}
         </div>
-        <div className={styles.addStepRow}>
-          <input
-            className={styles.addStepInput}
-            placeholder="Agregar paso..."
-            value={newStep}
-            onChange={e => setNewStep(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && addStep()}
-          />
-          <button className={styles.btnPrimary} onClick={addStep}>Agregar</button>
-        </div>
+        {isOwner && (
+          <div className={styles.addStepRow}>
+            <input
+              className={styles.addStepInput}
+              placeholder="Agregar paso..."
+              value={newStep}
+              onChange={e => setNewStep(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addStep()}
+            />
+            <button className={styles.btnPrimary} onClick={addStep}>Agregar</button>
+          </div>
+        )}
       </div>
 
       {/* Resource links */}
@@ -273,11 +279,11 @@ export default function ExperimentDetail() {
               {r.quantity_used > 0
                 ? ` — ${r.quantity_used} ${r.unit}`
                 : r.quantity > 0 ? ` (${r.quantity} ${r.unit} disponibles)` : ''}
-              <button onClick={() => removeLink(r.id)} title="Desvincular">×</button>
+              {isOwner && <button onClick={() => removeLink(r.id)} title="Desvincular">×</button>}
             </span>
           ))}
         </div>
-        {availableResources.length > 0 && (
+        {isOwner && availableResources.length > 0 && (
           <div className={styles.linkSelect}>
             <select value={linkId} onChange={e => { setLinkId(e.target.value); setLinkQty(''); setLinkError(''); }}>
               <option value="">Seleccionar recurso...</option>

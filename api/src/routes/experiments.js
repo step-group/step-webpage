@@ -4,6 +4,15 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
+async function checkOwner(req, res, experimentId) {
+  const result = await pool.query('SELECT created_by FROM experiments WHERE id = $1', [experimentId]);
+  if (!result.rows[0]) { res.status(404).json({ error: 'Experimento no encontrado' }); return false; }
+  if (result.rows[0].created_by !== req.user.id && req.user.role !== 'admin') {
+    res.status(403).json({ error: 'Sin permiso para modificar este experimento' }); return false;
+  }
+  return true;
+}
+
 // ── LIST ────────────────────────────────────────────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
   const { status, tag, search, archived } = req.query;
@@ -22,6 +31,11 @@ router.get('/', requireAuth, async (req, res) => {
   `;
   const params = [showArchived ? 'archived' : 'normal'];
   let idx = 2;
+
+  if (req.user.role !== 'admin') {
+    query += ` AND e.created_by = $${idx++}`;
+    params.push(req.user.id);
+  }
 
   if (status) { query += ` AND e.status = $${idx++}`; params.push(status); }
   if (tag)    { query += ` AND $${idx++} = ANY(e.tags)`; params.push(tag); }
@@ -158,6 +172,8 @@ router.get('/:id', requireAuth, async (req, res) => {
 
 // ── UPDATE ───────────────────────────────────────────────────────────────────
 router.patch('/:id', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
+
   const { steps: newSteps, ...rest } = req.body;
   const allowed = ['title', 'body', 'status', 'date', 'tags'];
   const fields = Object.keys(rest).filter(k => allowed.includes(k));
@@ -246,6 +262,7 @@ router.patch('/:id/archive', requireAdmin, async (req, res) => {
 
 // ── STEPS ────────────────────────────────────────────────────────────────────
 router.post('/:id/steps', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
   const { body, ordering = 0 } = req.body;
   if (!body) return res.status(400).json({ error: 'El cuerpo del paso es requerido' });
   try {
@@ -261,6 +278,7 @@ router.post('/:id/steps', requireAuth, async (req, res) => {
 });
 
 router.patch('/:id/steps/:stepId', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
   const { body, ordering, finished } = req.body;
   const updates = [];
   const values = [];
@@ -288,6 +306,7 @@ router.patch('/:id/steps/:stepId', requireAuth, async (req, res) => {
 });
 
 router.delete('/:id/steps/:stepId', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
   try {
     await pool.query(
       'DELETE FROM experiment_steps WHERE id = $1 AND experiment_id = $2',
@@ -337,6 +356,7 @@ router.delete('/:id/comments/:commentId', requireAuth, async (req, res) => {
 
 // ── RESOURCE LINKS ────────────────────────────────────────────────────────────
 router.post('/:id/links', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
   const { resource_id, quantity_used = 0 } = req.body;
   if (!resource_id) return res.status(400).json({ error: 'resource_id requerido' });
 
@@ -387,6 +407,7 @@ router.post('/:id/links', requireAuth, async (req, res) => {
 });
 
 router.delete('/:id/links/:resourceId', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
