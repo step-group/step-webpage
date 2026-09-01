@@ -43,6 +43,7 @@
   doi: 'https://doi.org/10.1186/s40643-026-01036-1'
   themes:
     - Biocatalysis
+    - Process Simulation
 
 - number: 71
   title: "Terpene-Based Eutectic Mixtures as Green Solvents for CO2 Capture: Experimental Characterization and Molecular Insights"
@@ -56,6 +57,8 @@
   doi: 'https://doi.org/10.1021/acs.iecr.6c01577'
   themes:
     - Deep Eutectic Solvents
+    - Thermophysical Properties
+    - Thermodynamic Modeling
     - Molecular Simulation
 
 - number: 70
@@ -70,6 +73,7 @@
   doi: 'https://doi.org/10.1021/acs.jced.6c00016'
   themes:
     - Deep Eutectic Solvents
+    - Thermophysical Properties
     - Thermodynamic Modeling
 
 - number: 69
@@ -83,6 +87,7 @@
   doi: 'https://doi.org/10.1016/j.ifset.2026.104489'
   themes:
     - Bioseparations
+    - Deep Eutectic Solvents
 
 - number: 68
   title: "Functionalized Poly(ionic liquid) Gels for Methyl Orange and Carbon Dioxide Adsorption"
@@ -95,6 +100,7 @@
   url: 'https://doi.org/10.1021/acsapm.6c00376'
   doi: 'https://doi.org/10.1021/acsapm.6c00376'
   themes:
+    - Ionic Liquids
     - Bioseparations
 
 - number: 67
@@ -107,6 +113,7 @@
   url: 'https://doi.org/10.1016/j.seppur.2025.135903'
   doi: 'https://doi.org/10.1016/j.seppur.2025.135903'
   themes:
+    - Ionic Liquids
     - Thermodynamic Modeling
     - Bioseparations
 
@@ -136,6 +143,7 @@
   url: 'https://doi.org/10.1016/j.jece.2025.118977'
   doi: 'https://doi.org/10.1016/j.jece.2025.118977'
   themes:
+    - Ionic Liquids
     - Bioseparations
 
 - number: 64
@@ -162,7 +170,8 @@
   url: 'https://doi.org/10.1061/JMCEE7.MTENG-19673'
   doi: 'https://doi.org/10.1061/JMCEE7.MTENG-19673'
   themes:
-    - Thermodynamic Modeling
+    - Catalysis
+    - Process Simulation
 
 - number: 62
   title: "Effect of Trimethylamine-N-Oxide (TMAO) and Sorbitol on the Catalytic Activity of Candida boidinii Formate Dehydrogenase"
@@ -213,8 +222,8 @@
   url: 'https://pubs.acs.org/doi/full/10.1021/acs.jpcb.5c01542'
   doi: 'https://doi.org/10.1021/acs.jpcb.5c01542'
   themes:
-    - Thermodynamic Modeling
     - Molecular Simulation
+    - Thermodynamic Modeling
 
 - number: 58
   title: "An overview of HSP and COSMO-RS for computational green solvent screening: Applications in biomass valorization"
@@ -226,8 +235,8 @@
   url: 'https://www.sciencedirect.com/science/article/pii/S0165993625001402'
   doi: 'https://doi.org/10.1016/j.trac.2025.118272'
   themes:
-    - Bioseparations
     - Thermodynamic Modeling
+    - Bioseparations
 
 - number: 57
   title: "COSMO-RS-based solvent screening and experimental analysis for recovering added-value chemicals from the bio-oil aqueous phase"
@@ -280,8 +289,9 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.jced.4c00448'
   doi: 'https://doi.org/10.1021/acs.jced.4c00448'
   themes:
-    - Thermodynamic Modeling
     - Deep Eutectic Solvents
+    - Thermodynamic Modeling
+    - Thermophysical Properties
 
 - number: 53
   title: "Leveraging liquid-liquid phase separation and volume modulation to regulate the enzymatic activity of formate dehydrogenase."
@@ -294,7 +304,7 @@
   doi: 'https://doi.org/10.1016/j.bpc.2023.107128'
   themes:
     - Biocatalysis
-    - Molecular Simulation
+    - Thermodynamic Modeling
 
 - number: 52
   title: "Modulation of protein-saccharide interactions by deep-sea osmolytes under high pressure stress."
@@ -319,7 +329,8 @@
   url: 'https://www.sciencedirect.com/science/article/abs/pii/S0959652624001234'
   doi: 'https://doi.org/10.1016/j.jclepro.2024.123456'
   themes:
-    - Thermodynamic Modeling
+    - Catalysis
+    - Process Simulation
 
 - number: 50
   title: "Assessing thermodynamics models for phase equilibria and interfacial properties relevant to the hydrogenation of carbon dioxide."
@@ -334,6 +345,7 @@
   themes:
     - Thermodynamic Modeling
     - Molecular Simulation
+    - Thermophysical Properties
 
 - number: 49
   title: "Influence of hydrogen bond acceptors and water content on surface tension in glycol-based eutectic mixtures."
@@ -347,6 +359,7 @@
   doi: 'https://doi.org/10.1021/acs.iecr.4c01600'
   themes:
     - Deep Eutectic Solvents
+    - Thermophysical Properties
     - Molecular Simulation
 
 - number: 48
@@ -373,8 +386,8 @@
   url: 'https://www.sciencedirect.com/science/article/abs/pii/S1383586624002703'
   doi: 'https://doi.org/10.1016/j.seppur.2024.126531'
   themes:
-    - Bioseparations
     - Catalysis
+    - Bioseparations
 
 - number: 46
   title: "Biomass characterization and solvent extraction as tools to promote phenol production from urban pruning."
@@ -401,7 +414,8 @@
   doi: 'https://doi.org/10.1039/D2SU00127F'
   themes:
     - Deep Eutectic Solvents
-    - Biocatalysis
+    - Molecular Simulation
+    - Thermodynamic Modeling
 
 - number: 44
   title: "Improving the activity of horseradish peroxidase in betaine-based natural deep eutectic systems."
@@ -413,8 +427,9 @@
   url: 'https://pubs.rsc.org/en/content/articlelanding/2023/su/d2su00127f'
   doi: 'https://doi.org/10.1039/D2SU00127F'
   themes:
-    - Deep Eutectic Solvents
     - Biocatalysis
+    - Deep Eutectic Solvents
+    - Molecular Simulation
 
 - number: 43
   title: "Comparison of the electrochemical decarbonation of different-grade limestones used in cement manufacturing."
@@ -426,7 +441,8 @@
   url: 'https://www.sciencedirect.com/science/article/pii/S0008884623002211'
   doi: 'https://doi.org/10.1016/j.cemconres.2023.107307'
   themes:
-    - Thermodynamic Modeling
+    - Catalysis
+    - Process Simulation
 
 - number: 42
   title: "Effect of water and hydrogen bond acceptor on the density and viscosity of glycol-based eutectic solvents."
@@ -439,7 +455,9 @@
   doi: 'https://doi.org/10.1016/j.molliq.2023.122856'
   themes:
     - Deep Eutectic Solvents
+    - Thermophysical Properties
     - Thermodynamic Modeling
+    - Molecular Simulation
 
 - number: 41
   title: "Assessment of Hansen solubility parameters in deep eutectic solvents for solubility predictions."
@@ -536,6 +554,7 @@
   url: 'https://www.sciencedirect.com/science/article/pii/S1383586623007566'
   doi: 'https://doi.org/10.1016/j.seppur.2023.123848'
   themes:
+    - Ionic Liquids
     - Bioseparations
     - Process Simulation
 
@@ -549,7 +568,8 @@
   url: 'https://www.sciencedirect.com/science/article/abs/pii/S2352152X2300590X'
   doi: 'https://doi.org/10.1016/j.est.2023.107193'
   themes:
-    - Molecular Simulation
+    - Catalysis
+    - Thermophysical Properties
 
 - number: 33
   title: "Prediction of pH in multiphase multicomponent systems with ePC-SAFT advanced."
@@ -563,6 +583,7 @@
   doi: 'https://doi.org/10.1039/D2CC02943J'
   themes:
     - Thermodynamic Modeling
+    - Thermophysical Properties
 
 - number: 32
   title: "Assessing the Influence of Betaine-Based Natural Deep Eutectic Systems on Horseradish Peroxidase."
@@ -577,6 +598,7 @@
   themes:
     - Biocatalysis
     - Deep Eutectic Solvents
+    - Thermophysical Properties
 
 - number: 31
   title: "Osmolyte effect on enzymatic stability and reaction equilibrium of formate dehydrogenase."
@@ -588,9 +610,8 @@
   url: 'https://pubs.rsc.org/en/content/articlelanding/2022/cp/d2cp04011e'
   doi: 'https://doi.org/10.1039/D2CP04011E'
   themes:
-    - Molecular Simulation
     - Biocatalysis
-    - Deep Eutectic Solvents
+    - Molecular Simulation
 
 - number: 30
   title: "Improving the separation of guaiacol from n-hexane by adding choline chloride to glycol extracting agents."
@@ -603,8 +624,8 @@
   doi: 'https://doi.org/10.1016/j.molliq.2022.118936'
   themes:
     - Bioseparations
-    - Thermodynamic Modeling
     - Deep Eutectic Solvents
+    - Thermodynamic Modeling
 
 - number: 29
   title: "Solvent Selection for the Extraction of 2-Phenylethanol from Aqueous Phases: Density and Viscosity Studies."
@@ -618,6 +639,7 @@
   doi: 'https://doi.org/10.1021/acs.jced.1c00975'
   themes:
     - Bioseparations
+    - Thermophysical Properties
     - Thermodynamic Modeling
 
 - number: 28
@@ -645,9 +667,9 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.iecr.1c03817'
   doi: 'https://doi.org/10.1021/acs.iecr.1c03817'
   themes:
-    - Thermodynamic Modeling
-    - Molecular Simulation
     - Deep Eutectic Solvents
+    - Thermodynamic Modeling
+    - Thermophysical Properties
 
 - number: 26
   title: "Interfacial properties of fluorinated (F)-gases in azeotropic condition."
@@ -661,6 +683,7 @@
   themes:
     - Thermodynamic Modeling
     - Molecular Simulation
+    - Thermophysical Properties
 
 - number: 25
   title: "Boosting the kinetic efficiency of formate dehydrogenase by combining the effects of temperature, high pressure and co-solvent mixtures."
@@ -687,6 +710,7 @@
   themes:
     - Deep Eutectic Solvents
     - Thermodynamic Modeling
+    - Molecular Simulation
 
 - number: 23
   title: "Interfacial properties of hydrogen-methane system from inhomogeneous fluid theories."
@@ -700,6 +724,8 @@
   doi: 'https://doi.org/10.1016/j.ijhydene.2021.08.160'
   themes:
     - Thermodynamic Modeling
+    - Molecular Simulation
+    - Thermophysical Properties
 
 - number: 22
   title: "Hydrogen bond donor and alcohol chain length effect on the physicochemical properties of choline chloride based deep eutectic solvents mixed with alcohols."
@@ -712,6 +738,7 @@
   doi: 'https://doi.org/10.1016/j.molliq.2021.116986'
   themes:
     - Deep Eutectic Solvents
+    - Thermophysical Properties
     - Thermodynamic Modeling
 
 - number: 21
@@ -725,6 +752,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.jpcc.0c11415'
   doi: 'https://doi.org/10.1021/acs.jpcc.0c11415'
   themes:
+    - Catalysis
     - Molecular Simulation
 
 - number: 20
@@ -738,6 +766,7 @@
   doi: 'https://doi.org/10.1016/j.cattod.2020.04.067'
   themes:
     - Catalysis
+    - Molecular Simulation
 
 - number: 19
   title: "Measurement and PC-SAFT Modeling of the Solubility of Gallic Acid in Aqueous Mixtures of Deep Eutectic Solvents."
@@ -750,8 +779,9 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.jced.0c00784'
   doi: 'https://doi.org/10.1021/acs.jced.0c00784'
   themes:
-    - Thermodynamic Modeling
     - Deep Eutectic Solvents
+    - Thermodynamic Modeling
+    - Thermophysical Properties
 
 - number: 18
   title: "High-pressure vapor + liquid equilibria for the binary system CO2 + (E)-2-hexenal."
@@ -764,6 +794,7 @@
   doi: 'https://doi.org/10.1016/j.supflu.2020.105027'
   themes:
     - Thermodynamic Modeling
+    - Thermophysical Properties
 
 - number: 17
   title: "Estimation of thermodynamic properties and phase equilibria in systems of deep eutectic solvents by PC-SAFT EoS."
@@ -792,7 +823,6 @@
   themes:
     - Bioseparations
     - Thermodynamic Modeling
-  
 
 - number: 15
   title: "Viscosity of Choline Chloride-Based Deep Eutectic Solvents: Experiments and Modeling."
@@ -805,9 +835,9 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.jced.0c00715'
   doi: 'https://doi.org/10.1021/acs.jced.0c00715'
   themes:
+    - Deep Eutectic Solvents
     - Thermophysical Properties
     - Thermodynamic Modeling
-    - Deep Eutectic Solvents
 
 - number: 14
   title: "Promising Thiolanium Ionic Liquid for Extraction of Aromatics from Aliphatics: Experiments and Modeling."
@@ -820,6 +850,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.iecr.0c02292'
   doi: 'https://doi.org/10.1021/acs.iecr.0c02292'
   themes:
+    - Ionic Liquids
     - Bioseparations
     - Thermodynamic Modeling
 
@@ -834,6 +865,7 @@
   doi: 'https://doi.org/10.1016/j.catcom.2020.106092'
   themes:
     - Catalysis
+    - Thermophysical Properties
 
 - number: 12
   title: "Density and Viscosity of Binary Mixtures Composed of Anisole with Dodecane, Hexadecane, Decalin, or 1,4-Dioxane: Experiments and Modeling."
@@ -846,8 +878,8 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.jced.9b01159'
   doi: 'https://doi.org/10.1021/acs.jced.9b01159'
   themes:
+    - Thermophysical Properties
     - Thermodynamic Modeling
-    - Deep Eutectic Solvents
 
 - number: 11
   title: "Physicochemical Properties of Choline Chloride-Based Deep Eutectic Solvents and Excess Properties of Their Pseudo-Binary Mixtures with 1-Butanol."
@@ -859,6 +891,8 @@
   url: 'https://www.sciencedirect.com/science/article/pii/S0021961418309996'
   doi: 'https://doi.org/10.1016/j.jct.2019.02.010'
   themes:
+    - Deep Eutectic Solvents
+    - Thermophysical Properties
     - Thermodynamic Modeling
 
 - number: 10
@@ -872,6 +906,7 @@
   doi: 'https://doi.org/10.1016/j.apcata.2017.10.009'
   themes:
     - Catalysis
+    - Process Simulation
 
 - number: 9
   title: "Co-Solvent Effects on Reaction Rate and Reaction Equilibrium of an Enzymatic Peptide Hydrolysis."
@@ -885,6 +920,7 @@
   doi: 'https://doi.org/10.1039/C7CP07346A'
   themes:
     - Biocatalysis
+    - Thermodynamic Modeling
 
 - number: 8
   title: "Predicting the Solubility of CO2 in Toluene + Ionic Liquid Mixtures with PC-SAFT."
@@ -897,6 +933,7 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.iecr.7b01497'
   doi: 'https://doi.org/10.1021/acs.iecr.7b01497'
   themes:
+    - Ionic Liquids
     - Thermodynamic Modeling
 
 - number: 7
@@ -910,7 +947,9 @@
   url: 'https://pubs.acs.org/doi/10.1021/acs.jced.6b00077'
   doi: 'https://doi.org/10.1021/acs.jced.6b00077'
   themes:
+    - Ionic Liquids
     - Bioseparations
+    - Thermophysical Properties
 
 - number: 6
   title: "Non-random two-liquid modelling of switchable-hydrophilicity solvent systems: N,N-Dimethylcyclohexanamine, water, and toluene."
@@ -924,6 +963,7 @@
   doi: 'https://doi.org/10.1016/j.fluid.2015.09.032'
   themes:
     - Thermodynamic Modeling
+    - Bioseparations
 
 - number: 5
   title: "Solubility of CO2 in [1-n-butylthiolanium] [Tf2N] + toluene mixtures: Liquid-liquid phase split separation and modelling."
@@ -936,7 +976,9 @@
   url: 'https://royalsocietypublishing.org/doi/10.1098/rsta.2015.0011'
   doi: 'https://doi.org/10.1098/rsta.2015.0011'
   themes:
+    - Ionic Liquids
     - Thermodynamic Modeling
+    - Bioseparations
 
 - number: 4
   title: "Liquid-liquid phase split in ionic liquid+toluene mixtures induced by CO2."
@@ -949,7 +991,9 @@
   url: 'https://pubs.acs.org/doi/10.1021/je400542b'
   doi: 'https://doi.org/10.1021/je400542b'
   themes:
+    - Ionic Liquids
     - Thermodynamic Modeling
+    - Bioseparations
 
 - number: 3
   title: "On the high-pressure solubilities of carbon dioxide in several ionic liquids."
@@ -962,7 +1006,9 @@
   url: 'https://pubs.acs.org/doi/10.1021/je400542b'
   doi: 'https://doi.org/10.1021/je400542b'
   themes:
+    - Ionic Liquids
     - Thermodynamic Modeling
+    - Thermophysical Properties
 
 - number: 2
   title: "Solubility of nutraceutical carotenoid compounds in pure supercritical CO2 and modified with triolein or ethanol."
@@ -976,6 +1022,7 @@
   doi: 'https://doi.org/10.1016/j.jbiotec.2010.09.339'
   themes:
     - Bioseparations
+    - Thermophysical Properties
 
 - number: 1
   title: "Solubility of β-carotene in ethanol- and triolein-modified CO2."
@@ -989,3 +1036,5 @@
   doi: https://doi.org/10.1016/j.jct.2011.07.013
   themes:
     - Bioseparations
+    - Thermophysical Properties
+    - Thermodynamic Modeling
