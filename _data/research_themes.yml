@@ -16,3 +16,12 @@
 - name: Process Simulation
   color: "#8B4513"
   darker_color: "#800000"
+- name: Catalysis
+  color: "#008B8B"
+  darker_color: "#005757"
+- name: Thermophysical Properties
+  color: "#CC5500"
+  darker_color: "#803500"
+- name: Ionic Liquids
+  color: "#C71585"
+  darker_color: "#7A0D52"
