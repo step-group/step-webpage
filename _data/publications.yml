@@ -31,7 +31,140 @@
 #     - metabolomics
 #     - data
 
-- number: 58
+- number: 72
+  title: "Reactor engineering for the enzymatic synthesis of 5-hydroxymethylfurfural stearate in a batch bioreactor and a packed bed flow bioreactor"
+  authors: Guajardo, N.; <b>Gajardo-Parra, N.F.</b>; Cea-Klapp, E.; <b>Canales, R.I.</b>; Lienqueo, M.E.; Sandoval, G.
+  journal: Bioresources and Bioprocessing
+  volume: 13
+  issue: 1
+  pages: 38
+  year: 2026
+  url: 'https://doi.org/10.1186/s40643-026-01036-1'
+  doi: 'https://doi.org/10.1186/s40643-026-01036-1'
+  themes:
+    - Biocatalysis
+
+- number: 71
+  title: "Terpene-Based Eutectic Mixtures as Green Solvents for CO2 Capture: Experimental Characterization and Molecular Insights"
+  authors: Tabilo, I.; Cea-Klapp, E.; Yu, G.; Shan, S.; Held, C.; Garrido, J.M.; <b>Gajardo-Parra, N.F.</b>; <b>Canales, R.I.</b>
+  journal: Industrial & Engineering Chemistry Research
+  volume: 65
+  issue: 25
+  pages: 13493-13505
+  year: 2026
+  url: 'https://doi.org/10.1021/acs.iecr.6c01577'
+  doi: 'https://doi.org/10.1021/acs.iecr.6c01577'
+  themes:
+    - Deep Eutectic Solvents
+    - Molecular Simulation
+
+- number: 70
+  title: "Thermophysical Characterization of Tetraethylammonium Chloride-Based Eutectic Solvents for Carbon Capture"
+  authors: Porter, E.; González-Barramuño, B.; Schmidt, S.; Cea-Klapp, E.; <b>Gajardo-Parra, N.F.</b>; Quinteros-Lama, H.; <b>Canales, R.I.</b>; Garrido, J.M.
+  journal: Journal of Chemical and Engineering Data
+  volume: 71
+  issue: 6
+  pages: 2512-2522
+  year: 2026
+  url: 'https://doi.org/10.1021/acs.jced.6c00016'
+  doi: 'https://doi.org/10.1021/acs.jced.6c00016'
+  themes:
+    - Deep Eutectic Solvents
+    - Thermodynamic Modeling
+
+- number: 69
+  title: "Improved extraction of phenolic compounds from fruits, leaves, and stems of Ugni candollei B. and Ugni molinae T. using pressurized aqueous glycerol"
+  authors: Fuentes-Jorquera, N.; Villalva, M.; Pérez-Jiménez, J.; Mariotti-Celis, M.S.; <b>Canales, R.I.</b>; Pérez-Correa, J.R.
+  journal: Innovative Food Science & Emerging Technologies
+  volume: 110
+  pages: 104489
+  year: 2026
+  url: 'https://doi.org/10.1016/j.ifset.2026.104489'
+  doi: 'https://doi.org/10.1016/j.ifset.2026.104489'
+  themes:
+    - Bioseparations
+
+- number: 68
+  title: "Functionalized Poly(ionic liquid) Gels for Methyl Orange and Carbon Dioxide Adsorption"
+  authors: Ramírez, O.; Saldías, C.; Blanco, E.; <b>Canales, R.I.</b>; Escalona, N.
+  journal: ACS Applied Polymer Materials
+  volume: 8
+  issue: 10
+  pages: 7339-7350
+  year: 2026
+  url: 'https://doi.org/10.1021/acsapm.6c00376'
+  doi: 'https://doi.org/10.1021/acsapm.6c00376'
+  themes:
+    - Bioseparations
+
+- number: 67
+  title: "Progress in high-pressure CO2–ionic liquid–organic compound phase equilibria and their applications: A review"
+  authors: Araya-Lopez, C.; Olea, F.; Cabezas, R.; Villarroel, E.; Quijada-Maldonado, E.; Merlet, G.; Romero, J.; Brennecke, J.F.; <b>Canales, R.I.</b>
+  journal: Separation and Purification Technology
+  volume: 382
+  pages: 135903
+  year: 2026
+  url: 'https://doi.org/10.1016/j.seppur.2025.135903'
+  doi: 'https://doi.org/10.1016/j.seppur.2025.135903'
+  themes:
+    - Thermodynamic Modeling
+    - Bioseparations
+
+- number: 66
+  title: "Unveiling Molecular Features Controlling the Solubility of Hydrofluorocarbons in Fluorine-Based Eutectic Solvents"
+  authors: González-Barramuño, B.; Cea-Klapp, E.; <b>Gajardo-Parra, N.F.</b>; <b>Canales, R.I.</b>; Quinteros-Lama, H.; Garrido, J.M.
+  journal: Industrial & Engineering Chemistry Research
+  volume: 64
+  issue: 46
+  pages: 22400-22412
+  year: 2025
+  url: 'https://doi.org/10.1021/acs.iecr.5c02890'
+  doi: 'https://doi.org/10.1021/acs.iecr.5c02890'
+  themes:
+    - Deep Eutectic Solvents
+    - Molecular Simulation
+    - Thermodynamic Modeling
+
+- number: 65
+  title: "Characterization of perchlorate desorption and regeneration of the highly selective ion-exchange resin A530E using 1-butyl-3-methylimidazole chloride, 1-butyl-3-methylimidazole hydroxide, and choline chloride"
+  authors: Muñoz-Arango, D.; Montaño, D.F.; Veloso-Cid, N.; Torres-Rojas, F.; <b>Canales, R.I.</b>; Isaacs, M.; Hevia, S.A.; Vargas, I.T.
+  journal: Journal of Environmental Chemical Engineering
+  volume: 13
+  issue: 5
+  pages: 118977
+  year: 2025
+  url: 'https://doi.org/10.1016/j.jece.2025.118977'
+  doi: 'https://doi.org/10.1016/j.jece.2025.118977'
+  themes:
+    - Bioseparations
+
+- number: 64
+  title: "Methoxyphenols extraction from hydrodeoxygenation aliphatic-model phases: An in-silico and experimental study"
+  authors: Ormazábal-Latorre, S.; Arroyo-Avirama, A.; <b>Canales, R.I.</b>
+  journal: Journal of Molecular Liquids
+  volume: 433
+  pages: 127869
+  year: 2025
+  url: 'https://doi.org/10.1016/j.molliq.2025.127869'
+  doi: 'https://doi.org/10.1016/j.molliq.2025.127869'
+  themes:
+    - Bioseparations
+    - Thermodynamic Modeling
+
+- number: 63
+  title: "Assessing the Technical Suitability of Precipitated Materials from the Electrochemical Decarbonation of Limestones for Cement and Hydrated Lime Production: A Reproducibility Study Performed in Canada and Chile"
+  authors: Ramírez-Amaya, D.; Mahmood, O.; Noël, M.; Kavgic, M.; Martinez, N.P.; Troncoso, F.; Gazzano, V.; Dreyse, P.; <b>Canales, R.I.</b>; González, M.
+  journal: Journal of Materials in Civil Engineering
+  volume: 37
+  issue: 9
+  pages: '05025007'
+  year: 2025
+  url: 'https://doi.org/10.1061/JMCEE7.MTENG-19673'
+  doi: 'https://doi.org/10.1061/JMCEE7.MTENG-19673'
+  themes:
+    - Thermodynamic Modeling
+
+- number: 62
   title: "Effect of Trimethylamine-N-Oxide (TMAO) and Sorbitol on the Catalytic Activity of Candida boidinii Formate Dehydrogenase"
   authors: Perez-Erviti, J.; Almeida-Hernández, Y.; Mieres-Perez, J.; <b>Gajardo-Parra, N.F.</b>; Winter, R.; Held, C.; Sadowski, G.; Sanchez-Garcia, E.
   journal: ChemCatChem
@@ -44,7 +177,7 @@
     - Biocatalysis
     - Molecular Simulation
 
-- number: 57
+- number: 61
   title: "Use of Hansen solubility parameters to select supercritical carbon dioxide cosolvents for improved extraction selectivity: Case study on green tea decaffeination"
   authors: del Valle, J.M.; Cuellar, L.; <b>Canales, R.I.</b>; de la Fuente, J.; Núñez, G.A.
   journal: Journal of Food Engineering
@@ -57,7 +190,7 @@
     - Bioseparations
     - Thermodynamic Modeling
 
-- number: 56
+- number: 60
   title: "A sustainable approach to obtain polyphenols from Chilean wild murta, Ugni candollei B., and Ugni molinae T., using eutectic solvents and advanced extraction techniques"
   authors: Fuentes-Jorquera, N; Villalva, M.; Pérez-Jiménez, J.; González-Miquel, M; Gonzalez, E.; Mariotti-Celis, M.S.; Pérez-Correa, R.; <b>Canales, R.I.</b>
   journal: Innovative Food Science & Emerging Technologies
@@ -70,7 +203,7 @@
     - Bioseparations
     - Deep Eutectic Solvents
 
-- number: 55
+- number: 59
   title: "Understanding Solute-Hydrotrope Aggregation in Aqueous Solutions: A Molecular Dynamics Approach"
   authors: Cea-Klapp, E.; Abrances, D.; Marin-Rimoldi, E.; <b>Gajardo-Parra, N.F.</b>; <b>Canales, R.I.</b>; Garrido, J.M.; Maginn, E.
   journal: The Journal of Physical Chemistry B
@@ -83,7 +216,7 @@
     - Thermodynamic Modeling
     - Molecular Simulation
 
-- number: 54
+- number: 58
   title: "An overview of HSP and COSMO-RS for computational green solvent screening: Applications in biomass valorization"
   authors: Sanchez Bragagnolo, F.; Ormazábal-Latorre, S.; <b>Canales, R.I.</b>; Rostagno, M.; Esteban, J.; González-Miquel, M.
   journal: TrAC Trends in Analytical Chemistry
@@ -96,7 +229,7 @@
     - Bioseparations
     - Thermodynamic Modeling
 
-- number: 53
+- number: 57
   title: "COSMO-RS-based solvent screening and experimental analysis for recovering added-value chemicals from the bio-oil aqueous phase"
   authors: Lorenzo-LLanes, J.; Palomar, J.; Escalona, N.; <b>Canales, R.I.</b>
   journal: Separation and Purification Technology
@@ -109,8 +242,7 @@
     - Bioseparations
     - Thermodynamic Modeling
 
-
-- number: 52
+- number: 56
   title: "An experimental methodology to validate the use of hydroethanolic mixtures as suspending medium/modifier for the supercritical CO₂ extraction of suspensions"
   authors: Mamani, M.A.; del Valle, J.M.; Aravena, P.; <b>Canales, R.I.</b>
   journal: Journal of Supercritical Fluids
@@ -123,7 +255,7 @@
     - Bioseparations
     - Thermodynamic Modeling
 
-- number: 51
+- number: 55
   title: "Assessing the effect of deep eutectic solvents on α-chymotrypsin thermal stability and activity"
   authors: <b>Gajardo-Parra, N.F.</b>; Cea-Klapp, E.; Chandra, A.; <b>Canales, R.I.</b>; Garrido, J.M.; Held, C.; Guajardo, N.V.
   journal: ChemSusChem
@@ -138,7 +270,7 @@
     - Deep Eutectic Solvents
     - Molecular Simulation
 
-- number: 50
+- number: 54
   title: "(−)-Epicatechin solubility in aqueous mixtures of eutectic solvents and their constituents"
   authors: Bastías-Barra, A.I.; <b>Gajardo-Parra, N.F.</b>; Cea-Klapp, E.; Arroyo-Avirama, A.F.; Garrido, J.M.; Held, C.; Pérez-Correa, J.R.; <b>Canales, R.I.</b>
   journal: Journal of Chemical and Engineering Data
@@ -151,7 +283,7 @@
     - Thermodynamic Modeling
     - Deep Eutectic Solvents
 
-- number: 49
+- number: 53
   title: "Leveraging liquid-liquid phase separation and volume modulation to regulate the enzymatic activity of formate dehydrogenase."
   authors: Ostermeier, L.; Moreno, A.; <b>Gajardo-Parra, N.F.</b>; Sadowski, G.; Held, C.; Winter, R.
   journal: Biophysical Chemistry
@@ -164,7 +296,7 @@
     - Biocatalysis
     - Molecular Simulation
 
-- number: 48
+- number: 52
   title: "Modulation of protein-saccharide interactions by deep-sea osmolytes under high pressure stress."
   authors: Oliva, R.; Ostermeier, L.; Jaworek, M.; Del Vecchio, P.; <b>Gajardo-Parra, N.F.</b>; Cea-Klapp, E.; Held, C.; Petracone, L.; Winter, R.
   journal: International Jorunal of Biological Macromolecules
@@ -177,7 +309,7 @@
     - Biocatalysis
     - Molecular Simulation
 
-- number: 47
+- number: 51
   title: "High-performance and low-cost electrochemical reactor for limestone decarbonation applied to clinker production – A validation at laboratory scale."
   authors: Martínez, N.P.; Troncoso P., F.; Gazzano, V.; Ramírez-Amaya, D.; González, M.; Navarrete, I.; <b>Canales, R.I.</b>; Dreyse, P.
   journal: Journal of Cleaner Production
@@ -189,7 +321,7 @@
   themes:
     - Thermodynamic Modeling
 
-- number: 46
+- number: 50
   title: "Assessing thermodynamics models for phase equilibria and interfacial properties relevant to the hydrogenation of carbon dioxide."
   authors: Cea-Klapp, E.; González-Barramuño, B.; <b>Gajardo-Parra, N.F.</b>; Karelovic, A.; Quinteros-Lama, H.; <b>Canales, R.I.</b>; Garrido, J.M.
   journal: Industrial and Engineering Chemistry Research
@@ -203,7 +335,7 @@
     - Thermodynamic Modeling
     - Molecular Simulation
 
-- number: 45
+- number: 49
   title: "Influence of hydrogen bond acceptors and water content on surface tension in glycol-based eutectic mixtures."
   authors: Aravena, P.; Cea-Klapp, E.; <b>Gajardo-Parra, N.F.</b>; Olea, A.F.; Carrasco, H.; Garrido, J.M.; <b>Canales, R.I.</b>
   journal: Industrial and Engineering Chemistry Research
@@ -217,7 +349,7 @@
     - Deep Eutectic Solvents
     - Molecular Simulation
 
-- number: 44
+- number: 48
   title: "Differential extraction and preliminary identification of polyphenols from Ugni candollei (White Murta) berries."
   authors: Fuentes-Jorquera, N.; <b>Canales, R.I.</b>; Pérez-Correa, J.R.; Perez-Jimenez, J.; Mariotti-Celis, M.S.
   journal: Antioxidants
@@ -231,7 +363,7 @@
     - Bioseparations
     - Deep Eutectic Solvents
 
-- number: 43
+- number: 47
   title: "Sustainable synthesis and extraction of 5-methyl-N-phenyl-2-pyrrolidone produced via reductive amination of levulinic acid."
   authors: Meruane-Anich, J.; Araya-López, C.; Santiago, R.; Escalona, N.; <b>Canales, R.I.</b>
   journal: Separation and Purification Technology
@@ -244,7 +376,7 @@
     - Bioseparations
     - Catalysis
 
-- number: 42
+- number: 46
   title: "Biomass characterization and solvent extraction as tools to promote phenol production from urban pruning."
   authors: Valdebenito, F.; Ramírez-Álvarez, R.; Muñoz, A.; Pecchi, G.; <b>Canales, R.I.</b>; Ormazábal, S.; Muñoz, R.; Alejandro-Martín, S.; Quero, F.; Adam, R.; Cifuentes, G.; Espinoza-Monje, F.
   journal: Fuel
@@ -257,7 +389,7 @@
     - Bioseparations
     - Thermodynamic Modeling
 
-- number: 41
+- number: 45
   title: "Aromatic volatile organic compounds absorption with phenyl-based deep eutectic solvents: A molecular thermodynamics and dynamics study."
   authors: Yu, G.; <b>Gajardo-Parra, N.F.</b>; Chen, M.; Chen, B.; Sadowski, G.; Held, C.
   journal: AIChE Journal
@@ -271,7 +403,7 @@
     - Deep Eutectic Solvents
     - Biocatalysis
 
-- number: 40
+- number: 44
   title: "Improving the activity of horseradish peroxidase in betaine-based natural deep eutectic systems."
   authors: Meneses, L.; <b>Gajardo-Parra, N.F.</b>; Cea-Klapp, E.; Garrido, J.M; Held, C.; Duarte, A.R.; Paiva, A.
   journal: RSC Sustainability
@@ -284,7 +416,7 @@
     - Deep Eutectic Solvents
     - Biocatalysis
 
-- number: 39
+- number: 43
   title: "Comparison of the electrochemical decarbonation of different-grade limestones used in cement manufacturing."
   authors: Ramirez-Amaya, D.; Dreyse, P.; Martínez, N.P.; Troncoso, F.; Navarrete, I.; Noel, M.; <b>Canales, R.I.</b>; Gonzalez, M.
   journal: Cement and Concrete Research
@@ -296,7 +428,7 @@
   themes:
     - Thermodynamic Modeling
 
-- number: 38
+- number: 42
   title: "Effect of water and hydrogen bond acceptor on the density and viscosity of glycol-based eutectic solvents."
   authors: Aravena, P.; Cea-Klapp, E.; <b>Gajardo-Parra, N.F.</b>; Held, C.; Garrido, J.M.; <b>Canales, R.I.</b>
   journal: Journal of Molecular Liquids
@@ -309,7 +441,7 @@
     - Deep Eutectic Solvents
     - Thermodynamic Modeling
 
-- number: 37
+- number: 41
   title: "Assessment of Hansen solubility parameters in deep eutectic solvents for solubility predictions."
   authors: Otárola-Sepúlveda, J.; Cea-Klapp, E.; Aravena, P.; Ormazábal-Latorre, S.; <b>Canales, R.I.</b>; Garrido, J.M.; Valerio, O.
   journal: Journal of Molecular Liquids
@@ -322,7 +454,7 @@
     - Thermodynamic Modeling
     - Deep Eutectic Solvents
 
-- number: 36
+- number: 40
   title: "Impact of deep eutectic solvents on kinetics and folding stability of formate dehydrogenase."
   authors: <b>Gajardo-Parra, N.F.</b>; Rodríguez, G.; Arroyo-Avirama, A.; Veliju, A.; Happe, T.; <b>Canales, R.I.</b>; Sadowski, G.; Held, C.
   journal: Processes
@@ -336,7 +468,7 @@
     - Biocatalysis
     - Deep Eutectic Solvents
 
-- number: 35
+- number: 39
   title: "Separation of isoeugenol from methylcyclohexane as a model mixture of biojet fuel purification: Solvent selection and liquid–liquid equilibrium."
   authors: Espinoza-Cartagena, F.; Ormazábal-Latorre, S.; Pazo-Carballo, C.; <b>Gajardo-Parra, N.F.</b>; Núñez, G.A.; Garrido, J.M.; Cea-Klapp, E.; Santiago, R.; Held, C.; <b>Canales, R.I.</b>
   journal: Industrial & Engineering Chemistry Research
@@ -350,7 +482,7 @@
     - Bioseparations
     - Thermodynamic Modeling
 
-- number: 34
+- number: 38
   title: "Enhanced polyphenols recovery from grape pomace: A comparison of pressurized and atmospheric extractions with deep eutectic solvent aqueous mixtures."
   authors: Huamán-Castilla, N.L.; <b>Gajardo-Parra, N.F.</b>; Pérez-Correa, J.R.; <b>Canales, R.I.</b>; Martínez-Cifuentes, M.; Contreras-Contreras, G.; Mariotti-Celis, M.S.
   journal: Antioxidants
@@ -364,7 +496,7 @@
     - Bioseparations
     - Deep Eutectic Solvents
 
-- number: 36
+- number: 37
   title: "In-situ product recovery of β-ionone from a fermentation broth: Computational solvent selection and process design of its extraction and purification."
   authors: Arroyo-Avirama, A.; Carreño-Guzmán, S.; Lorenzo-Llanes, J.; <b>Gajardo-Parra, N.F.</b>; Santiago, R.; Held, C.; Palomar, J.; <b>Canales, R.I.</b>
   journal: ACS Sustainable Chemistry & Engineering
@@ -379,7 +511,7 @@
     - Process Simulation
     - Thermodynamic Modeling
 
-- number: 35
+- number: 36
   title: "Separation of furfuryl alcohol from water using hydrophobic deep eutectic solvents."
   authors: Cea-Klapp, E.; Arroyo-Avirama, A.; Ormazábal-Latorre, S.; <b>Gajardo-Parra, N.F.</b>; Pazo-Carballo, C.; Quinteros-Lama, H.; Marzialetti, T.; Held, C.; <b>Canales, R.I.</b>; Garrido, J.M.
   journal: Journal of Molecular Liquids
@@ -394,7 +526,7 @@
     - Molecular Simulation
     - Deep Eutectic Solvents
 
-- number: 34
+- number: 35
   title: "An overview process analysis of the aromatic-aliphatic separation by liquid–liquid extraction with ionic liquids."
   authors: Navarro, P.; Moreno, D.; Larriba, M.; García, J.; Rodríguez, F.; <b>Canales, R.I.</b>; Palomar, J.
   journal: Separation and Purification Technology
@@ -407,7 +539,7 @@
     - Bioseparations
     - Process Simulation
 
-- number: 33
+- number: 34
   title: "Modification of a commercial activated carbon with nitrogen and boron: Hydrogen storage application."
   authors: Morandé, A.; Lillo, P.; Blanco, E.; Pazo, C.; Dongil, A.B.; Zárate, X.; Saavedra-Torres, M.; Schott, E.; Canales, R.; Videla, A.; Escalona, N.
   journal: Journal of Energy Storage
@@ -419,7 +551,7 @@
   themes:
     - Molecular Simulation
 
-- number: 32
+- number: 33
   title: "Prediction of pH in multiphase multicomponent systems with ePC-SAFT advanced."
   authors: Moreno, A.; Pabsh, D.; Klinksiek, M.; <b>Gajardo-Parra, N.F.</b>; Sadowski, G.; Held, C.
   journal: Chemical Communications
@@ -432,7 +564,7 @@
   themes:
     - Thermodynamic Modeling
 
-- number: 31
+- number: 32
   title: "Assessing the Influence of Betaine-Based Natural Deep Eutectic Systems on Horseradish Peroxidase."
   authors: <b>Gajardo-Parra, N.F.</b>; Meneses, L.; Duarte, A.R.; Paiva, A.; Held, C.
   journal: ACS Sustainable Chemistry & Engineering
@@ -446,8 +578,7 @@
     - Biocatalysis
     - Deep Eutectic Solvents
 
-
-- number: 30
+- number: 31
   title: "Osmolyte effect on enzymatic stability and reaction equilibrium of formate dehydrogenase."
   authors: <b>Gajardo-Parra, N.F.</b>; Afroki-Mantey, H.; Moreno, A.; Cea-Klapp, E.; Garrido, J.M.; Sadowski, G.; Held, C.
   journal: Physical Chemistry Chemical Physics
@@ -461,8 +592,7 @@
     - Biocatalysis
     - Deep Eutectic Solvents
 
-
-- number: 29
+- number: 30
   title: "Improving the separation of guaiacol from n-hexane by adding choline chloride to glycol extracting agents."
   authors: Arroyo-Avirama, A.; Ormazábal-Latorre, S.; Jogi, R.; <b>Gajardo-Parra, N.F.</b>; Pazo-Carballo, C.; Ascani, M.; Virtanen, P.; Garrido, J.M.; Held, C.; Mäki-Arvela, P.; <b>Canales, R.I.</b>
   journal: Journal of Molecular Liquids
@@ -476,7 +606,7 @@
     - Thermodynamic Modeling
     - Deep Eutectic Solvents
 
-- number: 28
+- number: 29
   title: "Solvent Selection for the Extraction of 2-Phenylethanol from Aqueous Phases: Density and Viscosity Studies."
   authors: Arroyo-Avirama, A.F.; <b>Gajardo-Parra, N.F.</b>; Espinoza-Carmona, V.; Garrido, J.M.; Held, C.; <b>Canales, R.I.</b>
   journal: Journal of Chemical and Engineering Data
@@ -490,7 +620,7 @@
     - Bioseparations
     - Thermodynamic Modeling
 
-- number: 27
+- number: 28
   title: "Integrating Biocatalysis with Viscous Deep Eutectic Solvents in Lab-On-A-Chip Microreactors."
   authors: Guajardo, N.; Domínguez de María, P.; <b>Canales, R.I.</b>
   journal: ChemSusChem
@@ -504,7 +634,7 @@
     - Biocatalysis
     - Deep Eutectic Solvents
 
-- number: 26
+- number: 27
   title: "Interfacial Properties of Deep Eutectic Solvents by Density Gradient Theory."
   authors: Cea-Klapp, E.; <b>Gajardo-Parra, N.F.</b>; Aravena, P.; Quinteros-Lama, H.; Held, C.; <b>Canales, R.I.</b>; Garrido, J.M.
   journal: Industrial and Engineering Chemistry Research
@@ -519,7 +649,7 @@
     - Molecular Simulation
     - Deep Eutectic Solvents
 
-- number: 25
+- number: 26
   title: "Interfacial properties of fluorinated (F)-gases in azeotropic condition."
   authors: González-Barramuño, B, Cea-Klapp, E, Polishuk, I, <b>Canales, R.I.</b>, Quinteros-Lama, H., Garrido, J.M.
   journal: Journal of Molecular Liquids
@@ -532,7 +662,7 @@
     - Thermodynamic Modeling
     - Molecular Simulation
 
-- number: 24
+- number: 25
   title: "Boosting the kinetic efficiency of formate dehydrogenase by combining the effects of temperature, high pressure and co-solvent mixtures."
   authors: Jaworek, M.; <b>Gajardo-Parra, N.F.</b>; Sadowski, G.; Winter, R.; Held, C.
   journal: Journal of Molecular Liquids
@@ -545,7 +675,7 @@
     - Biocatalysis
     - Thermodynamic Modeling
 
-- number: 23
+- number: 24
   title: "Impact of deep eutectic solvents and their constituents on the aqueous solubility of phloroglucinol dihydrate."
   authors: <b>Gajardo-Parra, N.F.</b>; Do, H.T.; Yang, M.; Pérez-Correa, J.R.; Garrido, J.M.; Sadowski, G.; Held, C.; <b>Canales, R.I.</b>
   journal: Journal of Molecular Liquids
@@ -558,7 +688,7 @@
     - Deep Eutectic Solvents
     - Thermodynamic Modeling
 
-- number: 22
+- number: 23
   title: "Interfacial properties of hydrogen-methane system from inhomogeneous fluid theories."
   authors: Cea-Klapp, E.; Polishuk, I.; González-Barramuño, B.; <b>Canales, R.I.</b>; <b>Gajardo-Parra, N.F.</b>; Quinteros-Lama, H.; Garrido, J.M.
   journal: International Journal of Hydrogen Energy
@@ -571,7 +701,7 @@
   themes:
     - Thermodynamic Modeling
 
-- number: 21
+- number: 22
   title: "Hydrogen bond donor and alcohol chain length effect on the physicochemical properties of choline chloride based deep eutectic solvents mixed with alcohols."
   authors: Cotroneo-Figueroa, V.P.; <b>Gajardo-Parra, N.F.</b>; López-Porfiri, P.; Leiva, Á.; Gonzalez-Miquel, M.; Garrido, J.M.; <b>Canales, R.I.</b>
   journal: Journal of Molecular Liquids
@@ -584,7 +714,7 @@
     - Deep Eutectic Solvents
     - Thermodynamic Modeling
 
-- number: 20
+- number: 21
   title: "Insights into hydrodeoxygenation of furfural and guaiacol mixture: experimental and theoretical studies."
   authors: Schiesser, E.C.; Blanco, E.; Dongil, A.B.; Zárate, X.; Saavedra-Torres, M.; Schott, E.; <b>Canales, R.I.</b>; Escalona, N.
   journal: Journal of Physical Chemistry C
@@ -597,7 +727,7 @@
   themes:
     - Molecular Simulation
 
-- number: 19
+- number: 20
   title: "Conversion of succinic acid over Ni and Co catalysts."
   authors: Rojas, M.; Zárate, X.; <b>Canales, R.I.</b>; Dongil, A.B.; Pazo, C.; Saavedra-Torres, M.; Escalona, N.
   journal: Catalysis Today
@@ -609,8 +739,7 @@
   themes:
     - Catalysis
 
-
-- number: 18
+- number: 19
   title: "Measurement and PC-SAFT Modeling of the Solubility of Gallic Acid in Aqueous Mixtures of Deep Eutectic Solvents."
   authors: Sepúlveda-Orellana, B.; <b>Gajardo-Parra, N.F.</b>; Do, H.T.; Pérez-Correa, J.R.; Held, C.; Sadowski, G.; <b>Canales, R.I.</b>
   journal: Journal of Chemical and Engineering Data
@@ -624,7 +753,7 @@
     - Thermodynamic Modeling
     - Deep Eutectic Solvents
 
-- number: 17
+- number: 18
   title: "High-pressure vapor + liquid equilibria for the binary system CO2 + (E)-2-hexenal."
   authors: Villablanca-Ahues, R.; López-Porfiri, P.; <b>Canales, R.I.</b>; de la Fuente, J.C.
   journal: Journal of Supercritical Fluids
@@ -636,7 +765,7 @@
   themes:
     - Thermodynamic Modeling
 
-- number: 16
+- number: 17
   title: "Estimation of thermodynamic properties and phase equilibria in systems of deep eutectic solvents by PC-SAFT EoS."
   authors: Cea-Klapp, E., Polishuk, I., <b>Canales, R.I.</b>, Quinteros-Lama, H., Garrido, J.M. 
   journal: Industrial and Engineering Chemistry Research
@@ -650,7 +779,7 @@
     - Deep Eutectic Solvents
     - Thermodynamic Modeling
 
-- number: 15
+- number: 16
   title: "Extraction of guaiacol from hydrocarbons as an alternative for the upgraded bio-oil purification: Experimental and computational thermodynamic study"
   authors: Campos-Franzani, M.I., <b>Gajardo-Parra, N.F.</b>, Pazo-Carballo, C., Aravena, P., Santiago, R., Palomar, J., Escalona, N., <b>Canales, R.I.</b>
   journal: Fuel
@@ -665,7 +794,7 @@
     - Thermodynamic Modeling
   
 
-- number: 14
+- number: 15
   title: "Viscosity of Choline Chloride-Based Deep Eutectic Solvents: Experiments and Modeling."
   authors: <b>Gajardo-Parra, N.F.</b>, Cotroneo-Figueroa, V.P., Aravena, P., Vesovic, V., <b>Canales, R.I.</b>
   journal: Journal of Chemical and Engineering Data
@@ -680,7 +809,7 @@
     - Thermodynamic Modeling
     - Deep Eutectic Solvents
 
-- number: 13
+- number: 14
   title: "Promising Thiolanium Ionic Liquid for Extraction of Aromatics from Aliphatics: Experiments and Modeling."
   authors: Lubben, M.J., <b>Canales, R.I.</b>, Lyu, Y., Held, C., Gonzalez-Miquel, M., Stadtherr, M.A., Brennecke, J.F.
   journal: Industrial and Engineering Chemistry Research
@@ -694,7 +823,7 @@
     - Bioseparations
     - Thermodynamic Modeling
 
-- number: 12
+- number: 13
   title: "Selective Conversion of Biomass-Derived Furfural to Cyclopentanone over Carbon Nanotube-Supported Ni Catalyst in Pickering Emulsions."
   authors: Herrera, C., Fuentealba, D., Ghampson, I.T., Sepulveda, C., García-Fierro, J.L., <b>Canales, R.I.</b>, Escalona, N.
   journal: Catalysis Communications
