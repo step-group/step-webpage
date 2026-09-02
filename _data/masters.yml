@@ -1,11 +1,4 @@
 
-- name: Ignacio Tabilo
-  photo: Tabilo_Ignacio.jpeg
-  info: STEP @ UC
-  email: ignacio.tabilo@uc.cl
-  linkedin: linkedin.com/in/ignacio-tabilo-195719277
-  description: PLACEHOLDER
-
 - name: Cristóbal Castillo
   photo: Cristobal_Castillo.png
   info: STEP @ UC
@@ -33,4 +26,26 @@
   linkedin: https://www.linkedin.com/in/fleckenstejn/
   description: Maximilian is a M.Sc. student in Chemical Engineering at the Pontificia Universidad Católica de Chile, with a background in Chemical Engineering and a Minor in Process Engineering. He is interested in using data to support better decision-making in product and process development, with a focus on efficiency, sustainability, and safety.
 
+- name: Francisco Navarro
+  photo: Navarro_Francisco.png
+  info: STEP @ UC
+  email: fnavarro2912@uc.cl
+  linkedin: https://cl.linkedin.com/in/francisco-navarro-88257125b
 
+- name: Isidora Muñoz
+  photo: Munoz_Isidora.png
+  info: STEP @ UC
+  email: iamunoz5@uc.cl
+  linkedin: https://cl.linkedin.com/in/isidora-mu%C3%B1oz-33a212388
+
+- name: Javiera Vigueras
+  photo: Vigueras_Javiera.png
+  info: STEP @ UC
+  email: javiera.vigueras@uc.cl
+  linkedin: https://cl.linkedin.com/in/javiera-vigueras-araya-9041b9270
+
+- name: Sofía González
+  photo: Gonzalez_Sofia.png
+  info: STEP @ UC
+  email: sgonzlev@uc.cl
+  linkedin: https://www.linkedin.com/in/sofia-gonzalez-983b642b9/
