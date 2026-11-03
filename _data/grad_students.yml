@@ -1,17 +1,3 @@
-- name: Sebastián Ormazábal 
-  photo: Ormazabal_Sebastian.png
-  info: PhD Student
-  email: slormazabal@uc.cl
-  linkedin: https://www.linkedin.com/in/s-ormazabal/
-  description: Sebastián holds a B.Sc. in Chemical Engineering from the Universidad de Santiago de Chile (2017) and is currently pursuing a Ph.D. at the Pontificia Universidad Católica de Chile. His research focuses on recovering methoxyphenols from bio-oil using COSMO-RS predictions, environmental indicators, and process simulations validated by experiments.
-
-- name: Junior Lorenzo
-  photo: Lorenzo_Junior.png
-  info: PhD Student
-  email: jlorenzo2@uc.cl
-  linkedin: https://www.linkedin.com/in/junior-lorenzo-llanes/?locale=es_ES
-  description: Chemical Engineer interested in reducing raw material and energy consumption, as well as polluting emissions, through the application of process analysis tools. With over 10 years of experience, he has conducted chemical process evaluation and design, technical and economic prefeasibility studies in various industries such as ethanol, cane sugar, petroleum refining, detergent production, waste-to-energy, and the production of green hydrogen derivatives.
-
 - name: Javiera Molina
   photo: Molina_Javiera.jpg
   info: PhD Student
@@ -24,3 +10,24 @@
   info: PhD Student
   email: vllanesh@estudiante.uc.cl
   description: Vanesa received her B.Sc. in Chemical Engineering from the Universidad Tecnológica de La Habana "José Antonio Echeverría" in December 2021 and is currently pursuing a Ph.D. in Engineering Sciences, with a focus on Chemical Engineering and Bioprocesses, at the Pontificia Universidad Católica de Chile. Supervised by Professor Roberto Canales, her research focuses on developing strategies for the extraction and purification of aroma compounds from fermentation broths.
+
+- name: Fernando Martínez
+  photo: Martinez_Fernando.jpg
+  info: PhD Student
+  email: ftmartinez1@uc.cl
+  linkedin: https://cl.linkedin.com/in/fernando-martinez-herrera-634a4878
+  description: Fernando Martínez holds a B.Sc. in Civil Engineering, a diploma in Chemical Engineering, and an M.Sc. in Engineering Sciences from the Pontificia Universidad Católica de Chile, with prior research experience in microalgae cultivation and photobioreactor design, biodegradability assays, and mining tailings treatment. He is currently pursuing a Ph.D. in Engineering Sciences at the same institution, supervised by Roberto Canales and co-supervised by Nicolás Gajardo-Parra. His research focuses on intensified extraction processes, combining process intensification with solvent design to improve the recovery of target compounds from complex matrices.
+
+- name: Neyda Rivas
+  photo: Rivas_Neyda.jpg
+  info: PhD Student
+  email: nrivasl@estudiante.uc.cl
+  linkedin: https://bo.linkedin.com/in/neyda-rivas-1320b2209
+  description: Neyda Rivas is a Chemical Engineer from the Universidad Católica Boliviana San Pablo (Cochabamba), where her undergraduate thesis addressed the evaluation of modified photocatalytic materials for removing recalcitrant pollutants from wastewater. She also holds a diploma in Strategic Management of Operations and Production Systems from the Universidad Privada Boliviana. She has two years of laboratory experience at ENDE Transmisión S.A., where she performed physicochemical, dissolved gas (gas chromatography) and furan analyses of dielectric oils, and later worked as a consultant, updating laboratory procedures and training new staff. She is currently pursuing a Ph.D. in Engineering Sciences at the Pontificia Universidad Católica de Chile. Her research focuses on valorizing grape pomace by extracting bioactive compounds with green solvents, aiming to develop safer, more sustainable ingredients for dermatological products.
+
+- name: Javier Aguilera
+  photo: Aguilera_Javier.jpg
+  info: PhD Student
+  email: jaguileral3@estudiante.uc.cl
+  linkedin: https://cl.linkedin.com/in/javier-agustin-aguilera-lopez-62130a2b8
+  description: Javier Aguilera is a biotechnology engineer on a mission to turn biological discovery into sustainable industry. Originally trained at the Universidad Católica del Maule in Chile, he built a strong foundation in bioprocess engineering, enzymology, and circular economy. His undergraduate thesis explored the heterologous production of Rhodococcus ruber laccase in bioreactors and its use in elastomeric blends. Beyond the lab, he is a 2025 National VIU Award winner (ANID) for leading a project that extracts antioxidants from agro-industrial waste, and a co-founder of the startup SIBION. Today, he is pursuing a PhD in Engineering Sciences with a focus on Chemical Engineering and Bioprocesses at the Pontificia Universidad Católica de Chile (UC), where his doctoral research will harness Natural Deep Eutectic Solvents (NADES) to create greener, safer solutions for food applications.

@@ -14,6 +14,7 @@ export default function PublicationDetail() {
   const [linkId, setLinkId]     = useState('');
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState('');
+  const [xmlLoading, setXmlLoading] = useState(false);
 
   useEffect(() => {
     Promise.all([api.publications.get(id), api.publications.availableDatasets(id)])
@@ -26,6 +27,23 @@ export default function PublicationDetail() {
     if (!confirm('¿Eliminar esta publicación?')) return;
     await api.publications.delete(id);
     navigate('/app/publications');
+  }
+
+  async function downloadThermoML() {
+    setXmlLoading(true);
+    try {
+      const res = await api.publications.thermoml(id);
+      if (!res.ok) throw new Error('Error al generar ThermoML');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `thermoml-${id}.xml`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setXmlLoading(false);
+    }
   }
 
   async function linkDataset() {
@@ -79,7 +97,15 @@ export default function PublicationDetail() {
 
       {/* Datasets */}
       <div className={styles.section}>
-        <div className={styles.sectionTitle}>Datasets vinculados ({pub.datasets.length})</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.4rem' }}>
+          <span className={styles.sectionTitle} style={{ margin: 0, border: 'none', paddingBottom: 0 }}>Datasets vinculados ({pub.datasets.length})</span>
+          {pub.datasets.length > 0 && (
+            <button className={styles.btnSecondary} onClick={downloadThermoML} disabled={xmlLoading}
+              style={{ fontSize: '0.8rem', padding: '0.3rem 0.75rem' }}>
+              {xmlLoading ? 'Generando...' : 'Descargar ThermoML'}
+            </button>
+          )}
+        </div>
 
         <div className={styles.datasetList}>
           {pub.datasets.map(ds => (

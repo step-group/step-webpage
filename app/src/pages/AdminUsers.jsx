@@ -2,16 +2,19 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import AppLayout from '../layouts/AppLayout';
+import ConfirmModal from '../components/ConfirmModal';
 import styles from './AdminUsers.module.css';
 
 const STATUS_LABEL = { pending: 'Pendiente', approved: 'Aprobado', rejected: 'Rechazado' };
 const STATUS_CLASS  = { pending: 'pending',  approved: 'approved',  rejected: 'rejected' };
+const ROLE_LABEL    = { member: 'miembro', admin: 'administrador' };
 
 export default function AdminUsers() {
-  const [users, setUsers]   = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState('');
-  const [rowError, setRowError] = useState('');
+  const [users, setUsers]         = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState('');
+  const [rowError, setRowError]   = useState('');
+  const [pendingRole, setPendingRole] = useState(null); // { userId, userName, newRole }
 
   useEffect(() => {
     api.admin.users()
@@ -21,6 +24,7 @@ export default function AdminUsers() {
   }, []);
 
   async function updateStatus(id, status) {
+    setRowError('');
     try {
       const updated = await api.admin.setStatus(id, status);
       setUsers(u => u.map(x => x.id === updated.id ? updated : x));
@@ -29,9 +33,12 @@ export default function AdminUsers() {
     }
   }
 
-  async function updateRole(id, role) {
+  async function confirmRoleChange() {
+    const { userId, newRole } = pendingRole;
+    setPendingRole(null);
+    setRowError('');
     try {
-      const updated = await api.admin.setRole(id, role);
+      const updated = await api.admin.setRole(userId, newRole);
       setUsers(u => u.map(x => x.id === updated.id ? updated : x));
     } catch (err) {
       setRowError(err.message);
@@ -73,7 +80,7 @@ export default function AdminUsers() {
                   <td>
                     <select
                       value={u.role}
-                      onChange={e => updateRole(u.id, e.target.value)}
+                      onChange={e => setPendingRole({ userId: u.id, userName: u.name, newRole: e.target.value })}
                       className={styles.select}
                     >
                       <option value="member">Miembro</option>
@@ -100,6 +107,15 @@ export default function AdminUsers() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {pendingRole && (
+        <ConfirmModal
+          message={`¿Cambiar el rol de ${pendingRole.userName} a ${ROLE_LABEL[pendingRole.newRole]}?`}
+          confirmLabel="Cambiar rol"
+          onConfirm={confirmRoleChange}
+          onCancel={() => setPendingRole(null)}
+        />
       )}
     </AppLayout>
   );

@@ -4,12 +4,6 @@ import { api } from '../../api/client';
 import AppLayout from '../../layouts/AppLayout';
 import styles from './Experiments.module.css';
 
-const STATUS_OPTIONS = [
-  { value: 'running',           label: 'En curso' },
-  { value: 'success',           label: 'Exitoso' },
-  { value: 'failure',           label: 'Fallido' },
-  { value: 'need_to_be_redone', label: 'Repetir' },
-];
 
 export default function ExperimentForm() {
   const { id } = useParams();
@@ -106,21 +100,19 @@ export default function ExperimentForm() {
     setLoading(true);
     try {
       const payload = { ...form, template_id: form.template_id || undefined };
+      const newSteps = steps
+        .filter(s => !s.id && s.body?.trim())
+        .map(s => ({ body: s.body, ordering: s.ordering }));
 
       if (isEdit) {
         await api.experiments.update(id, {
           title: payload.title, body: payload.body,
-          status: payload.status, date: payload.date, tags: payload.tags,
+          date: payload.date, tags: payload.tags,
+          steps: newSteps,
         });
-        for (const s of steps.filter(s => !s.id)) {
-          await api.experiments.addStep(id, { body: s.body, ordering: s.ordering });
-        }
         navigate(`/app/experiments/${id}`);
       } else {
-        const exp = await api.experiments.create(payload);
-        for (const s of steps.filter(s => !s.id)) {
-          await api.experiments.addStep(exp.id, { body: s.body, ordering: s.ordering });
-        }
+        const exp = await api.experiments.create({ ...payload, steps: newSteps });
         navigate(`/app/experiments/${exp.id}`);
       }
     } catch (err) {
@@ -149,7 +141,7 @@ export default function ExperimentForm() {
         {!isEdit && (
           appliedTemplate ? (
             <div className={styles.templateBanner}>
-              <span>📋 Plantilla: <strong>{appliedTemplate.title}</strong></span>
+              <span>Plantilla: <strong>{appliedTemplate.title}</strong></span>
               <button type="button" onClick={() => applyTemplate('')}>Cambiar</button>
             </div>
           ) : (
@@ -183,22 +175,14 @@ export default function ExperimentForm() {
           />
         </label>
 
-        <div className={styles.formRow}>
-          <label>
-            Estado
-            <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-              {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </label>
-          <label>
-            Fecha
-            <input
-              type="date"
-              value={form.date}
-              onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-            />
-          </label>
-        </div>
+        <label>
+          Fecha
+          <input
+            type="date"
+            value={form.date}
+            onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+          />
+        </label>
 
         <label>
           Etiquetas

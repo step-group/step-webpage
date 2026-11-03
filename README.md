@@ -1,84 +1,167 @@
-# STEP Research Group Website
+# STEP Research Laboratory
 
-This is the repository for the website of the STEP research group at PUC Chile. Template was taken from the Coley group from MIT.
+Repository for the STEP Laboratory at the Department of Chemical Engineering and Bioprocesses, Pontificia Universidad Católica de Chile. Led by Dr. Roberto I. Canales and Dr. Nicolás F. Gajardo-Parra.
 
-## Contributor Guide
+Two things live here:
 
-Selected group members are able to make changes and additions to the website (such as adding/removing themselves to/from the "People" page) through this repo, pending approval. The existing templating combined with the following guide should hopefully make this process as painless as possible. Stylistic or template change suggestions are also welcome but may require navigating some messy templates or CSS.
+| | What it is | Where it runs |
+|---|---|---|
+| **Public website** | Jekyll site — people, research, publications, positions | [step-group.github.io/step-webpage](https://step-group.github.io/step-webpage/), built by GitHub Pages |
+| **Lab platform** | Internal app for inventory, experiments, datasets and publications | `app/` on Netlify, `api/` on Render |
 
-Before you do anything, make sure you have [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) installed on your machine. Then, **(1)** fork this repo and **(2)** clone the forked repo to your local machine with the command:
-```bash
-$ git clone https://github.com/{your_username}/coley.mit.edu.git
+The platform has its own documentation: **[`app/README.md`](app/README.md)** (React frontend) and **[`api/README.md`](api/README.md)** (Express + PostgreSQL backend). The rest of this file is about the website.
+
+## Repository layout
+
+```
+_data/          content as YAML — publications, people, news, themes
+_pages/         one file per page; permalink is set in the front matter
+_layouts/       page skeletons (homelay, gridlay, textlay, publications, research)
+_includes/      header, footer, carousel, news sidebar
+_sass/, css/    Bootstrap 3 styles
+images/         teampic/, carouselpic/, researchpic/, logopic/, grouppic/
+app/, api/      the lab platform — see their own READMEs
 ```
 
-### Local deployment
+## Contributing
 
-If you are making non-trivial changes (i.e. beyond just adding yourself to the "People" page), it is highly encouraged to locally deploy the website on your machine to preview the website before making a pull request. First, install Jekyll if you have not done so, following [the official guide](https://jekyllrb.com/docs/installation/#requirements) corresponding to your OS. 
+Group members with write access work on a branch in this repository and open a pull request. Do not commit to `main` directly.
 
-In the folder corresponding to your cloned repo, simply run the following to serve the website at `http://localhost:4000`.
 ```bash
-$ jekyll serve
+git clone https://github.com/step-group/step-webpage.git
+cd step-webpage
+git checkout -b short-descriptive-name
+# make your changes
+git add .
+git commit -m "Describe what changed"
+git push -u origin short-descriptive-name
 ```
 
-### Making changes and pull requests
+Then open a pull request on GitHub for review. Once it is merged, GitHub Pages rebuilds and the change is live in about a minute.
 
-First, working in your forked repo, create and checkout a new branch (give it a descriptive name) with the command
-```bash
-$ git checkout -b BRANCH_NAME
+If you do not have write access, fork the repository and open the pull request from your fork instead.
+
+## Editing website content
+
+Almost everything is a YAML file in `_data/`. You rarely need to touch HTML.
+
+### Adding yourself to the People page
+
+1. Add a square photo to `images/teampic/` named `Lastname_Firstname.jpg` (or `.png`).
+2. Open the `_data/` file matching your position — `postdocs.yml`, `grad_students.yml`, or `masters.yml`.
+3. Add an entry:
+
+```yaml
+- name: Your Full Name
+  photo: Lastname_Firstname.jpg
+  info: Ph.D. Student in Chemical Engineering
+  email: you@uc.cl
+  description: One or two sentences about your background and what you work on.
+  linkedin: https://www.linkedin.com/in/your-profile/   # optional
+  website: https://your-site.com                        # optional
+  twitter: https://x.com/your-handle                    # optional
 ```
-After you make your changes, commit and push your changes to the branch:
-```bash
-$ git add .
-$ git commit -m "COMMIT MESSAGE"
-$ git push --set-upstream origin BRANCH_NAME
+
+People who leave the group move to `_data/alumni.yml`, which takes `name`, `previous`, and optionally `current` and `link`.
+
+### Adding a publication
+
+Entries go at the **top** of `_data/publications.yml`, newest first, and `number` counts down to 1 at the bottom. Increment the top number when you add one.
+
+```yaml
+- number: 73
+  title: "Full title of the paper"
+  authors: Surname, A.B.; <b>Gajardo-Parra, N.F.</b>; <b>Canales, R.I.</b>; Other, C.D.
+  journal: Journal of Chemical & Engineering Data
+  volume: 71
+  issue: 6
+  pages: 2512-2522
+  year: 2026
+  url: 'https://doi.org/10.1021/acs.jced.6c00016'
+  doi: 'https://doi.org/10.1021/acs.jced.6c00016'
+  themes:
+    - Deep Eutectic Solvents
+    - Thermophysical Properties
 ```
-Finally, perform a pull request so that your changes can be reviewed and merged into the main repo. This can be done easily through the Github UI on the browser from your fork repo page.
 
-### Adding you or someone else to the "People" page
+Conventions that matter:
 
-Adding yourself to the People page is very simple!
-1. Upload an image of yourself to `images/teampic/` with the format `{firstname}_{lastname}.[png|jpg|jpeg]`. **Please crop your image to a square**.
-2. Navigate to the `_data/` folder and locate the `.yml` file that matches your position in the group (for instance, if you are a grad student, open `grad_students.yml`). 
-3. Add all relevant information in the `.yml` file. 
-    - Fill out `name` and `email` at minimum, with optional URLs provided in `twitter`, `linkedin`, and/or `website` fields.
-    - Add a short biography for the `description` field.
+- **PI names are bolded** with `<b>...</b>`, always as `Gajardo-Parra, N.F.` and `Canales, R.I.`
+- **The title links to the DOI** — put `https://doi.org/...` in `url`
+- **Every paper carries at least two themes.** Quote any `pages` value that starts with a zero (`pages: '05025007'`), otherwise YAML reads it as an octal number and the article number renders wrong.
+- Preprints use `preprint` and `preprint_url` instead of `doi`; a Preprint button appears automatically.
 
-That's it! Go ahead and make a pull request when you are satisfied.
+Update the "Last updated" line at the top of `_pages/publications.md` when you do a batch update.
 
-### Adding publications
+### Research themes
 
-Some instructions for adding publications and a template are at the top of the (`_data/publications.yml`) file for your convenience. The main format for a citation is as follows:
-- Author list. Linked Title. *Journal*. Volume(Issue), Pages. (Year) DOI/preprint: DOI/preprint_ID.
+The tags below each citation double as filter buttons. They are defined in `_data/research_themes.yml`, and a theme name that does not appear there renders no badge at all — silently. The current set:
 
-The minimum required fields are: `title`, `authors`, `journal`, `year`, `url`, `themes`.
-- For journal papers, be sure to at least include `doi`
-- For preprints, be sure to at least include `preprint`, `preprint_url`
-- For conference papers, be sure to at least include `preprint_url`
+| Theme | Covers |
+|---|---|
+| Thermodynamic Modeling | PC-SAFT, ePC-SAFT, COSMO-RS, NRTL, DGT, equations of state, phase-equilibrium modeling |
+| Thermophysical Properties | measured density, viscosity, surface and interfacial tension, excess properties, solubility and VLE/LLE data |
+| Molecular Simulation | molecular dynamics, Monte Carlo, DFT, docking, force-field work |
+| Deep Eutectic Solvents | DES and NADES as the solvent under study |
+| Ionic Liquids | ionic liquids and poly(ionic liquid)s |
+| Bioseparations | extraction, purification, in-situ product removal, adsorption and supercritical separations |
+| Biocatalysis | enzymes, proteins, fermentation, enzyme kinetics and stability |
+| Process Simulation | Aspen Plus, process design, techno-economics, reactor engineering |
+| Catalysis | heterogeneous and electrochemical catalysts, hydrogenation, hydrodeoxygenation |
 
-If the `preprint_url` field is filled out, then the preprint button will appear under the citation.
+To add a theme, append a `name`, `color` and `darker_color` (the shade shown when the filter is active) to `_data/research_themes.yml`.
 
-Further, research themes should be added for each paper and they will appear as tags below the citation. The available themes and their associated colors are found in (`_data/research_themes.yml`). Currently these themes are: 
-- molecular representation
-- design and optimization
-- predictive chemistry
-- automation
-- metabolomics
-- data
+### News
 
-Note: There are slight nuances with respect to the `doi` and `preprint` fields since the former supercedes the latter.
-- For preprints
-    - Do NOT include the `doi` field
-    - DO include the `preprint` and related fields.
-- For conference papers
-    - Do NOT include `doi` OR `preprint` fields.
-    - DO include `url`, `preprint_url`, `preprint_site`, `preprint_year`.
+`_data/news.yml`, newest first. Markdown links work inside `headline`.
 
-### Other changes
+```yaml
+- date: September 2026
+  headline: Congrats to X for their Ph.D. defense!
+```
 
-The following have been set up to be similarly easy to add new content to. Hopefully it should be simple to extrapolate the editing of `.yml` files to the following, but ask Kevin or Kento if you need help.
-- News (`_data/news.yml`)
-- Group photos (`_data/photos.yml`, images go in `images/grouppic/`)
-- Open source software (`_data/software.yml`, logos go in `images/logopic`)
-- Research relevant to Connor's directions on the "Research" page (`_data/research.yml`)
+The home page shows the most recent items; `/news` shows all of them.
 
-- WIP: The carousel highlighting recent work still needs to be refactored to be easily editable with `.yml` files. For now, they are manually declared in `_includes/carousel.html` with pictures in `image/carouselpic`)
+### Research page and carousel
+
+`_pages/research.md` is written directly in Markdown and HTML — project descriptions, grant numbers, funding periods and the finished-projects list. Figures live in `images/researchpic/`.
+
+The home page carousel is declared by hand in `_includes/carousel.html`, with images in `images/carouselpic/`. Each slide is an image, a caption and a link to the paper. If you add or remove a slide, update the `<ol class="carousel-indicators">` list at the top of that file to match the number of slides.
+
+## Previewing locally
+
+Needed for anything beyond a content edit — layout, CSS, or navigation changes.
+
+Install Ruby and Jekyll following the [official guide](https://jekyllrb.com/docs/installation/), then:
+
+```bash
+gem install bundler jekyll
+jekyll serve
+```
+
+The site config points `url` and `baseurl` at the production address, so links break in a local preview. Create a `_config.dev.yml` (already git-ignored) with:
+
+```yaml
+url: ""
+baseurl: ""
+```
+
+and serve with both configs:
+
+```bash
+jekyll serve --config _config.yml,_config.dev.yml
+```
+
+The site is then at `http://localhost:4000`.
+
+## Deployment
+
+| Part | Trigger | Config |
+|---|---|---|
+| Website | push to `main` | GitHub Pages, ~1 minute |
+| `app/` | push to `main` | `netlify.toml` |
+| `api/` | push to `main` | `render.yaml` (runs migrations and seeds, then starts) |
+
+## Credits
+
+The site was built with [Jekyll](https://jekyllrb.com). The template comes from the [Coley Research Group](https://coley.mit.edu) at MIT, which in turn adapted it from the [Allan Lab](https://www.allanlab.org/aboutwebsite.html) at Leiden University.

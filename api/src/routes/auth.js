@@ -160,10 +160,10 @@ router.get('/activity', requireAuth, async (req, res) => {
       pool.query(`
         SELECT d.id, d.title, d.equipment, d.created_at,
           e.id AS experiment_id, e.title AS experiment_title,
-          COUNT(dp.id)::int AS point_count
+          COUNT(dr.id)::int AS row_count
         FROM datasets d
         JOIN experiments e ON e.id = d.experiment_id
-        LEFT JOIN dataset_points dp ON dp.dataset_id = d.id
+        LEFT JOIN dataset_rows dr ON dr.dataset_id = d.id
         WHERE d.created_by = $1
         GROUP BY d.id, e.id, e.title
         ORDER BY d.created_at DESC

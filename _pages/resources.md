@@ -8,15 +8,17 @@ permalink: /resources
 
 # Resources
 
-### Group guide
+### Code and data
 ---
-We actively maintain a group guide detailing information about our values and Connor's attitude toward research and mentorship which can be found [here](https://docs.google.com/document/d/1K10WS0Bey9AGr17bpiak-A1dhQrkv5BBsQrsrwQ-H2g/edit).
+Code, data and tools developed in the group are shared through our GitHub organization: [github.com/step-group](https://github.com/step-group).
 
+{% assign software_count = site.data.software | size %}
+{% if software_count > 0 %}
 <br/>
 
 ### Software and Tools
 ---
-We are generally committed to providing open-source software and tools for the scientific community. Our group Github organization can be found [here](https://github.com/coleygroup), and we highlight a number of software tools below.
+We are committed to sharing open-source software and tools with the scientific community.
 
 {% assign number_printed = 0 %}
 {% for tool in site.data.software %}
@@ -53,4 +55,5 @@ We are generally committed to providing open-source software and tools for the s
 {% assign even_odd = number_printed | modulo: 2 %}
 {% if even_odd == 1 %}
 </div>
+{% endif %}
 {% endif %}

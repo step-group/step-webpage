@@ -4,6 +4,15 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
+async function checkOwner(req, res, experimentId) {
+  const result = await pool.query('SELECT created_by FROM experiments WHERE id = $1', [experimentId]);
+  if (!result.rows[0]) { res.status(404).json({ error: 'Experimento no encontrado' }); return false; }
+  if (result.rows[0].created_by !== req.user.id && req.user.role !== 'admin') {
+    res.status(403).json({ error: 'Sin permiso para modificar este experimento' }); return false;
+  }
+  return true;
+}
+
 // ── LIST ────────────────────────────────────────────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
   const { status, tag, search, archived } = req.query;
@@ -23,6 +32,11 @@ router.get('/', requireAuth, async (req, res) => {
   const params = [showArchived ? 'archived' : 'normal'];
   let idx = 2;
 
+  if (req.user.role !== 'admin') {
+    query += ` AND e.created_by = $${idx++}`;
+    params.push(req.user.id);
+  }
+
   if (status) { query += ` AND e.status = $${idx++}`; params.push(status); }
   if (tag)    { query += ` AND $${idx++} = ANY(e.tags)`; params.push(tag); }
   if (search) { query += ` AND e.title ILIKE $${idx++}`; params.push(`%${search}%`); }
@@ -40,7 +54,7 @@ router.get('/', requireAuth, async (req, res) => {
 
 // ── CREATE ───────────────────────────────────────────────────────────────────
 router.post('/', requireAuth, async (req, res) => {
-  const { title, body = '', status = 'running', date, tags = [], template_id } = req.body;
+  const { title, body = '', status = 'running', date, tags = [], template_id, steps = [] } = req.body;
   if (!title) return res.status(400).json({ error: 'El título es requerido' });
 
   const client = await pool.connect();
@@ -85,6 +99,14 @@ router.post('/', requireAuth, async (req, res) => {
           [dsId, td.id]
         );
       }
+    }
+
+    for (const s of steps) {
+      if (!s.body?.trim()) continue;
+      await client.query(
+        'INSERT INTO experiment_steps (experiment_id, body, ordering) VALUES ($1, $2, $3)',
+        [experiment.id, s.body.trim(), s.ordering ?? 0]
+      );
     }
 
     await client.query('COMMIT');
@@ -150,23 +172,56 @@ router.get('/:id', requireAuth, async (req, res) => {
 
 // ── UPDATE ───────────────────────────────────────────────────────────────────
 router.patch('/:id', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
+
+  const { steps: newSteps, ...rest } = req.body;
   const allowed = ['title', 'body', 'status', 'date', 'tags'];
-  const fields = Object.keys(req.body).filter(k => allowed.includes(k));
-  if (!fields.length) return res.status(400).json({ error: 'Sin campos válidos para actualizar' });
+  const fields = Object.keys(rest).filter(k => allowed.includes(k));
+  const stepsToAdd = Array.isArray(newSteps) ? newSteps.filter(s => s.body?.trim()) : [];
 
-  const sets = fields.map((f, i) => `${f} = $${i + 2}`).join(', ');
-  const values = fields.map(f => req.body[f]);
+  if (!fields.length && !stepsToAdd.length)
+    return res.status(400).json({ error: 'Sin campos válidos para actualizar' });
 
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
-      `UPDATE experiments SET ${sets} WHERE id = $1 RETURNING *`,
-      [req.params.id, ...values]
-    );
-    if (!result.rows[0]) return res.status(404).json({ error: 'Experimento no encontrado' });
-    res.json(result.rows[0]);
+    await client.query('BEGIN');
+
+    let updated;
+    if (fields.length) {
+      const sets = fields.map((f, i) => `${f} = $${i + 2}`).join(', ');
+      const result = await client.query(
+        `UPDATE experiments SET ${sets} WHERE id = $1 RETURNING *`,
+        [req.params.id, ...fields.map(f => rest[f])]
+      );
+      if (!result.rows[0]) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Experimento no encontrado' });
+      }
+      updated = result.rows[0];
+    } else {
+      const result = await client.query('SELECT * FROM experiments WHERE id = $1', [req.params.id]);
+      if (!result.rows[0]) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Experimento no encontrado' });
+      }
+      updated = result.rows[0];
+    }
+
+    for (const s of stepsToAdd) {
+      await client.query(
+        'INSERT INTO experiment_steps (experiment_id, body, ordering) VALUES ($1, $2, $3)',
+        [req.params.id, s.body.trim(), s.ordering ?? 0]
+      );
+    }
+
+    await client.query('COMMIT');
+    res.json(updated);
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error(err);
     res.status(500).json({ error: 'Error al actualizar experimento' });
+  } finally {
+    client.release();
   }
 });
 
@@ -207,6 +262,7 @@ router.patch('/:id/archive', requireAdmin, async (req, res) => {
 
 // ── STEPS ────────────────────────────────────────────────────────────────────
 router.post('/:id/steps', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
   const { body, ordering = 0 } = req.body;
   if (!body) return res.status(400).json({ error: 'El cuerpo del paso es requerido' });
   try {
@@ -222,6 +278,7 @@ router.post('/:id/steps', requireAuth, async (req, res) => {
 });
 
 router.patch('/:id/steps/:stepId', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
   const { body, ordering, finished } = req.body;
   const updates = [];
   const values = [];
@@ -249,6 +306,7 @@ router.patch('/:id/steps/:stepId', requireAuth, async (req, res) => {
 });
 
 router.delete('/:id/steps/:stepId', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
   try {
     await pool.query(
       'DELETE FROM experiment_steps WHERE id = $1 AND experiment_id = $2',
@@ -298,6 +356,7 @@ router.delete('/:id/comments/:commentId', requireAuth, async (req, res) => {
 
 // ── RESOURCE LINKS ────────────────────────────────────────────────────────────
 router.post('/:id/links', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
   const { resource_id, quantity_used = 0 } = req.body;
   if (!resource_id) return res.status(400).json({ error: 'resource_id requerido' });
 
@@ -322,14 +381,14 @@ router.post('/:id/links', requireAuth, async (req, res) => {
       });
     }
 
-    await client.query(
+    const insertResult = await client.query(
       `INSERT INTO exp_resource_links (experiment_id, resource_id, quantity_used)
        VALUES ($1, $2, $3)
        ON CONFLICT (experiment_id, resource_id) DO NOTHING`,
       [req.params.id, resource_id, qty]
     );
 
-    if (qty > 0) {
+    if (qty > 0 && insertResult.rowCount > 0) {
       await client.query(
         'UPDATE resources SET quantity = quantity - $1 WHERE id = $2',
         [qty, resource_id]
@@ -348,6 +407,7 @@ router.post('/:id/links', requireAuth, async (req, res) => {
 });
 
 router.delete('/:id/links/:resourceId', requireAuth, async (req, res) => {
+  if (!await checkOwner(req, res, req.params.id)) return;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
