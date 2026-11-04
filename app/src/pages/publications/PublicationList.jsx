@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
+import { useAuth } from '../../context/AuthContext';
 import AppLayout from '../../layouts/AppLayout';
+import ConfirmModal from '../../components/ConfirmModal';
 import WosImportModal from './WosImportModal';
+import { Trash2 } from 'lucide-react';
 import styles from './Publications.module.css';
 
 const STATUS_LABEL = { draft: 'Borrador', submitted: 'Enviado', under_review: 'En revisión', published: 'Publicado' };
@@ -14,7 +17,31 @@ export default function PublicationList() {
   const [status, setStatus]   = useState('');
   const [sortOrder, setSort]  = useState('desc');
   const [showWos, setShowWos] = useState(false);
+  const [selected, setSelected] = useState(new Set());
+  const [pendingDelete, setPendingDelete] = useState(null); // { ids, label }
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canDelete = user?.role === 'admin';
+
+  function toggle(id, e) {
+    e.stopPropagation();
+    setSelected(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  }
+
+  async function confirmDelete() {
+    const { ids } = pendingDelete;
+    setPendingDelete(null);
+    setError('');
+    try {
+      for (const id of ids) await api.publications.delete(id);
+      setPubs(list => list.filter(x => !ids.includes(x.id)));
+      setSelected(s => { const n = new Set(s); ids.forEach(i => n.delete(i)); return n; });
+    } catch (err) {
+      setError(err.message);
+      api.publications.list({}).then(setPubs);
+    }
+  }
 
   useEffect(() => {
     const params = {};
@@ -22,6 +49,7 @@ export default function PublicationList() {
     if (search) params.search = search;
     setLoading(true);
     api.publications.list(params).then(setPubs).finally(() => setLoading(false));
+    setSelected(new Set());
   }, [search, status]);
 
   const sorted = [...pubs].sort((a, b) =>
@@ -63,6 +91,30 @@ export default function PublicationList() {
         </button>
       </div>
 
+      {error && <p className={styles.error}>{error}</p>}
+
+      {canDelete && selected.size > 0 && (
+        <div className={styles.bulkBar}>
+          <span>
+            {selected.size === 1
+              ? '1 publicación seleccionada'
+              : `${selected.size} publicaciones seleccionadas`}
+          </span>
+          <button className={styles.bulkClear} onClick={() => setSelected(new Set())}>
+            Quitar selección
+          </button>
+          <button
+            className={styles.bulkDelete}
+            onClick={() => setPendingDelete({
+              ids: [...selected],
+              label: `las ${selected.size} publicaciones seleccionadas`,
+            })}
+          >
+            <Trash2 size={13} /> Eliminar seleccionadas
+          </button>
+        </div>
+      )}
+
       {loading && <p className={styles.muted}>Cargando...</p>}
       {!loading && sorted.length === 0 && (
         <p className={styles.muted}>No hay publicaciones. <Link to="/app/publications/new">Crea la primera.</Link></p>
@@ -72,8 +124,30 @@ export default function PublicationList() {
         {sorted.map(p => (
           <div key={p.id} className={styles.card} onClick={() => navigate(`/app/publications/${p.id}`)}>
             <div className={styles.cardTop}>
+              {canDelete && (
+                <input
+                  type="checkbox"
+                  className={styles.cardCheck}
+                  checked={selected.has(p.id)}
+                  onClick={e => toggle(p.id, e)}
+                  onChange={() => {}}
+                  aria-label={`Seleccionar ${p.title}`}
+                />
+              )}
               <span className={styles.cardTitle}>{p.title}</span>
               <span className={`${styles.statusBadge} ${styles[p.status]}`}>{STATUS_LABEL[p.status]}</span>
+              {canDelete && (
+                <button
+                  className={styles.cardDelete}
+                  title="Eliminar publicación"
+                  onClick={e => {
+                    e.stopPropagation();
+                    setPendingDelete({ ids: [p.id], label: `"${p.title}"` });
+                  }}
+                >
+                  <Trash2 size={14} />
+                </button>
+              )}
             </div>
             <div className={styles.cardMeta}>
               {p.authors && <span>{p.authors}</span>}
@@ -87,6 +161,16 @@ export default function PublicationList() {
           </div>
         ))}
       </div>
+
+      {pendingDelete && (
+        <ConfirmModal
+          danger
+          confirmLabel="Eliminar"
+          message={`¿Eliminar ${pendingDelete.label}? Esta acción no se puede deshacer. Los datasets asociados no se borran, pero perderán su vínculo con la publicación.`}
+          onConfirm={confirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
+      )}
     </AppLayout>
   );
 }
