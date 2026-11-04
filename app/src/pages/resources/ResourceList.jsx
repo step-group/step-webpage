@@ -9,6 +9,7 @@ import styles from './Resources.module.css';
 import {
   ChevronRight, Info, Trash2,
   Download, List, LayoutGrid, Folder, FileUp, Package,
+  MoreHorizontal, Plus, Check, X,
 } from 'lucide-react';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -45,24 +46,109 @@ function findFirstLeaf(nodes) {
 
 // ── Location tree node ─────────────────────────────────────────────────────────
 
-function LocationNode({ node, selected, onSelect, depth }) {
+function LocRowActions({ node, manage }) {
+  const [open, setOpen] = useState(false);
+  if (!manage) return null;
+
+  return (
+    <span className={styles.locActions} onClick={e => e.stopPropagation()}>
+      <button
+        type="button"
+        className={styles.locMenuBtn}
+        onClick={() => setOpen(o => !o)}
+        title="Opciones de ubicación"
+      >
+        <MoreHorizontal size={13} />
+      </button>
+      {open && (
+        <>
+          <div className={styles.locMenuScrim} onClick={() => setOpen(false)} />
+          <div className={styles.locMenu}>
+            <button type="button" onClick={() => { setOpen(false); manage.onAdd(node); }}>
+              Añadir sub-ubicación
+            </button>
+            <button type="button" onClick={() => { setOpen(false); manage.onRename(node); }}>
+              Renombrar
+            </button>
+            <button
+              type="button"
+              className={styles.locMenuDanger}
+              onClick={() => { setOpen(false); manage.onDelete(node); }}
+            >
+              Eliminar
+            </button>
+          </div>
+        </>
+      )}
+    </span>
+  );
+}
+
+function LocInlineInput({ value, placeholder, onSubmit, onCancel, depth }) {
+  const [draft, setDraft] = useState(value || '');
+  return (
+    <form
+      className={styles.locInlineForm}
+      style={{ paddingLeft: `${12 + depth * 14}px` }}
+      onSubmit={e => { e.preventDefault(); if (draft.trim()) onSubmit(draft.trim()); }}
+    >
+      <input
+        className={styles.locInput}
+        value={draft}
+        placeholder={placeholder}
+        autoFocus
+        onChange={e => setDraft(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Escape') onCancel(); }}
+      />
+      <button type="submit" className={styles.locOk} title="Guardar"><Check size={12} /></button>
+      <button type="button" className={styles.locCancel} onClick={onCancel} title="Cancelar">
+        <X size={12} />
+      </button>
+    </form>
+  );
+}
+
+function LocationNode({ node, selected, onSelect, depth, manage }) {
   const hasChildren = node.children?.length > 0;
   const isSelected  = selected === node.id;
   const [open, setOpen] = useState(depth < 2);
 
+  const renaming = manage?.editing === node.id;
+  const adding   = manage?.adding  === node.id;
+
   return (
     <div>
-      <div
-        className={`${styles.locNode} ${isSelected ? styles.locSelected : ''}`}
-        style={{ paddingLeft: `${12 + depth * 14}px` }}
-        onClick={() => { if (hasChildren) setOpen(o => !o); onSelect(node.id); }}
-      >
-        <ChevronRight
-          size={11}
-          className={`${styles.locArrow} ${hasChildren && open ? styles.locArrowOpen : ''}`}
+      {renaming ? (
+        <LocInlineInput
+          value={node.name}
+          depth={depth}
+          onSubmit={name => manage.submitRename(node, name)}
+          onCancel={manage.cancel}
         />
-        <span className={styles.locLabel}>{node.name}</span>
-      </div>
+      ) : (
+        <div
+          className={`${styles.locNode} ${isSelected ? styles.locSelected : ''}`}
+          style={{ paddingLeft: `${12 + depth * 14}px` }}
+          onClick={() => { if (hasChildren) setOpen(o => !o); onSelect(node.id); }}
+        >
+          <ChevronRight
+            size={11}
+            className={`${styles.locArrow} ${hasChildren && open ? styles.locArrowOpen : ''}`}
+          />
+          <span className={styles.locLabel}>{node.name}</span>
+          <LocRowActions node={node} manage={manage} />
+        </div>
+      )}
+
+      {adding && (
+        <LocInlineInput
+          placeholder="Nombre"
+          depth={depth + 1}
+          onSubmit={name => manage.submitAdd(node, name)}
+          onCancel={manage.cancel}
+        />
+      )}
+
       {hasChildren && open && node.children.map(child => (
         <LocationNode
           key={child.id}
@@ -70,6 +156,7 @@ function LocationNode({ node, selected, onSelect, depth }) {
           selected={selected}
           onSelect={onSelect}
           depth={depth + 1}
+          manage={manage}
         />
       ))}
     </div>
@@ -90,6 +177,52 @@ export default function ResourceList() {
   const [showImport,   setShowImport]   = useState(false);
   const [confirmDialog, setConfirmDialog] = useState(null); // { message, onConfirm }
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const [locEditing, setLocEditing] = useState(null);
+  const [locAdding,  setLocAdding]  = useState(null);   // node id, or 'root'
+  const [locError,   setLocError]   = useState('');
+
+  async function runLoc(fn) {
+    setLocError('');
+    try {
+      await fn();
+      setLocations(await api.locations.list());
+    } catch (err) {
+      setLocError(err.message);
+    } finally {
+      setLocEditing(null);
+      setLocAdding(null);
+    }
+  }
+
+  function countDesc(node) {
+    if (!node.children?.length) return 0;
+    return node.children.reduce((n, c) => n + 1 + countDesc(c), 0);
+  }
+
+  const manage = isAdmin ? {
+    editing: locEditing,
+    adding:  locAdding,
+    cancel:  () => { setLocEditing(null); setLocAdding(null); },
+    onAdd:    node => { setLocAdding(node.id); setLocEditing(null); },
+    onRename: node => { setLocEditing(node.id); setLocAdding(null); },
+    onDelete: node => {
+      const n = countDesc(node);
+      askConfirm(
+        n > 0
+          ? `Al eliminar "${node.name}" se eliminarán también sus ${n} ubicación(es) anidadas. Los contenedores guardados en ellas no se borran, pero quedarán sin ubicación asignada.`
+          : `¿Eliminar la ubicación "${node.name}"? Los contenedores guardados en ella no se borran, pero quedarán sin ubicación asignada.`,
+        () => runLoc(() => api.locations.delete(node.id))
+      );
+    },
+    submitRename: (node, name) => runLoc(() => api.locations.update(node.id, { name })),
+    submitAdd: (node, name) => runLoc(() => api.locations.create({
+      name,
+      parent_id: node.id,
+      ordering: (node.children?.length || 0) + 1,
+    })),
+  } : null;
 
   function askConfirm(message, onConfirm) {
     setConfirmDialog({ message, onConfirm });
@@ -181,14 +314,54 @@ export default function ResourceList() {
       <div className={styles.locPanel}>
         <div className={styles.panelHeader}>
           <span className={styles.panelTitle}>Locations</span>
+          {isAdmin && (
+            <div className={styles.panelActions}>
+              <button
+                className={styles.locAddRootBtn}
+                onClick={() => { setLocAdding('root'); setLocEditing(null); }}
+                title="Nueva ubicación raíz"
+              >
+                <Plus size={13} />
+              </button>
+            </div>
+          )}
         </div>
+        {locError && <p className={styles.locError}>{locError}</p>}
         <div className={styles.locTree}>
+          {locAdding === 'root' && (
+            <LocInlineInput
+              placeholder="Nueva ubicación raíz"
+              depth={0}
+              onSubmit={name => runLoc(() => api.locations.create({
+                name, parent_id: null, ordering: locations.length + 1,
+              }))}
+              onCancel={() => setLocAdding(null)}
+            />
+          )}
           {locations.map(root => (
             <div key={root.id}>
-              <div className={styles.locFolder}>
-                <Folder size={13} className={styles.folderIcon} />
-                <span>{root.name}</span>
-              </div>
+              {manage?.editing === root.id ? (
+                <LocInlineInput
+                  value={root.name}
+                  depth={0}
+                  onSubmit={name => manage.submitRename(root, name)}
+                  onCancel={manage.cancel}
+                />
+              ) : (
+                <div className={styles.locFolder}>
+                  <Folder size={13} className={styles.folderIcon} />
+                  <span>{root.name}</span>
+                  <LocRowActions node={root} manage={manage} />
+                </div>
+              )}
+              {manage?.adding === root.id && (
+                <LocInlineInput
+                  placeholder="Nombre"
+                  depth={1}
+                  onSubmit={name => manage.submitAdd(root, name)}
+                  onCancel={manage.cancel}
+                />
+              )}
               {root.children?.map(child => (
                 <LocationNode
                   key={child.id}
@@ -196,6 +369,7 @@ export default function ResourceList() {
                   selected={selectedLoc}
                   onSelect={setSelectedLoc}
                   depth={1}
+                  manage={manage}
                 />
               ))}
             </div>

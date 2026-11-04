@@ -658,3 +658,129 @@
   padding: 0.4rem 0.6rem;
 }
 .cancelBtn:hover { color: var(--color-primary); text-decoration: underline; }
+
+/* ── Location management (admin) ──────────────────────────────────────────── */
+
+.locFolder { position: relative; }
+
+.locActions {
+  margin-left: auto;
+  position: relative;
+  display: flex;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.locNode:hover .locActions,
+.locFolder:hover .locActions,
+.locActions:focus-within { opacity: 1; }
+
+.locMenuBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.locMenuBtn:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.locMenuScrim { position: fixed; inset: 0; z-index: 20; }
+
+.locMenu {
+  position: absolute;
+  top: 22px;
+  right: 0;
+  z-index: 21;
+  min-width: 170px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.14);
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.locMenu button {
+  text-align: left;
+  padding: 0.35rem 0.5rem;
+  border: none;
+  background: none;
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  color: var(--color-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.locMenu button:hover { background: var(--color-bg); }
+.locMenuDanger { color: #dc2626 !important; }
+
+.locInlineForm {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem 0.25rem 0;
+}
+
+.locInput {
+  flex: 1;
+  min-width: 0;
+  padding: 0.22rem 0.4rem;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  background: white;
+}
+
+.locInput:focus { outline: none; }
+
+.locOk, .locCancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background: white;
+  cursor: pointer;
+  padding: 0;
+}
+
+.locOk { color: #16a34a; border-color: #86efac; }
+.locCancel { color: var(--color-text-muted); }
+
+.locAddRootBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.locAddRootBtn:hover { color: var(--color-primary); border-color: var(--color-primary); }
+
+.locError {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.72rem;
+  color: var(--color-error);
+}
