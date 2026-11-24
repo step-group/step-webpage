@@ -9,6 +9,7 @@ const templateRoutes    = require('./routes/templates');
 const resourceRoutes    = require('./routes/resources');
 const datasetRoutes     = require('./routes/datasets');
 const publicationRoutes = require('./routes/publications');
+const equipmentRoutes   = require('./routes/equipment');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/templates',    templateRoutes);
 app.use('/api/resources',    resourceRoutes);
 app.use('/api',              datasetRoutes);
 app.use('/api/publications', publicationRoutes);
+app.use('/api/equipment',    equipmentRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);

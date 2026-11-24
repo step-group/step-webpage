@@ -1,0 +1,229 @@
+const express = require('express');
+const pool = require('../db');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
+
+const router = express.Router();
+
+const RESERVATION_COLUMNS = 'id, equipment_id, user_id, title, notes, starts_at, ends_at';
+
+// Parses starts_at / ends_at from a request body (or a stored row for partial updates).
+// Returns { starts, ends } as Dates, or { error } with a Spanish message.
+function parseRange({ starts_at, ends_at }) {
+  if (!starts_at || !ends_at) return { error: 'Inicio y término son requeridos' };
+  const starts = new Date(starts_at);
+  const ends = new Date(ends_at);
+  if (Number.isNaN(starts.getTime()) || Number.isNaN(ends.getTime())) {
+    return { error: 'Fechas inválidas' };
+  }
+  if (ends <= starts) return { error: 'El término debe ser posterior al inicio' };
+  return { starts, ends };
+}
+
+// Back-to-back is allowed: a block conflicts only if it starts before the other ends
+// AND ends after the other starts.
+async function findConflict(client, equipmentId, starts, ends, ignoreId = null) {
+  const { rows } = await client.query(
+    `SELECT r.starts_at, r.ends_at, u.name AS user_name
+     FROM reservations r
+     JOIN users u ON u.id = r.user_id
+     WHERE r.equipment_id = $1
+       AND r.starts_at < $3 AND r.ends_at > $2
+       AND ($4::int IS NULL OR r.id <> $4)
+     ORDER BY r.starts_at
+     LIMIT 1`,
+    [equipmentId, starts, ends, ignoreId]
+  );
+  return rows[0] || null;
+}
+
+function conflictMessage(c) {
+  const fmt = (d) => d.toLocaleString('es-CL', { timeZone: 'America/Santiago', dateStyle: 'short', timeStyle: 'short' });
+  return `Ya está reservado por ${c.user_name} (${fmt(c.starts_at)} – ${fmt(c.ends_at)})`;
+}
+
+// ── EQUIPMENT: LIST ───────────────────────────────────────────────────────────
+router.get('/', requireAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, name, description, location FROM equipment WHERE active ORDER BY name'
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener equipos' });
+  }
+});
+
+// ── EQUIPMENT: CREATE ─────────────────────────────────────────────────────────
+router.post('/', requireAdmin, async (req, res) => {
+  const { name, description = '', location = '' } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ error: 'El nombre es requerido' });
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO equipment (name, description, location, created_by)
+       VALUES ($1, $2, $3, $4) RETURNING id, name, description, location, active`,
+      [name.trim(), description, location, req.user.id]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al crear el equipo' });
+  }
+});
+
+// ── EQUIPMENT: UPDATE / ARCHIVE ───────────────────────────────────────────────
+router.patch('/:id', requireAdmin, async (req, res) => {
+  const { name, description, location, active } = req.body;
+  if (name !== undefined && !String(name).trim()) {
+    return res.status(400).json({ error: 'El nombre es requerido' });
+  }
+  try {
+    const { rows } = await pool.query(
+      `UPDATE equipment SET
+         name        = COALESCE($2, name),
+         description = COALESCE($3, description),
+         location    = COALESCE($4, location),
+         active      = COALESCE($5, active)
+       WHERE id = $1
+       RETURNING id, name, description, location, active`,
+      [req.params.id, name?.trim(), description, location, active]
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'Equipo no encontrado' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al actualizar el equipo' });
+  }
+});
+
+// ── RESERVATIONS: LIST (overlapping a date range) ─────────────────────────────
+router.get('/:id/reservations', requireAuth, async (req, res) => {
+  const { from, to } = req.query;
+  const range = parseRange({ starts_at: from, ends_at: to });
+  if (range.error) return res.status(400).json({ error: range.error });
+  try {
+    const { rows } = await pool.query(
+      `SELECT r.id, r.equipment_id, r.user_id, u.name AS user_name,
+              r.title, r.notes, r.starts_at, r.ends_at
+       FROM reservations r
+       JOIN users u ON u.id = r.user_id
+       WHERE r.equipment_id = $1 AND r.starts_at < $3 AND r.ends_at > $2
+       ORDER BY r.starts_at`,
+      [req.params.id, range.starts, range.ends]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener reservas' });
+  }
+});
+
+// ── RESERVATIONS: CREATE ──────────────────────────────────────────────────────
+router.post('/:id/reservations', requireAuth, async (req, res) => {
+  const { title, notes = '' } = req.body;
+  if (!title || !title.trim()) return res.status(400).json({ error: 'El título es requerido' });
+  const range = parseRange(req.body);
+  if (range.error) return res.status(400).json({ error: range.error });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // Locking the equipment row serializes concurrent bookings of the same equipment.
+    const lock = await client.query('SELECT id FROM equipment WHERE id = $1 AND active FOR UPDATE', [req.params.id]);
+    if (!lock.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Equipo no encontrado' });
+    }
+    const conflict = await findConflict(client, req.params.id, range.starts, range.ends);
+    if (conflict) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: conflictMessage(conflict) });
+    }
+    const { rows } = await client.query(
+      `INSERT INTO reservations (equipment_id, user_id, title, notes, starts_at, ends_at)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING ${RESERVATION_COLUMNS}`,
+      [req.params.id, req.user.id, title.trim(), notes, range.starts, range.ends]
+    );
+    await client.query('COMMIT');
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    console.error(err);
+    res.status(500).json({ error: 'Error al crear la reserva' });
+  } finally {
+    client.release();
+  }
+});
+
+// ── RESERVATIONS: UPDATE ──────────────────────────────────────────────────────
+router.patch('/reservations/:rid', requireAuth, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const cur = await client.query('SELECT * FROM reservations WHERE id = $1', [req.params.rid]);
+    const existing = cur.rows[0];
+    if (!existing) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Reserva no encontrada' });
+    }
+    if (existing.user_id !== req.user.id && req.user.role !== 'admin') {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ error: 'Solo quien reservó o un administrador puede editarla' });
+    }
+
+    const title = req.body.title !== undefined ? String(req.body.title).trim() : existing.title;
+    if (!title) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'El título es requerido' });
+    }
+    const notes = req.body.notes !== undefined ? req.body.notes : existing.notes;
+    const range = parseRange({
+      starts_at: req.body.starts_at ?? existing.starts_at,
+      ends_at:   req.body.ends_at   ?? existing.ends_at,
+    });
+    if (range.error) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: range.error });
+    }
+
+    // Lock the equipment row, then check overlap ignoring this booking itself.
+    await client.query('SELECT id FROM equipment WHERE id = $1 FOR UPDATE', [existing.equipment_id]);
+    const conflict = await findConflict(client, existing.equipment_id, range.starts, range.ends, existing.id);
+    if (conflict) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: conflictMessage(conflict) });
+    }
+
+    const { rows } = await client.query(
+      `UPDATE reservations SET title = $2, notes = $3, starts_at = $4, ends_at = $5
+       WHERE id = $1 RETURNING ${RESERVATION_COLUMNS}`,
+      [existing.id, title, notes, range.starts, range.ends]
+    );
+    await client.query('COMMIT');
+    res.json(rows[0]);
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    console.error(err);
+    res.status(500).json({ error: 'Error al actualizar la reserva' });
+  } finally {
+    client.release();
+  }
+});
+
+// ── RESERVATIONS: DELETE ──────────────────────────────────────────────────────
+router.delete('/reservations/:rid', requireAuth, async (req, res) => {
+  try {
+    const cur = await pool.query('SELECT user_id FROM reservations WHERE id = $1', [req.params.rid]);
+    if (!cur.rows[0]) return res.status(404).json({ error: 'Reserva no encontrada' });
+    if (cur.rows[0].user_id !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Solo quien reservó o un administrador puede cancelarla' });
+    }
+    await pool.query('DELETE FROM reservations WHERE id = $1', [req.params.rid]);
+    res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al cancelar la reserva' });
+  }
+});
+
+module.exports = router;

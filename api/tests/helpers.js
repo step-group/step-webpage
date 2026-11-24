@@ -27,7 +27,8 @@ async function truncateAll() {
       users, experiment_templates, experiments, experiment_steps,
       experiment_comments, exp_resource_links, resources, resource_categories,
       datasets, dataset_rows, dataset_columns, dataset_compounds,
-      publications, template_steps, template_datasets, template_columns
+      publications, template_steps, template_datasets, template_columns,
+      equipment, reservations
     CASCADE
   `);
 }
