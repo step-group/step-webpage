@@ -4,7 +4,16 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
-const RESERVATION_COLUMNS = 'id, equipment_id, user_id, title, notes, starts_at, ends_at';
+const RESERVATION_COLUMNS = 'id, equipment_id, user_id, title, notes, starts_at, ends_at, status';
+
+// A member's booking longer than this many hours waits for an admin to approve it.
+const MAX_AUTO_HOURS = 48;
+
+// Status a booking gets from its length and who is making it (admins are never held back).
+function statusFor(starts, ends, isAdmin) {
+  if (isAdmin) return 'confirmed';
+  return (ends - starts) / 3600000 > MAX_AUTO_HOURS ? 'pending' : 'confirmed';
+}
 
 // Parses starts_at / ends_at from a request body (or a stored row for partial updates).
 // Returns { starts, ends } as Dates, or { error } with a Spanish message.
@@ -27,6 +36,7 @@ async function findConflict(client, equipmentId, starts, ends, ignoreId = null) 
      FROM reservations r
      JOIN users u ON u.id = r.user_id
      WHERE r.equipment_id = $1
+       AND r.status IN ('confirmed', 'pending')
        AND r.starts_at < $3 AND r.ends_at > $2
        AND ($4::int IS NULL OR r.id <> $4)
      ORDER BY r.starts_at
@@ -101,6 +111,49 @@ router.patch('/:id', requireAdmin, async (req, res) => {
   }
 });
 
+// ── RESERVATIONS: PENDING APPROVAL (admin) ────────────────────────────────────
+router.get('/reservations/pending', requireAdmin, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT r.id, r.equipment_id, e.name AS equipment_name, r.user_id, u.name AS user_name,
+              r.title, r.notes, r.starts_at, r.ends_at
+       FROM reservations r
+       JOIN equipment e ON e.id = r.equipment_id
+       JOIN users u ON u.id = r.user_id
+       WHERE r.status = 'pending'
+       ORDER BY r.starts_at`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener solicitudes pendientes' });
+  }
+});
+
+// Approve / reject a pending booking. 404 if unknown, 409 if it is no longer pending.
+async function decideReservation(req, res, status) {
+  const note = status === 'rejected' && typeof req.body.note === 'string' ? req.body.note.trim() : '';
+  try {
+    const { rows } = await pool.query(
+      `UPDATE reservations
+         SET status = $2, decided_by = $3, decided_at = NOW(), decision_note = $4
+       WHERE id = $1 AND status = 'pending'
+       RETURNING ${RESERVATION_COLUMNS}`,
+      [req.params.rid, status, req.user.id, note]
+    );
+    if (rows[0]) return res.json(rows[0]);
+    const exists = await pool.query('SELECT 1 FROM reservations WHERE id = $1', [req.params.rid]);
+    if (!exists.rows[0]) return res.status(404).json({ error: 'Reserva no encontrada' });
+    res.status(409).json({ error: 'La reserva ya no está pendiente' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al procesar la solicitud' });
+  }
+}
+
+router.post('/reservations/:rid/approve', requireAdmin, (req, res) => decideReservation(req, res, 'confirmed'));
+router.post('/reservations/:rid/reject',  requireAdmin, (req, res) => decideReservation(req, res, 'rejected'));
+
 // ── RESERVATIONS: LIST (overlapping a date range) ─────────────────────────────
 router.get('/:id/reservations', requireAuth, async (req, res) => {
   const { from, to } = req.query;
@@ -109,10 +162,11 @@ router.get('/:id/reservations', requireAuth, async (req, res) => {
   try {
     const { rows } = await pool.query(
       `SELECT r.id, r.equipment_id, r.user_id, u.name AS user_name,
-              r.title, r.notes, r.starts_at, r.ends_at
+              r.title, r.notes, r.starts_at, r.ends_at, r.status
        FROM reservations r
        JOIN users u ON u.id = r.user_id
-       WHERE r.equipment_id = $1 AND r.starts_at < $3 AND r.ends_at > $2
+       WHERE r.equipment_id = $1 AND r.status IN ('confirmed', 'pending')
+         AND r.starts_at < $3 AND r.ends_at > $2
        ORDER BY r.starts_at`,
       [req.params.id, range.starts, range.ends]
     );
@@ -145,9 +199,10 @@ router.post('/:id/reservations', requireAuth, async (req, res) => {
       return res.status(409).json({ error: conflictMessage(conflict) });
     }
     const { rows } = await client.query(
-      `INSERT INTO reservations (equipment_id, user_id, title, notes, starts_at, ends_at)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING ${RESERVATION_COLUMNS}`,
-      [req.params.id, req.user.id, title.trim(), notes, range.starts, range.ends]
+      `INSERT INTO reservations (equipment_id, user_id, title, notes, starts_at, ends_at, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING ${RESERVATION_COLUMNS}`,
+      [req.params.id, req.user.id, title.trim(), notes, range.starts, range.ends,
+       statusFor(range.starts, range.ends, req.user.role === 'admin')]
     );
     await client.query('COMMIT');
     res.status(201).json(rows[0]);
@@ -175,6 +230,10 @@ router.patch('/reservations/:rid', requireAuth, async (req, res) => {
       await client.query('ROLLBACK');
       return res.status(403).json({ error: 'Solo quien reservó o un administrador puede editarla' });
     }
+    if (existing.status === 'rejected') {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: 'La reserva fue rechazada' });
+    }
 
     const title = req.body.title !== undefined ? String(req.body.title).trim() : existing.title;
     if (!title) {
@@ -199,10 +258,17 @@ router.patch('/reservations/:rid', requireAuth, async (req, res) => {
       return res.status(409).json({ error: conflictMessage(conflict) });
     }
 
+    // Status is re-evaluated only when the times change; title/notes edits never touch it.
+    const timesChanged = range.starts.getTime() !== existing.starts_at.getTime()
+                      || range.ends.getTime() !== existing.ends_at.getTime();
+    const status = timesChanged
+      ? statusFor(range.starts, range.ends, req.user.role === 'admin')
+      : existing.status;
+
     const { rows } = await client.query(
-      `UPDATE reservations SET title = $2, notes = $3, starts_at = $4, ends_at = $5
+      `UPDATE reservations SET title = $2, notes = $3, starts_at = $4, ends_at = $5, status = $6
        WHERE id = $1 RETURNING ${RESERVATION_COLUMNS}`,
-      [existing.id, title, notes, range.starts, range.ends]
+      [existing.id, title, notes, range.starts, range.ends, status]
     );
     await client.query('COMMIT');
     res.json(rows[0]);

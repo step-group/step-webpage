@@ -237,3 +237,122 @@ describe('Reservations', () => {
     expect(outside.body).toHaveLength(0);
   });
 });
+
+describe('Reservation approval', () => {
+  // A booking starting 2026-12-01T00:00Z that lasts `minutes` minutes.
+  const span = (minutes) => ({
+    starts_at: '2026-12-01T00:00:00Z',
+    ends_at: new Date(Date.UTC(2026, 11, 1) + minutes * 60000).toISOString(),
+  });
+  const HOURS = 60;
+  const DAYS = 24 * HOURS;
+  const patch = (rid, token, body) =>
+    request(app).patch(`/api/equipment/reservations/${rid}`).set(auth(token)).send(body);
+  const decide = (rid, action, token, body = {}) =>
+    request(app).post(`/api/equipment/reservations/${rid}/${action}`).set(auth(token)).send(body);
+
+  it('member booking of exactly 48 hours is confirmed', async () => {
+    const res = await book(await newEquipment(), anaToken, { title: 'x', ...span(48 * HOURS) });
+    expect(res.status).toBe(201);
+    expect(res.body.status).toBe('confirmed');
+  });
+
+  it('member booking of 48 hours and 1 minute is pending', async () => {
+    const res = await book(await newEquipment(), anaToken, { title: 'x', ...span(48 * HOURS + 1) });
+    expect(res.status).toBe(201);
+    expect(res.body.status).toBe('pending');
+  });
+
+  it('admin booking over 48 hours is confirmed', async () => {
+    const res = await book(await newEquipment(), adminToken, { title: 'x', ...span(5 * DAYS) });
+    expect(res.status).toBe(201);
+    expect(res.body.status).toBe('confirmed');
+  });
+
+  it('a pending booking holds its slot', async () => {
+    const id = await newEquipment();
+    const pending = await book(id, anaToken, { title: 'largo', ...span(3 * DAYS) });
+    expect(pending.body.status).toBe('pending');
+    const res = await book(id, betoToken, {
+      title: 'corto', starts_at: '2026-12-02T10:00:00Z', ends_at: '2026-12-02T11:00:00Z',
+    });
+    expect(res.status).toBe(409);
+  });
+
+  it('editing only the title keeps status', async () => {
+    const id = await newEquipment();
+    const pending = await book(id, anaToken, { title: 'largo', ...span(3 * DAYS) });
+    const confirmed = await book(await newEquipment(), anaToken, { title: 'corto', ...span(24 * HOURS) });
+    const p = await patch(pending.body.id, anaToken, { title: 'nuevo' });
+    const c = await patch(confirmed.body.id, anaToken, { title: 'nuevo' });
+    expect(p.body.status).toBe('pending');
+    expect(c.body.status).toBe('confirmed');
+  });
+
+  it('lengthening a confirmed booking past 48 hours makes it pending, shortening it back confirms it', async () => {
+    const created = await book(await newEquipment(), anaToken, { title: 'x', ...span(24 * HOURS) });
+    const longer = await patch(created.body.id, anaToken, { ends_at: span(49 * HOURS).ends_at });
+    expect(longer.status).toBe(200);
+    expect(longer.body.status).toBe('pending');
+    const shorter = await patch(created.body.id, anaToken, { ends_at: span(24 * HOURS).ends_at });
+    expect(shorter.body.status).toBe('confirmed');
+  });
+
+  it("admin editing a pending booking's times makes it confirmed", async () => {
+    const created = await book(await newEquipment(), anaToken, { title: 'x', ...span(3 * DAYS) });
+    const res = await patch(created.body.id, adminToken, { ends_at: span(4 * DAYS).ends_at });
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('confirmed');
+  });
+
+  it('member cannot approve, reject or list pending requests', async () => {
+    const created = await book(await newEquipment(), anaToken, { title: 'x', ...span(3 * DAYS) });
+    expect((await decide(created.body.id, 'approve', betoToken)).status).toBe(403);
+    expect((await decide(created.body.id, 'reject', betoToken)).status).toBe(403);
+    const list = await request(app).get('/api/equipment/reservations/pending').set(auth(anaToken));
+    expect(list.status).toBe(403);
+  });
+
+  it('admin sees the pending request and approves it', async () => {
+    const created = await book(await newEquipment('Microondas'), anaToken, { title: 'Digestión larga', ...span(3 * DAYS) });
+    const list = await request(app).get('/api/equipment/reservations/pending').set(auth(adminToken));
+    expect(list.status).toBe(200);
+    const item = list.body.find(r => r.id === created.body.id);
+    expect(item).toMatchObject({ equipment_name: 'Microondas', user_name: 'Ana', title: 'Digestión larga' });
+
+    const approved = await decide(created.body.id, 'approve', adminToken);
+    expect(approved.status).toBe(200);
+    expect(approved.body.status).toBe('confirmed');
+
+    const after = await request(app).get('/api/equipment/reservations/pending').set(auth(adminToken));
+    expect(after.body.map(r => r.id)).not.toContain(created.body.id);
+  });
+
+  it('approving or rejecting a non-pending booking returns 409, an unknown id 404', async () => {
+    const created = await book(await newEquipment(), anaToken, { title: 'x', ...span(24 * HOURS) }); // confirmed
+    expect((await decide(created.body.id, 'approve', adminToken)).status).toBe(409);
+    expect((await decide(created.body.id, 'reject', adminToken)).status).toBe(409);
+    expect((await decide(999999, 'approve', adminToken)).status).toBe(404);
+    expect((await decide(999999, 'reject', adminToken)).status).toBe(404);
+  });
+
+  it('rejecting frees the slot, hides the booking and blocks editing it', async () => {
+    const id = await newEquipment();
+    const created = await book(id, anaToken, { title: 'largo', ...span(3 * DAYS) });
+    const rejected = await decide(created.body.id, 'reject', adminToken, { note: 'No disponible' });
+    expect(rejected.status).toBe(200);
+    expect(rejected.body.status).toBe('rejected');
+
+    const other = await book(id, betoToken, {
+      title: 'ocupa', starts_at: '2026-12-02T10:00:00Z', ends_at: '2026-12-02T11:00:00Z',
+    });
+    expect(other.status).toBe(201);
+
+    const range = await request(app).get(`/api/equipment/${id}/reservations`)
+      .query({ from: '2026-11-30T00:00:00Z', to: '2026-12-10T00:00:00Z' }).set(auth(betoToken));
+    expect(range.body.map(r => r.title)).toEqual(['ocupa']);
+
+    const edit = await patch(created.body.id, anaToken, { title: 'otra vez' });
+    expect(edit.status).toBe(409);
+  });
+});
