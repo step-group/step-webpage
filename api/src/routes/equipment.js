@@ -179,7 +179,11 @@ router.get('/:id/reservations', requireAuth, async (req, res) => {
        ORDER BY r.starts_at`,
       [req.params.id, range.starts, range.ends]
     );
-    res.json(rows);
+    // External users see who booked and when, but not other people's notes.
+    const hideOthersNotes = req.user.role === 'external';
+    res.json(hideOthersNotes
+      ? rows.map(r => (r.user_id === req.user.id ? r : { ...r, notes: '' }))
+      : rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al obtener reservas' });

@@ -55,8 +55,8 @@ router.patch('/users/:id/role', requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { role } = req.body;
 
-  if (!['admin', 'member'].includes(role)) {
-    return res.status(400).json({ error: 'Rol inválido. Usa "admin" o "member"' });
+  if (!['admin', 'member', 'external'].includes(role)) {
+    return res.status(400).json({ error: 'Rol inválido. Usa "admin", "member" o "external"' });
   }
 
   try {

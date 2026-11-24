@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const { restrictExternals } = require('./middleware/auth');
 
 const authRoutes        = require('./routes/auth');
 const adminRoutes       = require('./routes/admin');
@@ -18,6 +19,9 @@ app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+// External users (outside the lab) may only use login/profile and the equipment calendar.
+app.use('/api', restrictExternals(['/auth', '/equipment']));
 
 app.use('/api/auth',         authRoutes);
 app.use('/api/admin',        adminRoutes);
