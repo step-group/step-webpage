@@ -49,6 +49,7 @@ Everything is mounted under `/api`, plus a `GET /health` returning `{ status: "o
 | `/api/resources` | inventory — containers, locations, quantities, hazard codes |
 | `/api/datasets` | measurement datasets attached to experiments |
 | `/api/publications` | publication records and Web of Science import |
+| `/api/equipment` | reservable equipment (admin-managed) and its reservations — start/end datetimes, overlaps rejected with 409 |
 
 Route handlers are one file per prefix in `src/routes/`. `src/middleware/auth.js` verifies the JWT and enforces roles.
 
@@ -58,7 +59,7 @@ Migrations are numbered SQL files in `migrations/`, applied in filename order an
 
 To change the schema, add the next numbered file — `013_your_change.sql` — rather than editing an existing migration. Migrations that have already run on the deployed database will not run again.
 
-`npm run seed` is idempotent: it skips inventory zones and templates that already exist, and upserts the admin user.
+`npm run seed` is idempotent: it skips inventory zones and templates that already exist, adds an example "Microondas" only while the equipment table is empty, and upserts the admin user.
 
 > **Change the seeded admin password.** `src/seed.js` contains a default administrator with a placeholder password, and the production deploy runs the seed on every release. Log in once and change it, or override the seeded values before the first deploy.
 

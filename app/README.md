@@ -6,7 +6,7 @@ Served from `/app/*`. The public Jekyll site links to it through `site.app_url` 
 
 ## Stack
 
-React 18 · Vite 5 · React Router 6 (`BrowserRouter`) · CSS Modules · `lucide-react` icons · `marked` for Markdown rendering · `xlsx` for spreadsheet import and export.
+React 18 · Vite 5 · React Router 6 (`BrowserRouter`) · CSS Modules · `lucide-react` icons · `marked` for Markdown rendering · `xlsx` for spreadsheet import and export · `react-big-calendar` with `date-fns` for the equipment calendar.
 
 Authentication is a JWT held in `localStorage` and attached as a `Bearer` header by `src/api/client.js`. `AuthContext` exposes the current user to the tree.
 
@@ -49,12 +49,13 @@ src/
     templates/         list, form
     resources/         list, form, container detail, bulk import
     publications/      list, form, detail, Web of Science import
+    equipment/         one tab per equipment, calendar, reservation modal
   utils/
     pubchem.js         compound lookup by name or CAS
     thermoml.js        ThermoML export for datasets
 ```
 
-Routes are `/app/login`, `/app/register`, `/app/dashboard`, `/app/experiments`, `/app/templates`, `/app/resources`, `/app/publications`, `/app/profile`, and `/app/admin/users`.
+Routes are `/app/login`, `/app/register`, `/app/dashboard`, `/app/experiments`, `/app/templates`, `/app/resources`, `/app/publications`, `/app/equipment` (and `/app/equipment/:id`), `/app/profile`, and `/app/admin/users`.
 
 ## Deployment
 

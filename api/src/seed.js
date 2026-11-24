@@ -135,8 +135,23 @@ async function seed() {
   await seedZone(zone12, 'Zone 1.2', ZONE_1_2, admin.id);
 
   await seedTemplates(admin.id);
+  await seedEquipment(admin.id);
 
   await pool.end();
+}
+
+// Example reservable equipment, only when none exists yet (admins manage the list afterwards).
+async function seedEquipment(adminId) {
+  const { rows: [{ count }] } = await pool.query('SELECT COUNT(*)::int AS count FROM equipment');
+  if (count > 0) {
+    console.log('  Equipment: already seeded, skipping.');
+    return;
+  }
+  await pool.query(
+    `INSERT INTO equipment (name, description, location, created_by) VALUES ($1, $2, $3, $4)`,
+    ['Microondas', 'Microondas del laboratorio', 'Lab STEP', adminId]
+  );
+  console.log('  Equipment: "Microondas" seeded.');
 }
 
 async function seedTemplates(adminId) {
