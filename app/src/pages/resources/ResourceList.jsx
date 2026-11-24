@@ -382,6 +382,9 @@ export default function ResourceList() {
         <div className={styles.panelHeader}>
           <span className={styles.panelTitle}>Containers</span>
           <div className={styles.panelActions}>
+            <Link to="/app/resources/new" className={styles.addContainerBtn}>
+              <Plus size={13} /> Add Container
+            </Link>
             <button className={styles.importBtn} onClick={() => setShowImport(true)}>
               <FileUp size={13} /> Import
             </button>

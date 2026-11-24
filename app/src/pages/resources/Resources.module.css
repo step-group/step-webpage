@@ -231,6 +231,21 @@
 }
 .importBtn:hover { background: var(--color-primary-dark); }
 
+/* Link to the "Add a Container" form (same look as the Import button) */
+.addContainerBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--color-primary);
+  border-radius: 6px;
+  padding: 0.22rem 0.65rem;
+  font-size: 0.75rem;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.addContainerBtn:hover { background: var(--color-primary-dark); color: #fff; text-decoration: none; }
+
 .moveAllBtn {
   display: flex;
   align-items: center;
