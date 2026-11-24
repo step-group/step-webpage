@@ -131,20 +131,29 @@ router.get('/reservations/pending', requireAdmin, async (req, res) => {
 });
 
 // Approve / reject a pending booking. 404 if unknown, 409 if it is no longer pending.
+// The body may carry the starts_at / ends_at the admin was looking at; if the booking's
+// times have changed since, the decision is refused (409) so nobody approves dates they never saw.
 async function decideReservation(req, res, status) {
   const note = status === 'rejected' && typeof req.body.note === 'string' ? req.body.note.trim() : '';
+  const expectStart = req.body.starts_at ? new Date(req.body.starts_at) : null;
+  const expectEnd = req.body.ends_at ? new Date(req.body.ends_at) : null;
+  if ((expectStart && Number.isNaN(expectStart.getTime())) || (expectEnd && Number.isNaN(expectEnd.getTime()))) {
+    return res.status(400).json({ error: 'Fechas inválidas' });
+  }
   try {
     const { rows } = await pool.query(
       `UPDATE reservations
          SET status = $2, decided_by = $3, decided_at = NOW(), decision_note = $4
        WHERE id = $1 AND status = 'pending'
+         AND ($5::timestamptz IS NULL OR starts_at = $5)
+         AND ($6::timestamptz IS NULL OR ends_at = $6)
        RETURNING ${RESERVATION_COLUMNS}`,
-      [req.params.rid, status, req.user.id, note]
+      [req.params.rid, status, req.user.id, note, expectStart, expectEnd]
     );
     if (rows[0]) return res.json(rows[0]);
     const exists = await pool.query('SELECT 1 FROM reservations WHERE id = $1', [req.params.rid]);
     if (!exists.rows[0]) return res.status(404).json({ error: 'Reserva no encontrada' });
-    res.status(409).json({ error: 'La reserva ya no está pendiente' });
+    res.status(409).json({ error: 'La solicitud cambió o ya no está pendiente. Revisa la lista.' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al procesar la solicitud' });
@@ -220,7 +229,8 @@ router.patch('/reservations/:rid', requireAuth, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const cur = await client.query('SELECT * FROM reservations WHERE id = $1', [req.params.rid]);
+    // Row lock: an admin's approve/reject that commits meanwhile must not be overwritten by this edit.
+    const cur = await client.query('SELECT * FROM reservations WHERE id = $1 FOR UPDATE', [req.params.rid]);
     const existing = cur.rows[0];
     if (!existing) {
       await client.query('ROLLBACK');

@@ -355,4 +355,78 @@ describe('Reservation approval', () => {
     const edit = await patch(created.body.id, anaToken, { title: 'otra vez' });
     expect(edit.status).toBe(409);
   });
+
+  it("an owner's edit started before an admin's decision cannot overwrite that decision", async () => {
+    const created = await book(await newEquipment(), anaToken, { title: 'largo', ...span(3 * DAYS) });
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      // Stands in for the admin's approval, committed only after the owner's edit has begun.
+      await client.query("UPDATE reservations SET status = 'confirmed' WHERE id = $1", [created.body.id]);
+      const edit = patch(created.body.id, anaToken, { title: 'nuevo título' }).then(r => r);
+      await new Promise(resolve => setTimeout(resolve, 400));
+      await client.query('COMMIT');
+      const res = await edit;
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('confirmed');
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {});
+      throw err;
+    } finally {
+      client.release();
+    }
+  });
+
+  it('approving with outdated times returns 409 and leaves the booking pending', async () => {
+    const created = await book(await newEquipment(), anaToken, { title: 'largo', ...span(3 * DAYS) });
+    const stale = await decide(created.body.id, 'approve', adminToken, {
+      starts_at: created.body.starts_at,
+      ends_at: span(2 * DAYS + 60).ends_at, // what the admin saw before the owner changed the dates
+    });
+    expect(stale.status).toBe(409);
+
+    const list = await request(app).get('/api/equipment/reservations/pending').set(auth(adminToken));
+    expect(list.body.map(r => r.id)).toContain(created.body.id);
+
+    const fresh = await decide(created.body.id, 'approve', adminToken, {
+      starts_at: created.body.starts_at, ends_at: created.body.ends_at,
+    });
+    expect(fresh.status).toBe(200);
+    expect(fresh.body.status).toBe('confirmed');
+  });
+
+  it('resending the same instants in another representation keeps status', async () => {
+    const created = await book(await newEquipment(), anaToken, { title: 'largo', ...span(3 * DAYS) });
+    // 2026-12-01T00:00Z to 2026-12-04T00:00Z written with a -03:00 offset
+    const same = { starts_at: '2026-11-30T21:00:00-03:00', ends_at: '2026-12-03T21:00:00-03:00' };
+    const pending = await patch(created.body.id, anaToken, { title: 'igual', ...same });
+    expect(pending.body.status).toBe('pending');
+
+    await decide(created.body.id, 'approve', adminToken);
+    const approved = await patch(created.body.id, anaToken, { title: 'igual otra vez', ...same });
+    expect(approved.body.status).toBe('confirmed');
+  });
+
+  it('an owner moving an approved long booking sends it back to pending', async () => {
+    const created = await book(await newEquipment(), anaToken, { title: 'largo', ...span(3 * DAYS) });
+    await decide(created.body.id, 'approve', adminToken);
+    const moved = await patch(created.body.id, anaToken, { ends_at: span(3 * DAYS + 60).ends_at });
+    expect(moved.status).toBe(200);
+    expect(moved.body.status).toBe('pending');
+  });
+
+  it('changing only starts_at so the booking crosses 48 hours makes it pending', async () => {
+    const created = await book(await newEquipment(), anaToken, { title: 'x', ...span(47 * HOURS) });
+    expect(created.body.status).toBe('confirmed');
+    const res = await patch(created.body.id, anaToken, { starts_at: '2026-11-30T22:00:00Z' }); // now 49 hours
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('pending');
+  });
+
+  it('approving or rejecting an already rejected booking returns 409', async () => {
+    const created = await book(await newEquipment(), anaToken, { title: 'largo', ...span(3 * DAYS) });
+    await decide(created.body.id, 'reject', adminToken, { note: 'No' });
+    expect((await decide(created.body.id, 'approve', adminToken)).status).toBe(409);
+    expect((await decide(created.body.id, 'reject', adminToken)).status).toBe(409);
+  });
 });

@@ -58,6 +58,7 @@ export default function EquipmentPage() {
   const [showPending, setShowPending] = useState(false);
   const [rejectingId, setRejectingId] = useState(null);
   const [rejectNote, setRejectNote] = useState('');
+  const [deciding, setDeciding] = useState(null);   // id of the request being approved/rejected right now
 
   const current = equipment.find(e => String(e.id) === id);
 
@@ -127,17 +128,31 @@ export default function EquipmentPage() {
     return { style: { background: mine ? 'var(--color-primary)' : '#64748b', border: 'none' } };
   }
 
-  async function decide(item, action) {
+  // Always load the latest requests when the panel opens: the list may be stale otherwise.
+  async function togglePending() {
+    if (showPending) return setShowPending(false);
     setError('');
+    await refreshPending();
+    setShowPending(true);
+  }
+
+  async function decide(item, action) {
+    if (deciding !== null) return; // ignore double clicks while a decision is in flight
+    setDeciding(item.id);
+    setError('');
+    // Send the dates the admin is looking at; the API refuses if the owner changed them meanwhile.
+    const expected = { starts_at: item.starts_at, ends_at: item.ends_at };
     try {
-      if (action === 'approve') await api.equipment.approve(item.id);
-      else await api.equipment.reject(item.id, rejectNote);
+      if (action === 'approve') await api.equipment.approve(item.id, expected);
+      else await api.equipment.reject(item.id, rejectNote, expected);
       setRejectingId(null);
       setRejectNote('');
-      await refreshPending();
       setReloadKey(k => k + 1);
     } catch (err) {
       setError(err.message);
+    } finally {
+      await refreshPending(); // also after a failure, so a stale row disappears or updates
+      setDeciding(null);
     }
   }
 
@@ -192,7 +207,7 @@ export default function EquipmentPage() {
         <h2>Equipos</h2>
         {isAdmin && (
           <div className={styles.headerActions}>
-            <button className={styles.btnSecondary} onClick={() => setShowPending(s => !s)}>
+            <button className={styles.btnSecondary} onClick={togglePending}>
               {showPending ? 'Cerrar pendientes' : `Pendientes (${pending.length})`}
             </button>
             <button className={styles.btnSecondary} onClick={toggleArchived}>
@@ -222,14 +237,14 @@ export default function EquipmentPage() {
                   <div className={styles.rejectBox}>
                     <input className={styles.input} placeholder="Motivo (opcional)" value={rejectNote}
                       onChange={e => setRejectNote(e.target.value)} />
-                    <button className={styles.btnDanger} onClick={() => decide(item, 'reject')}>Confirmar rechazo</button>
+                    <button className={styles.btnDanger} disabled={deciding !== null} onClick={() => decide(item, 'reject')}>Confirmar rechazo</button>
                     <button className={styles.btnSecondary} onClick={() => { setRejectingId(null); setRejectNote(''); }}>Cancelar</button>
                   </div>
                 )}
               </div>
               {rejectingId !== item.id && (
                 <div className={styles.rowActions}>
-                  <button className={styles.btnPrimary} onClick={() => decide(item, 'approve')}>Aprobar</button>
+                  <button className={styles.btnPrimary} disabled={deciding !== null} onClick={() => decide(item, 'approve')}>Aprobar</button>
                   <button className={styles.btnDanger} onClick={() => { setRejectingId(item.id); setRejectNote(''); }}>Rechazar</button>
                 </div>
               )}
@@ -348,7 +363,9 @@ export default function EquipmentPage() {
             setModal(null);
             setReloadKey(k => k + 1);
             if (isAdmin) refreshPending();
-            setNotice(saved?.status === 'pending'
+            // The "tell the admins" notice is for the member whose own booking came back pending,
+            // not for an admin who just saved somebody else's request.
+            setNotice(saved?.status === 'pending' && saved.user_id === user?.id
               ? 'Tu reserva dura más de 2 días y quedó pendiente de aprobación de un administrador. Avísales por WhatsApp.'
               : '');
           }}
