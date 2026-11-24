@@ -57,7 +57,7 @@ router.get('/', requireAuth, async (req, res) => {
 // ── EQUIPMENT: CREATE ─────────────────────────────────────────────────────────
 router.post('/', requireAdmin, async (req, res) => {
   const { name, description = '', location = '' } = req.body;
-  if (!name || !name.trim()) return res.status(400).json({ error: 'El nombre es requerido' });
+  if (typeof name !== 'string' || !name.trim()) return res.status(400).json({ error: 'El nombre es requerido' });
   try {
     const { rows } = await pool.query(
       `INSERT INTO equipment (name, description, location, created_by)
@@ -121,7 +121,7 @@ router.get('/:id/reservations', requireAuth, async (req, res) => {
 // ── RESERVATIONS: CREATE ──────────────────────────────────────────────────────
 router.post('/:id/reservations', requireAuth, async (req, res) => {
   const { title, notes = '' } = req.body;
-  if (!title || !title.trim()) return res.status(400).json({ error: 'El título es requerido' });
+  if (typeof title !== 'string' || !title.trim()) return res.status(400).json({ error: 'El título es requerido' });
   const range = parseRange(req.body);
   if (range.error) return res.status(400).json({ error: range.error });
 

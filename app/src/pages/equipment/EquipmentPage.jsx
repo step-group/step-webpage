@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import {
@@ -68,15 +68,21 @@ export default function EquipmentPage() {
 
   const range = useMemo(() => visibleRange(date, view), [date, view]);
 
-  const loadReservations = useCallback(() => {
-    if (!current) return Promise.resolve();
-    return api.equipment
-      .reservations(current.id, { from: range.from.toISOString(), to: range.to.toISOString() })
-      .then(setReservations)
-      .catch(err => setError(err.message));
-  }, [current, range]);
+  // Bumped after a save or cancel so the effect below refetches.
+  const [reloadKey, setReloadKey] = useState(0);
+  const currentId = current?.id;
 
-  useEffect(() => { setReservations([]); loadReservations(); }, [loadReservations]);
+  useEffect(() => {
+    if (!currentId) return;
+    // A slower earlier response (previous tab or week) must never overwrite a newer one.
+    let ignore = false;
+    setReservations([]);
+    api.equipment
+      .reservations(currentId, { from: range.from.toISOString(), to: range.to.toISOString() })
+      .then(rows => { if (!ignore) setReservations(rows); })
+      .catch(err => { if (!ignore) setError(err.message); });
+    return () => { ignore = true; };
+  }, [currentId, range, reloadKey]);
 
   const events = useMemo(() => reservations.map(r => ({
     id: r.id,
@@ -170,6 +176,7 @@ export default function EquipmentPage() {
                   view={view} onView={setView}
                   views={['day', 'week', 'month']}
                   step={30} timeslots={2}
+                  showMultiDayTimes
                   scrollToTime={setHours(startOfDay(new Date()), 8)}
                   selectable
                   onSelectSlot={onSelectSlot}
@@ -196,7 +203,7 @@ export default function EquipmentPage() {
           initialStart={modal.start}
           initialEnd={modal.end}
           onClose={() => setModal(null)}
-          onChanged={() => { setModal(null); loadReservations(); }}
+          onChanged={() => { setModal(null); setReloadKey(k => k + 1); }}
         />
       )}
     </AppLayout>

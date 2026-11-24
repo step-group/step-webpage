@@ -46,6 +46,11 @@ describe('Equipment management', () => {
     expect(res.status).toBe(400);
   });
 
+  it('creating equipment with a non-string name is rejected with 400', async () => {
+    const res = await request(app).post('/api/equipment').set(auth(adminToken)).send({ name: 123 });
+    expect(res.status).toBe(400);
+  });
+
   it('admin creates equipment', async () => {
     const res = await request(app).post('/api/equipment').set(auth(adminToken))
       .send({ name: 'Centrífuga', location: 'Lab STEP' });
@@ -106,6 +111,23 @@ describe('Reservations', () => {
     const earlier = await book(id, anaToken, { title: 'x', starts_at: '2026-11-24T10:00:00Z', ends_at: '2026-11-24T09:00:00Z' });
     expect(equal.status).toBe(400);
     expect(earlier.status).toBe(400);
+  });
+
+  it('rejects a non-string title with 400 instead of crashing the request', async () => {
+    const id = await newEquipment();
+    const res = await book(id, anaToken, { title: 123, starts_at: '2026-11-24T10:00:00Z', ends_at: '2026-11-24T11:00:00Z' });
+    expect(res.status).toBe(400);
+  });
+
+  it('two simultaneous overlapping bookings: exactly one wins, the other gets 409', async () => {
+    const id = await newEquipment();
+    const [a, b] = await Promise.all([
+      book(id, anaToken,  { title: 'Ana',  starts_at: '2026-11-24T10:00:00Z', ends_at: '2026-11-24T12:00:00Z' }),
+      book(id, betoToken, { title: 'Beto', starts_at: '2026-11-24T11:00:00Z', ends_at: '2026-11-24T13:00:00Z' }),
+    ]);
+    expect([a.status, b.status].sort()).toEqual([201, 409]);
+    const { rows } = await pool.query('SELECT count(*)::int AS n FROM reservations WHERE equipment_id = $1', [id]);
+    expect(rows[0].n).toBe(1);
   });
 
   it('rejects missing or invalid dates', async () => {
