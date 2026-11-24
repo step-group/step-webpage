@@ -59,6 +59,8 @@ export default function EquipmentPage() {
   const [rejectingId, setRejectingId] = useState(null);
   const [rejectNote, setRejectNote] = useState('');
   const [deciding, setDeciding] = useState(null);   // id of the request being approved/rejected right now
+  const [editing, setEditing] = useState(false);     // admins: editing the current equipment's name/location
+  const [editForm, setEditForm] = useState({ name: '', location: '' });
 
   const current = equipment.find(e => String(e.id) === id);
 
@@ -76,7 +78,7 @@ export default function EquipmentPage() {
   useEffect(() => { if (isAdmin) refreshPending(); }, [isAdmin]);
 
   // A notice about a saved booking belongs to the tab it was made on.
-  useEffect(() => { setNotice(''); }, [id]);
+  useEffect(() => { setNotice(''); setEditing(false); }, [id]);
 
   // /app/equipment (or an unknown id) lands on the first tab.
   useEffect(() => {
@@ -174,6 +176,24 @@ export default function EquipmentPage() {
     await api.equipment.update(current.id, { active: false }); // errors surface in the confirm dialog
     setEquipment(list => list.filter(e => e.id !== current.id));
     setConfirmArchive(false);
+  }
+
+  function startEdit() {
+    setEditForm({ name: current.name, location: current.location || '' });
+    setShowAdd(false);
+    setEditing(true);
+  }
+
+  async function saveEdit(e) {
+    e.preventDefault();
+    setError('');
+    try {
+      const updated = await api.equipment.update(current.id, { name: editForm.name, location: editForm.location });
+      setEquipment(list => list.map(x => (x.id === updated.id ? { ...x, ...updated } : x)).sort(byName));
+      setEditing(false);
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   async function restore(item) {
@@ -306,11 +326,24 @@ export default function EquipmentPage() {
                   {[current.location, current.description].filter(Boolean).join(' · ')}
                 </p>
                 {isAdmin && (
-                  <button className={styles.btnDanger} onClick={() => setConfirmArchive(true)}>
-                    Archivar equipo
-                  </button>
+                  <div className={styles.barActions}>
+                    <button className={styles.btnSecondary} onClick={startEdit}>Editar equipo</button>
+                    <button className={styles.btnDanger} onClick={() => setConfirmArchive(true)}>
+                      Archivar equipo
+                    </button>
+                  </div>
                 )}
               </div>
+              {isAdmin && editing && (
+                <form className={styles.addForm} onSubmit={saveEdit}>
+                  <input className={styles.input} placeholder="Nombre" required autoFocus
+                    value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} />
+                  <input className={styles.input} placeholder="Ubicación (opcional)"
+                    value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} />
+                  <button className={styles.btnPrimary} type="submit">Guardar</button>
+                  <button className={styles.btnSecondary} type="button" onClick={() => setEditing(false)}>Cancelar</button>
+                </form>
+              )}
               <div className={styles.calendarWrap}>
                 <Calendar
                   localizer={localizer}

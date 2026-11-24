@@ -72,6 +72,66 @@ describe('Equipment management', () => {
   });
 });
 
+describe('Editing equipment', () => {
+  const edit = (id, token, body) =>
+    request(app).patch(`/api/equipment/${id}`).set(auth(token)).send(body);
+
+  it('admin renames equipment and changes its location, and the list shows it', async () => {
+    const id = await newEquipment('Microondas');
+    const res = await edit(id, adminToken, { name: 'Microondas 2', location: 'Lab Química' });
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ id, name: 'Microondas 2', location: 'Lab Química' });
+
+    const list = await request(app).get('/api/equipment').set(auth(anaToken));
+    expect(list.body.find(e => e.id === id)).toMatchObject({ name: 'Microondas 2', location: 'Lab Química' });
+  });
+
+  it('name and location are trimmed, and editing one leaves the other unchanged', async () => {
+    const id = await newEquipment('Centrífuga');
+    await edit(id, adminToken, { location: 'Lab A' });
+    const res = await edit(id, adminToken, { name: '  Centrífuga 5430  ' });
+    expect(res.status).toBe(200);
+    expect(res.body.name).toBe('Centrífuga 5430');
+    expect(res.body.location).toBe('Lab A');
+  });
+
+  it('location can be cleared with an empty string', async () => {
+    const id = await newEquipment('Balanza');
+    await edit(id, adminToken, { location: 'Lab B' });
+    const res = await edit(id, adminToken, { location: '' });
+    expect(res.status).toBe(200);
+    expect(res.body.location).toBe('');
+  });
+
+  it('an empty or blank name is rejected and nothing changes', async () => {
+    const id = await newEquipment('Estufa');
+    expect((await edit(id, adminToken, { name: '' })).status).toBe(400);
+    expect((await edit(id, adminToken, { name: '   ' })).status).toBe(400);
+    const list = await request(app).get('/api/equipment').set(auth(adminToken));
+    expect(list.body.find(e => e.id === id).name).toBe('Estufa');
+  });
+
+  it('a member cannot rename equipment', async () => {
+    const id = await newEquipment('Vortex 2');
+    const res = await edit(id, anaToken, { name: 'Hackeado' });
+    expect(res.status).toBe(403);
+  });
+
+  it('editing unknown equipment returns 404', async () => {
+    expect((await edit(999999, adminToken, { name: 'Nada' })).status).toBe(404);
+  });
+
+  it('bookings stay with the equipment after it is renamed', async () => {
+    const id = await newEquipment('Autoclave 2');
+    await book(id, anaToken, BLOCK);
+    await edit(id, adminToken, { name: 'Autoclave grande' });
+    const range = await request(app).get(`/api/equipment/${id}/reservations`)
+      .query({ from: '2026-11-24T00:00:00Z', to: '2026-11-27T00:00:00Z' }).set(auth(betoToken));
+    expect(range.body).toHaveLength(1);
+    expect(range.body[0].title).toBe('Digestión');
+  });
+});
+
 describe('Archiving equipment', () => {
   it('admin can list archived equipment, and it is not in the active list', async () => {
     const id = await newEquipment('Autoclave');

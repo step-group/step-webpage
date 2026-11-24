@@ -64,6 +64,7 @@
   margin-bottom: 0.75rem; min-height: 2rem;
 }
 .equipMeta { color: var(--color-text-muted); font-size: 0.8rem; }
+.barActions { display: flex; gap: 0.5rem; }
 
 .headerActions { display: flex; gap: 0.5rem; }
 
