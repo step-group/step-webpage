@@ -43,9 +43,14 @@ function conflictMessage(c) {
 
 // ── EQUIPMENT: LIST ───────────────────────────────────────────────────────────
 router.get('/', requireAuth, async (req, res) => {
+  // ?archived=true lists archived equipment so an admin can restore it.
+  const archived = req.query.archived === 'true';
+  if (archived && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Se requieren permisos de administrador' });
+  }
   try {
     const { rows } = await pool.query(
-      'SELECT id, name, description, location FROM equipment WHERE active ORDER BY name'
+      `SELECT id, name, description, location FROM equipment WHERE ${archived ? 'NOT active' : 'active'} ORDER BY name`
     );
     res.json(rows);
   } catch (err) {

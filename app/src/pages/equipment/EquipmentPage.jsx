@@ -11,6 +11,7 @@ import { api } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import AppLayout from '../../layouts/AppLayout';
 import ReservationModal from './ReservationModal';
+import ConfirmModal from '../../components/ConfirmModal';
 import styles from './Equipment.module.css';
 
 const localizer = dateFnsLocalizer({
@@ -49,6 +50,9 @@ export default function EquipmentPage() {
   const [modal, setModal] = useState(null); // { reservation, start, end }
   const [showAdd, setShowAdd] = useState(false);
   const [newEq, setNewEq] = useState({ name: '', location: '' });
+  const [showArchived, setShowArchived] = useState(false);
+  const [archived, setArchived] = useState([]);
+  const [confirmArchive, setConfirmArchive] = useState(false);
 
   const current = equipment.find(e => String(e.id) === id);
 
@@ -106,6 +110,37 @@ export default function EquipmentPage() {
     return { style: { background: mine ? 'var(--color-primary)' : '#64748b', border: 'none' } };
   }
 
+  const byName = (a, b) => a.name.localeCompare(b.name);
+
+  async function toggleArchived() {
+    if (showArchived) return setShowArchived(false);
+    setError('');
+    try {
+      setArchived(await api.equipment.archived());
+      setShowArchived(true);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  // Archiving hides the equipment from the tabs; its bookings are kept and it can be restored.
+  async function archiveCurrent() {
+    await api.equipment.update(current.id, { active: false }); // errors surface in the confirm dialog
+    setEquipment(list => list.filter(e => e.id !== current.id));
+    setConfirmArchive(false);
+  }
+
+  async function restore(item) {
+    setError('');
+    try {
+      await api.equipment.update(item.id, { active: true });
+      setArchived(list => list.filter(e => e.id !== item.id));
+      setEquipment(list => [...list, item].sort(byName));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function addEquipment(e) {
     e.preventDefault();
     setError('');
@@ -125,11 +160,33 @@ export default function EquipmentPage() {
       <div className={styles.pageHeader}>
         <h2>Equipos</h2>
         {isAdmin && (
-          <button className={styles.btnSecondary} onClick={() => setShowAdd(s => !s)}>
-            {showAdd ? 'Cerrar' : '+ Nuevo equipo'}
-          </button>
+          <div className={styles.headerActions}>
+            <button className={styles.btnSecondary} onClick={toggleArchived}>
+              {showArchived ? 'Cerrar archivadas' : 'Archivadas'}
+            </button>
+            <button className={styles.btnSecondary} onClick={() => setShowAdd(s => !s)}>
+              {showAdd ? 'Cerrar' : '+ Nuevo equipo'}
+            </button>
+          </div>
         )}
       </div>
+
+      {isAdmin && showArchived && (
+        <div className={styles.archivedPanel}>
+          <h3 className={styles.archivedTitle}>Equipos archivados</h3>
+          {archived.length === 0 ? (
+            <p className={styles.muted}>No hay equipos archivados.</p>
+          ) : archived.map(item => (
+            <div key={item.id} className={styles.archivedRow}>
+              <span>
+                <strong>{item.name}</strong>
+                {item.location && <span className={styles.archivedMeta}> · {item.location}</span>}
+              </span>
+              <button className={styles.btnSecondary} onClick={() => restore(item)}>Restaurar</button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {showAdd && (
         <form className={styles.addForm} onSubmit={addEquipment}>
@@ -161,11 +218,16 @@ export default function EquipmentPage() {
 
           {current && (
             <>
-              {(current.location || current.description) && (
+              <div className={styles.equipBar}>
                 <p className={styles.equipMeta}>
                   {[current.location, current.description].filter(Boolean).join(' · ')}
                 </p>
-              )}
+                {isAdmin && (
+                  <button className={styles.btnDanger} onClick={() => setConfirmArchive(true)}>
+                    Archivar equipo
+                  </button>
+                )}
+              </div>
               <div className={styles.calendarWrap}>
                 <Calendar
                   localizer={localizer}
@@ -194,6 +256,16 @@ export default function EquipmentPage() {
             </>
           )}
         </>
+      )}
+
+      {confirmArchive && current && (
+        <ConfirmModal
+          message={`¿Archivar "${current.name}"? Dejará de aparecer en las pestañas y no se podrá reservar. Sus reservas se conservan y puedes restaurarlo desde "Archivadas".`}
+          confirmLabel="Archivar"
+          danger
+          onCancel={() => setConfirmArchive(false)}
+          onConfirm={archiveCurrent}
+        />
       )}
 
       {modal && current && (

@@ -72,6 +72,53 @@ describe('Equipment management', () => {
   });
 });
 
+describe('Archiving equipment', () => {
+  it('admin can list archived equipment, and it is not in the active list', async () => {
+    const id = await newEquipment('Autoclave');
+    await request(app).patch(`/api/equipment/${id}`).set(auth(adminToken)).send({ active: false });
+
+    const archived = await request(app).get('/api/equipment?archived=true').set(auth(adminToken));
+    expect(archived.status).toBe(200);
+    expect(archived.body.map(e => e.id)).toContain(id);
+
+    const active = await request(app).get('/api/equipment').set(auth(adminToken));
+    expect(active.body.map(e => e.id)).not.toContain(id);
+  });
+
+  it('member cannot list archived equipment', async () => {
+    const res = await request(app).get('/api/equipment?archived=true').set(auth(anaToken));
+    expect(res.status).toBe(403);
+  });
+
+  it('member cannot archive equipment', async () => {
+    const id = await newEquipment('Balanza');
+    const res = await request(app).patch(`/api/equipment/${id}`).set(auth(anaToken)).send({ active: false });
+    expect(res.status).toBe(403);
+  });
+
+  it('restoring archived equipment keeps its bookings and allows booking again', async () => {
+    const id = await newEquipment('Vortex');
+    await book(id, anaToken, BLOCK);
+    await request(app).patch(`/api/equipment/${id}`).set(auth(adminToken)).send({ active: false });
+
+    const restore = await request(app).patch(`/api/equipment/${id}`).set(auth(adminToken)).send({ active: true });
+    expect(restore.status).toBe(200);
+
+    const list = await request(app).get('/api/equipment').set(auth(betoToken));
+    expect(list.body.map(e => e.id)).toContain(id);
+
+    const kept = await request(app).get(`/api/equipment/${id}/reservations`)
+      .query({ from: '2026-11-24T00:00:00Z', to: '2026-11-27T00:00:00Z' }).set(auth(betoToken));
+    expect(kept.body).toHaveLength(1);
+    expect(kept.body[0].title).toBe('Digestión');
+
+    const rebook = await book(id, betoToken, {
+      title: 'Después', starts_at: '2026-11-26T10:00:00Z', ends_at: '2026-11-26T11:00:00Z',
+    });
+    expect(rebook.status).toBe(201);
+  });
+});
+
 describe('Reservations', () => {
   it('books a multi-day block (2026-11-24T20:00Z to 2026-11-25T23:00Z)', async () => {
     const id = await newEquipment();

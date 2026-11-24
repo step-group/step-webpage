@@ -149,7 +149,7 @@ async function seedEquipment(adminId) {
   }
   await pool.query(
     `INSERT INTO equipment (name, description, location, created_by) VALUES ($1, $2, $3, $4)`,
-    ['Microondas', 'Microondas del laboratorio', 'Lab STEP', adminId]
+    ['Microondas', 'Microondas', 'Lab STEP', adminId]
   );
   console.log('  Equipment: "Microondas" seeded.');
 }

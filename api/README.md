@@ -49,7 +49,7 @@ Everything is mounted under `/api`, plus a `GET /health` returning `{ status: "o
 | `/api/resources` | inventory — containers, locations, quantities, hazard codes |
 | `/api/datasets` | measurement datasets attached to experiments |
 | `/api/publications` | publication records and Web of Science import |
-| `/api/equipment` | reservable equipment (admin-managed) and its reservations — start/end datetimes, overlaps rejected with 409 |
+| `/api/equipment` | reservable equipment (admin-managed, archive/restore with `PATCH {active}`, `?archived=true` lists archived for admins) and its reservations — start/end datetimes, overlaps rejected with 409 |
 
 Route handlers are one file per prefix in `src/routes/`. `src/middleware/auth.js` verifies the JWT and enforces roles.
 

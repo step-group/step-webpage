@@ -133,6 +133,7 @@ export const api = {
 
   equipment: {
     list:              ()                => request('/equipment'),
+    archived:          ()                => request('/equipment?archived=true'),
     create:            (body)            => request('/equipment',       { method: 'POST',  body: JSON.stringify(body) }),
     update:            (id, body)        => request(`/equipment/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
     reservations:      (id, { from, to }) => request(`/equipment/${id}/reservations?${new URLSearchParams({ from, to })}`),
