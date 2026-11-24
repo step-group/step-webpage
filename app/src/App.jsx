@@ -18,10 +18,14 @@ import PublicationDetail  from './pages/publications/PublicationDetail';
 import PublicationForm    from './pages/publications/PublicationForm';
 import EquipmentPage      from './pages/equipment/EquipmentPage';
 
-function PrivateRoute({ children }) {
+// External users (people from outside the lab) may only open the pages marked allowExternal;
+// anywhere else sends them to the equipment calendar.
+function PrivateRoute({ children, allowExternal = false }) {
   const { user, loading } = useAuth();
   if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Cargando...</div>;
-  return user ? children : <Navigate to="/app/login" replace />;
+  if (!user) return <Navigate to="/app/login" replace />;
+  if (user.role === 'external' && !allowExternal) return <Navigate to="/app/equipment" replace />;
+  return children;
 }
 
 function AdminRoute({ children }) {
@@ -33,6 +37,7 @@ function AdminRoute({ children }) {
 }
 
 function P({ children }) { return <PrivateRoute>{children}</PrivateRoute>; }
+function PE({ children }) { return <PrivateRoute allowExternal>{children}</PrivateRoute>; } // also open to externals
 
 function AppRoutes() {
   return (
@@ -57,15 +62,15 @@ function AppRoutes() {
       <Route path="/app/resources/new"        element={<P><ResourceForm /></P>} />
       <Route path="/app/resources/:id/edit"   element={<P><ResourceForm /></P>} />
 
-      <Route path="/app/profile"              element={<P><Profile /></P>} />
+      <Route path="/app/profile"              element={<PE><Profile /></PE>} />
 
       <Route path="/app/publications"             element={<P><PublicationList /></P>} />
       <Route path="/app/publications/new"         element={<P><PublicationForm /></P>} />
       <Route path="/app/publications/:id"         element={<P><PublicationDetail /></P>} />
       <Route path="/app/publications/:id/edit"    element={<P><PublicationForm /></P>} />
 
-      <Route path="/app/equipment"                element={<P><EquipmentPage /></P>} />
-      <Route path="/app/equipment/:id"            element={<P><EquipmentPage /></P>} />
+      <Route path="/app/equipment"                element={<PE><EquipmentPage /></PE>} />
+      <Route path="/app/equipment/:id"            element={<PE><EquipmentPage /></PE>} />
 
       <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
       <Route path="*"    element={<Navigate to="/app/login" replace />} />

@@ -7,7 +7,7 @@ import styles from './AdminUsers.module.css';
 
 const STATUS_LABEL = { pending: 'Pendiente', approved: 'Aprobado', rejected: 'Rechazado' };
 const STATUS_CLASS  = { pending: 'pending',  approved: 'approved',  rejected: 'rejected' };
-const ROLE_LABEL    = { member: 'miembro', admin: 'administrador' };
+const ROLE_LABEL    = { member: 'miembro', admin: 'administrador', external: 'externo (solo calendario de equipos)' };
 
 export default function AdminUsers() {
   const [users, setUsers]         = useState([]);
@@ -85,6 +85,7 @@ export default function AdminUsers() {
                     >
                       <option value="member">Miembro</option>
                       <option value="admin">Admin</option>
+                      <option value="external">Externo</option>
                     </select>
                   </td>
                   <td className={styles.actions}>

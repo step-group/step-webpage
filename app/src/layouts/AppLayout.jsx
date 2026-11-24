@@ -34,6 +34,10 @@ export default function AppLayout({ children }) {
     }
   }, [user]);
 
+  // People from outside the lab only get the equipment calendar.
+  const isExternal = user?.role === 'external';
+  const navItems = isExternal ? NAV.filter(item => item.to === '/app/equipment') : NAV;
+
   function isActive(to) {
     if (to === '/app/dashboard') return location.pathname === to;
     return location.pathname.startsWith(to);
@@ -55,7 +59,7 @@ export default function AppLayout({ children }) {
         <div className={styles.navSection}>
           <span className={styles.navLabel}>Navegación</span>
           <nav className={styles.nav}>
-            {NAV.map(({ to, label, Icon }) => (
+            {navItems.map(({ to, label, Icon }) => (
               <Link
                 key={to}
                 to={to}
@@ -88,7 +92,7 @@ export default function AppLayout({ children }) {
           <Initials name={user?.name} />
           <div className={styles.userInfo}>
             <span className={styles.userName}>{user?.name}</span>
-            <span className={styles.userRole}>{user?.role === 'admin' ? 'Administrador' : 'Miembro'}</span>
+            <span className={styles.userRole}>{user?.role === 'admin' ? 'Administrador' : isExternal ? 'Externo' : 'Miembro'}</span>
           </div>
           <Link to="/app/profile" className={styles.iconBtn} title="Perfil">
             <Settings size={14} strokeWidth={2} />
