@@ -20,8 +20,9 @@ app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-// External users (outside the lab) may only use login/profile and the equipment calendar.
-app.use('/api', restrictExternals(['/auth', '/equipment']));
+// External users (outside the lab) may only log in, read/update their own profile and use the
+// equipment calendar. /auth/activity (experiments, datasets, publications) stays closed to them.
+app.use('/api', restrictExternals(['/auth/login', '/auth/register', '/auth/me', '/auth/profile', '/equipment']));
 
 app.use('/api/auth',         authRoutes);
 app.use('/api/admin',        adminRoutes);

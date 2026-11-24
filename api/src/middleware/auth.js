@@ -1,18 +1,32 @@
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
 
-function requireAuth(req, res, next) {
+// Verifies the token, then loads the user's CURRENT role from the database (one primary-key
+// lookup). The database is the source of truth, so a promotion, a demotion or a deleted account
+// takes effect immediately instead of when the 7-day token expires.
+async function requireAuth(req, res, next) {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'No autorizado' });
   }
 
+  let payload;
   try {
-    const token = header.slice(7);
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
-    next();
+    payload = jwt.verify(header.slice(7), process.env.JWT_SECRET);
   } catch {
-    res.status(401).json({ error: 'Token inválido o expirado' });
+    return res.status(401).json({ error: 'Token inválido o expirado' });
+  }
+  if (!Number.isInteger(payload.id)) {
+    return res.status(401).json({ error: 'Token inválido o expirado' });
+  }
+
+  try {
+    const { rows } = await pool.query('SELECT role FROM users WHERE id = $1', [payload.id]);
+    if (!rows[0]) return res.status(401).json({ error: 'La cuenta ya no existe' });
+    req.user = { ...payload, role: rows[0].role };
+    next();
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -30,7 +44,7 @@ function requireAdmin(req, res, next) {
 // Everything else is refused, including routes added in the future.
 // The role is read from the database, not the token, so a user demoted to external loses access
 // immediately even if they still hold an older token. Requests without a valid token pass through
-// so each route can return its own 401.
+// so each route's own requireAuth can return the 401 (which also covers deleted accounts).
 function restrictExternals(allowedPrefixes) {
   return async (req, res, next) => {
     const header = req.headers.authorization;

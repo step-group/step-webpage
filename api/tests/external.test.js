@@ -117,3 +117,66 @@ describe('External users', () => {
     expect(byTitle(seenByMember, 'De Marta').notes).toBe('secreto');
   });
 });
+
+describe('External users: stale tokens and edge cases', () => {
+  const setRole = (id, role) =>
+    request(app).patch(`/api/admin/users/${id}/role`).set(as(adminToken)).send({ role });
+  const range = (token) => request(app).get(`/api/equipment/${equipId}/reservations`)
+    .query({ from: '2026-12-20T00:00:00Z', to: '2026-12-21T00:00:00Z' }).set(as(token));
+
+  it("a deleted user's old token is rejected with 401, even an external's", async () => {
+    const gone = await createUser({ email: 'xgone@test.com', name: 'Borrada', role: 'external' });
+    const oldToken = getToken(gone);
+    await pool.query('DELETE FROM users WHERE id = $1', [gone.id]);
+    for (const path of ['/api/resources', '/api/equipment']) {
+      const res = await request(app).get(path).set(as(oldToken));
+      expect([path, res.status]).toEqual([path, 401]);
+    }
+  });
+
+  it('a member demoted to external stops seeing other people\'s notes immediately', async () => {
+    await request(app).post(`/api/equipment/${equipId}/reservations`).set(as(adminToken))
+      .send({ title: 'Reservada', notes: 'confidencial', starts_at: '2026-12-20T10:00:00Z', ends_at: '2026-12-20T11:00:00Z' });
+    const demoted = await createUser({ email: 'xdemoted2@test.com', name: 'Bajada' });
+    const oldToken = getToken(demoted); // issued while still a member
+    expect((await range(oldToken)).body[0].notes).toBe('confidencial');
+
+    expect((await setRole(demoted.id, 'external')).status).toBe(200);
+    const after = await range(oldToken);
+    expect(after.status).toBe(200);
+    expect(after.body[0].notes).toBe('');
+  });
+
+  it('an admin demoted to external loses admin powers on the calendar immediately', async () => {
+    const admin2 = await createUser({ email: 'xadmin2@test.com', name: 'Admin2', role: 'admin' });
+    const oldToken = getToken(admin2);
+    expect((await request(app).get('/api/equipment/reservations/pending').set(as(oldToken))).status).toBe(200);
+
+    expect((await setRole(admin2.id, 'external')).status).toBe(200);
+    expect((await request(app).get('/api/equipment/reservations/pending').set(as(oldToken))).status).toBe(403);
+    expect((await request(app).post('/api/equipment').set(as(oldToken)).send({ name: 'Intruso' })).status).toBe(403);
+  });
+
+  it('a user promoted from external works as a member immediately', async () => {
+    const promoted = await createUser({ email: 'xpromoted@test.com', name: 'Subida', role: 'external' });
+    const oldToken = getToken(promoted); // issued while external
+    expect((await request(app).get('/api/resources').set(as(oldToken))).status).toBe(403);
+
+    expect((await setRole(promoted.id, 'member')).status).toBe(200);
+    expect((await request(app).get('/api/resources').set(as(oldToken))).status).toBe(200);
+    expect((await range(oldToken)).body[0].notes).toBe('confidencial');
+  });
+
+  it('external cannot read the activity feed', async () => {
+    const res = await request(app).get('/api/auth/activity').set(as(externalToken));
+    expect(res.status).toBe(403);
+  });
+
+  it('casing, double slashes and write methods on blocked prefixes are refused', async () => {
+    const get = async (p) => (await request(app).get(p).set(as(externalToken))).status;
+    expect(await get('/api/Resources')).toBe(403);
+    expect(await get('/api//resources')).toBe(403);
+    expect((await request(app).post('/api/resources').set(as(externalToken)).send({ name: 'x' })).status).toBe(403);
+    expect((await request(app).delete('/api/experiments/1').set(as(externalToken))).status).toBe(403);
+  });
+});

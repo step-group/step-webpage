@@ -28,7 +28,7 @@ People from outside the lab use instruments in the group's three spaces and need
 - In the range query, `notes` is blanked unless the viewer is the booking's owner or is not external.
 - `PATCH /api/admin/users/:id/role` accepts `external`. The Usuarios role selector gets an "Externo" option and the confirmation text a label for it.
 - Front end: an external user's menu shows only Equipos; every page other than Equipos and Perfil redirects an external to `/app/equipment` (this includes `/app/dashboard`, where login lands).
-- Known limitation: a member promoted from Externo keeps the old token's role until they log in again (the safe direction: they just see fewer notes), and admin checks inside routes still use the token's role as before.
+- **Revised after review:** `requireAuth` itself now loads the user's current role from the database on every authenticated request and puts it in `req.user.role`. So promotions, demotions (including admin to external) and deleted accounts (401) take effect immediately everywhere, and the notes filter and admin checks no longer trust the role inside an old token. The whitelist for `/auth` is exact paths (`/auth/login`, `/auth/register`, `/auth/me`, `/auth/profile`), so `/auth/activity` stays closed to externals.
 
 ## Approaches considered
 

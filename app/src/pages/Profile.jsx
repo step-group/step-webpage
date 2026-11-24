@@ -60,8 +60,10 @@ export default function Profile() {
 
   const [activity, setActivity] = useState(null);
   useEffect(() => {
+    // External users (outside the lab) have no experiments, datasets or publications to list.
+    if (user?.role === 'external') return;
     api.auth.activity().then(setActivity).catch(() => {});
-  }, []);
+  }, [user?.role]);
 
   async function saveName(e) {
     e.preventDefault();
