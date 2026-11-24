@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, FlaskConical, FileText, Package, BookOpen, Users, LogOut, Settings } from 'lucide-react';
+import { Home, FlaskConical, FileText, Package, BookOpen, CalendarDays, Users, LogOut, Settings } from 'lucide-react';
 import { api } from '../api/client';
 import styles from './AppLayout.module.css';
 
@@ -11,6 +11,7 @@ const NAV = [
   { to: '/app/templates',   label: 'Plantillas',    Icon: FileText },
   { to: '/app/resources',     label: 'Inventario',    Icon: Package },
   { to: '/app/publications',  label: 'Publicaciones', Icon: BookOpen },
+  { to: '/app/equipment',     label: 'Equipos',       Icon: CalendarDays },
 ];
 
 function Initials({ name }) {

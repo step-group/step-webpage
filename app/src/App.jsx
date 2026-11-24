@@ -16,6 +16,7 @@ import UserActivity        from './pages/UserActivity';
 import PublicationList    from './pages/publications/PublicationList';
 import PublicationDetail  from './pages/publications/PublicationDetail';
 import PublicationForm    from './pages/publications/PublicationForm';
+import EquipmentPage      from './pages/equipment/EquipmentPage';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -62,6 +63,9 @@ function AppRoutes() {
       <Route path="/app/publications/new"         element={<P><PublicationForm /></P>} />
       <Route path="/app/publications/:id"         element={<P><PublicationDetail /></P>} />
       <Route path="/app/publications/:id/edit"    element={<P><PublicationForm /></P>} />
+
+      <Route path="/app/equipment"                element={<P><EquipmentPage /></P>} />
+      <Route path="/app/equipment/:id"            element={<P><EquipmentPage /></P>} />
 
       <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
       <Route path="*"    element={<Navigate to="/app/login" replace />} />

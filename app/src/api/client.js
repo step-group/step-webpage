@@ -131,6 +131,16 @@ export const api = {
     delete: (id)       => requestEmpty(`/resources/locations/${id}`, { method: 'DELETE' }),
   },
 
+  equipment: {
+    list:              ()                => request('/equipment'),
+    create:            (body)            => request('/equipment',       { method: 'POST',  body: JSON.stringify(body) }),
+    update:            (id, body)        => request(`/equipment/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    reservations:      (id, { from, to }) => request(`/equipment/${id}/reservations?${new URLSearchParams({ from, to })}`),
+    reserve:           (id, body)        => request(`/equipment/${id}/reservations`, { method: 'POST', body: JSON.stringify(body) }),
+    updateReservation: (rid, body)       => request(`/equipment/reservations/${rid}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    deleteReservation: (rid)             => requestEmpty(`/equipment/reservations/${rid}`, { method: 'DELETE' }),
+  },
+
   publications: {
     list:              (params = {}) => request(`/publications?${new URLSearchParams(params)}`),
     get:               (id)          => request(`/publications/${id}`),
