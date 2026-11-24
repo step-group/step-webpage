@@ -53,6 +53,11 @@ export default function EquipmentPage() {
   const [showArchived, setShowArchived] = useState(false);
   const [archived, setArchived] = useState([]);
   const [confirmArchive, setConfirmArchive] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [pending, setPending] = useState([]);       // admins: requests waiting for a decision
+  const [showPending, setShowPending] = useState(false);
+  const [rejectingId, setRejectingId] = useState(null);
+  const [rejectNote, setRejectNote] = useState('');
 
   const current = equipment.find(e => String(e.id) === id);
 
@@ -62,6 +67,15 @@ export default function EquipmentPage() {
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  function refreshPending() {
+    return api.equipment.pending().then(setPending).catch(err => setError(err.message));
+  }
+
+  useEffect(() => { if (isAdmin) refreshPending(); }, [isAdmin]);
+
+  // A notice about a saved booking belongs to the tab it was made on.
+  useEffect(() => { setNotice(''); }, [id]);
 
   // /app/equipment (or an unknown id) lands on the first tab.
   useEffect(() => {
@@ -90,7 +104,7 @@ export default function EquipmentPage() {
 
   const events = useMemo(() => reservations.map(r => ({
     id: r.id,
-    title: `${r.title} — ${r.user_name}`,
+    title: `${r.title} — ${r.user_name}${r.status === 'pending' ? ' (pendiente)' : ''}`,
     start: new Date(r.starts_at),
     end: new Date(r.ends_at),
     resource: r,
@@ -106,8 +120,25 @@ export default function EquipmentPage() {
   }
 
   function eventStyle(event) {
+    if (event.resource.status === 'pending') {
+      return { style: { background: '#b45309', border: 'none' } }; // amber: waiting for an admin
+    }
     const mine = event.resource.user_id === user?.id;
     return { style: { background: mine ? 'var(--color-primary)' : '#64748b', border: 'none' } };
+  }
+
+  async function decide(item, action) {
+    setError('');
+    try {
+      if (action === 'approve') await api.equipment.approve(item.id);
+      else await api.equipment.reject(item.id, rejectNote);
+      setRejectingId(null);
+      setRejectNote('');
+      await refreshPending();
+      setReloadKey(k => k + 1);
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   const byName = (a, b) => a.name.localeCompare(b.name);
@@ -161,6 +192,9 @@ export default function EquipmentPage() {
         <h2>Equipos</h2>
         {isAdmin && (
           <div className={styles.headerActions}>
+            <button className={styles.btnSecondary} onClick={() => setShowPending(s => !s)}>
+              {showPending ? 'Cerrar pendientes' : `Pendientes (${pending.length})`}
+            </button>
             <button className={styles.btnSecondary} onClick={toggleArchived}>
               {showArchived ? 'Cerrar archivadas' : 'Archivadas'}
             </button>
@@ -170,6 +204,39 @@ export default function EquipmentPage() {
           </div>
         )}
       </div>
+
+      {isAdmin && showPending && (
+        <div className={styles.archivedPanel}>
+          <h3 className={styles.archivedTitle}>Solicitudes pendientes de aprobación</h3>
+          {pending.length === 0 ? (
+            <p className={styles.muted}>No hay solicitudes pendientes.</p>
+          ) : pending.map(item => (
+            <div key={item.id} className={styles.pendingRow}>
+              <div>
+                <strong>{item.equipment_name}</strong> · {item.title}
+                <div className={styles.archivedMeta}>
+                  {item.user_name} · {format(new Date(item.starts_at), 'dd/MM/yyyy HH:mm')} → {format(new Date(item.ends_at), 'dd/MM/yyyy HH:mm')}
+                </div>
+                {item.notes && <div className={styles.archivedMeta}>{item.notes}</div>}
+                {rejectingId === item.id && (
+                  <div className={styles.rejectBox}>
+                    <input className={styles.input} placeholder="Motivo (opcional)" value={rejectNote}
+                      onChange={e => setRejectNote(e.target.value)} />
+                    <button className={styles.btnDanger} onClick={() => decide(item, 'reject')}>Confirmar rechazo</button>
+                    <button className={styles.btnSecondary} onClick={() => { setRejectingId(null); setRejectNote(''); }}>Cancelar</button>
+                  </div>
+                )}
+              </div>
+              {rejectingId !== item.id && (
+                <div className={styles.rowActions}>
+                  <button className={styles.btnPrimary} onClick={() => decide(item, 'approve')}>Aprobar</button>
+                  <button className={styles.btnDanger} onClick={() => { setRejectingId(item.id); setRejectNote(''); }}>Rechazar</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {isAdmin && showArchived && (
         <div className={styles.archivedPanel}>
@@ -199,6 +266,7 @@ export default function EquipmentPage() {
       )}
 
       {error && <p className={styles.error}>{error}</p>}
+      {notice && <p className={styles.notice}>{notice}</p>}
 
       {loading ? (
         <p className={styles.muted}>Cargando...</p>
@@ -251,6 +319,7 @@ export default function EquipmentPage() {
               <p className={styles.legend}>
                 <span className={`${styles.dot} ${styles.dotMine}`} /> Tus reservas
                 <span className={`${styles.dot} ${styles.dotOthers}`} /> Reservas de otros
+                <span className={`${styles.dot} ${styles.dotPending}`} /> Pendientes de aprobación
                 · Arrastra sobre el calendario para reservar.
               </p>
             </>
@@ -275,7 +344,14 @@ export default function EquipmentPage() {
           initialStart={modal.start}
           initialEnd={modal.end}
           onClose={() => setModal(null)}
-          onChanged={() => { setModal(null); setReloadKey(k => k + 1); }}
+          onChanged={(saved) => {
+            setModal(null);
+            setReloadKey(k => k + 1);
+            if (isAdmin) refreshPending();
+            setNotice(saved?.status === 'pending'
+              ? 'Tu reserva dura más de 2 días y quedó pendiente de aprobación de un administrador. Avísales por WhatsApp.'
+              : '');
+          }}
         />
       )}
     </AppLayout>

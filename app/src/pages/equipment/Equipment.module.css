@@ -76,7 +76,26 @@
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   padding: 0.45rem 0; border-top: 1px solid var(--color-border); font-size: 0.875rem;
 }
-.archivedMeta { color: var(--color-text-muted); }
+.archivedMeta { color: var(--color-text-muted); font-size: 0.8rem; }
+
+/* Pending approval */
+.pendingRow {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+  padding: 0.6rem 0; border-top: 1px solid var(--color-border); font-size: 0.875rem;
+}
+.rowActions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+.rejectBox { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.rejectBox .input { flex: 1; min-width: 180px; }
+.notice {
+  background: #fffbeb; border: 1px solid #fcd34d; color: #92400e;
+  border-radius: var(--radius); padding: 0.6rem 0.85rem; font-size: 0.85rem; margin: 0.5rem 0 0.75rem;
+}
+.pendingBanner {
+  background: #fffbeb; border: 1px solid #fcd34d; color: #92400e;
+  border-radius: var(--radius); padding: 0.5rem 0.75rem; font-size: 0.82rem; font-weight: 600;
+}
+.pendingHint { color: #92400e; font-size: 0.8rem; }
+.dotPending { background: #b45309; }
 
 .calendarWrap {
   height: 72vh; min-height: 520px;

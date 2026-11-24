@@ -140,6 +140,9 @@ export const api = {
     reserve:           (id, body)        => request(`/equipment/${id}/reservations`, { method: 'POST', body: JSON.stringify(body) }),
     updateReservation: (rid, body)       => request(`/equipment/reservations/${rid}`, { method: 'PATCH', body: JSON.stringify(body) }),
     deleteReservation: (rid)             => requestEmpty(`/equipment/reservations/${rid}`, { method: 'DELETE' }),
+    pending:           ()                => request('/equipment/reservations/pending'),
+    approve:           (rid)             => request(`/equipment/reservations/${rid}/approve`, { method: 'POST', body: JSON.stringify({}) }),
+    reject:            (rid, note)       => request(`/equipment/reservations/${rid}/reject`,  { method: 'POST', body: JSON.stringify({ note }) }),
   },
 
   publications: {

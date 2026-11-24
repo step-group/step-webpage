@@ -20,6 +20,10 @@ export default function ReservationModal({ equipment, reservation, initialStart,
   const [error, setError]   = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  // Mirrors the API rule: a member's booking longer than 2 days waits for an admin.
+  const hours = (new Date(end) - new Date(start)) / 3600000;
+  const needsApproval = user?.role !== 'admin' && hours > 48;
+
   useEffect(() => {
     function onKey(e) { if (e.key === 'Escape' && !confirmDelete) onClose(); }
     window.addEventListener('keydown', onKey);
@@ -37,9 +41,10 @@ export default function ReservationModal({ equipment, reservation, initialStart,
     const body = { title, notes, starts_at: starts.toISOString(), ends_at: ends.toISOString() };
     setSaving(true);
     try {
-      if (isNew) await api.equipment.reserve(equipment.id, body);
-      else await api.equipment.updateReservation(reservation.id, body);
-      onChanged();
+      const saved = isNew
+        ? await api.equipment.reserve(equipment.id, body)
+        : await api.equipment.updateReservation(reservation.id, body);
+      onChanged(saved); // the page tells the member if the booking came back pending
     } catch (err) {
       setError(err.message); // includes the "ya está reservado por ..." message on conflicts
       setSaving(false);
@@ -64,6 +69,10 @@ export default function ReservationModal({ equipment, reservation, initialStart,
         </div>
 
         <div className={styles.modalBody}>
+          {reservation?.status === 'pending' && (
+            <p className={styles.pendingBanner}>Pendiente de aprobación de un administrador</p>
+          )}
+
           <label className={styles.field}>
             <span>Título</span>
             <input className={styles.input} value={title} onChange={e => setTitle(e.target.value)}
@@ -88,6 +97,10 @@ export default function ReservationModal({ equipment, reservation, initialStart,
             <textarea className={styles.input} rows={3} value={notes}
               onChange={e => setNotes(e.target.value)} disabled={!canEdit} />
           </label>
+
+          {canEdit && needsApproval && (
+            <p className={styles.pendingHint}>Más de 2 días: necesitará aprobación de un administrador.</p>
+          )}
 
           {error && <p className={styles.error}>{error}</p>}
         </div>
